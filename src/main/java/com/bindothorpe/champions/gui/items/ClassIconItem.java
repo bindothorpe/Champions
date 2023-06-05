@@ -1,6 +1,6 @@
 package com.bindothorpe.champions.gui.items;
 
-import com.bindothorpe.champions.domain.ClassType;
+import com.bindothorpe.champions.domain.build.ClassType;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -8,7 +8,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 public class ClassIconItem extends GuiItem {
     public ClassIconItem(ClassType classType) {

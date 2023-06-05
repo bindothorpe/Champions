@@ -1,15 +1,13 @@
 package com.bindothorpe.champions.gui;
 
-import com.bindothorpe.champions.domain.ClassType;
+import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.gui.items.BorderItem;
 import com.bindothorpe.champions.gui.items.ClassIconItem;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class TestGui {
 
