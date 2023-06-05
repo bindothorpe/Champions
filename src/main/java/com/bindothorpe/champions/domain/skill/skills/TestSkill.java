@@ -1,9 +1,9 @@
-package com.bindothorpe.champions.domain.skills;
+package com.bindothorpe.champions.domain.skill.skills;
 
 import com.bindothorpe.champions.domain.ClassType;
-import com.bindothorpe.champions.domain.Skill;
-import com.bindothorpe.champions.domain.SkillId;
-import com.bindothorpe.champions.domain.SkillType;
+import com.bindothorpe.champions.domain.skill.Skill;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.skill.SkillType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
