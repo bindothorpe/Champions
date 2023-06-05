@@ -1,6 +1,6 @@
 package com.bindothorpe.champions.domain.player;
 
-import com.bindothorpe.champions.domain.ClassType;
+import com.bindothorpe.champions.domain.build.ClassType;
 
 import java.util.*;
 

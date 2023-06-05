@@ -1,6 +1,6 @@
 package com.bindothorpe.champions.domain.skill;
 
-import com.bindothorpe.champions.domain.ClassType;
+import com.bindothorpe.champions.domain.build.ClassType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;

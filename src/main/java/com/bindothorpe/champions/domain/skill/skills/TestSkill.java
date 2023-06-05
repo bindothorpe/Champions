@@ -1,6 +1,6 @@
 package com.bindothorpe.champions.domain.skill.skills;
 
-import com.bindothorpe.champions.domain.ClassType;
+import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
