@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain;
+package com.bindothorpe.champions.domain.skill;
 
 public enum SkillType {
 

@@ -1,6 +1,6 @@
 package com.bindothorpe.champions;
 
-import com.bindothorpe.champions.domain.skills.TestSkill;
+import com.bindothorpe.champions.domain.skill.skills.TestSkill;
 
 public class InitDataConfig {
 

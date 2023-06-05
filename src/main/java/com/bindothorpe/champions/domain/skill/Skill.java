@@ -1,5 +1,6 @@
-package com.bindothorpe.champions.domain;
+package com.bindothorpe.champions.domain.skill;
 
+import com.bindothorpe.champions.domain.ClassType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -12,23 +13,31 @@ import java.util.UUID;
 public abstract class Skill implements Listener {
 
     private Map<UUID, Integer> users;
+    private Map<UUID, Long> cooldownMap;
 
     private SkillId id;
     private SkillType skillType;
     private ClassType classType;
     private String name;
     private List<String> description;
+    private List<Double> cooldownDuration;
     private int maxLevel;
+    private int levelUpCost;
 
-    public Skill(SkillId id, SkillType skillType, ClassType classType, String name, List<String> description, int maxLevel) {
+
+    public Skill(SkillId id, SkillType skillType, ClassType classType, String name, List<String> description, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
         this.id = id;
         this.skillType = skillType;
         this.classType = classType;
         this.name = name;
         this.description = description;
+        this.cooldownDuration = cooldownDuration;
         this.maxLevel = maxLevel;
+        this.levelUpCost = levelUpCost;
         this.users = new HashMap<>();
+        this.cooldownMap = new HashMap<>();
     }
+
 
     public SkillId getId() {
         return id;
@@ -42,7 +51,32 @@ public abstract class Skill implements Listener {
         users.remove(uuid);
     }
 
-    public final void activate(UUID uuid) {
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getDescription() {
+        return description;
+    }
+
+    public List<Double> getCooldownDuration() {
+        return cooldownDuration;
+    }
+
+    public int getMaxLevel() {
+        return maxLevel;
+    }
+
+    public int getLevelUpCost() {
+        return levelUpCost;
+    }
+
+    private void startCooldown(UUID uuid) {
+        cooldownMap.put(uuid, System.currentTimeMillis());
+    }
+
+
+    protected final void activate(UUID uuid) {
         if(!canUse(uuid))
             return;
 
@@ -55,22 +89,20 @@ public abstract class Skill implements Listener {
         if(!users.containsKey(uuid))
             return false;
 
-        /*
-        if(isOnCooldown(UUID uuid)) {
-            print(cooldown remaining)
-            return false;
-        }
-         */
+//
+//        if(isOnCooldown(UUID uuid)) {
+//            print(cooldown remaining)
+//            return false;
+//        }
+
 
         return canUseHook(uuid);
-    }
-
-    protected final boolean isUser(UUID uuid) {
-        return users.containsKey(uuid);
     }
 
     protected boolean canUseHook(UUID uuid) {
         return true;
     }
+
+
 
 }
