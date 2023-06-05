@@ -1,0 +1,7 @@
+name: Champions
+version: '${project.version}'
+main: com.bindothorpe.champions.ChampionsPlugin
+api-version: 1.19
+commands:
+  build:
+    usage: /build

@@ -1,0 +1,7 @@
+name: Champions
+version: '1.0-SNAPSHOT'
+main: com.bindothorpe.champions.ChampionsPlugin
+api-version: 1.19
+commands:
+  build:
+    usage: /build

@@ -1,0 +1,17 @@
+com/bindothorpe/champions/domain/SkillId.class
+com/bindothorpe/champions/gui/TestGui.class
+com/bindothorpe/champions/InitDataConfig.class
+com/bindothorpe/champions/domain/skills/TestSkill.class
+com/bindothorpe/champions/DomainController.class
+com/bindothorpe/champions/domain/Skill.class
+com/bindothorpe/champions/domain/Build.class
+com/bindothorpe/champions/domain/PlayerData.class
+com/bindothorpe/champions/gui/items/BorderItem.class
+com/bindothorpe/champions/domain/SkillManager.class
+com/bindothorpe/champions/domain/ClassType.class
+com/bindothorpe/champions/domain/SkillType.class
+com/bindothorpe/champions/domain/BuildManager.class
+com/bindothorpe/champions/gui/items/ClassIconItem$1.class
+com/bindothorpe/champions/ChampionsPlugin.class
+com/bindothorpe/champions/gui/items/ClassIconItem.class
+com/bindothorpe/champions/commands/BuildCommand.class
