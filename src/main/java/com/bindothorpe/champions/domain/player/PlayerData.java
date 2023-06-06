@@ -60,4 +60,12 @@ public class PlayerData {
 
         return false;
     }
+
+    public int getBuildCountByClassType(ClassType classType) {
+        return buildIds.get(classType).size();
+    }
+
+    public int getMaxBuilds() {
+        return 7;
+    }
 }

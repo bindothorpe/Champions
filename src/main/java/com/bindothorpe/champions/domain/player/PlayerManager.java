@@ -66,4 +66,18 @@ public class PlayerManager {
     private void createPlayerDataForPlayer(UUID uuid) {
         playerDataMap.put(uuid, new PlayerData(uuid, null));
     }
+
+    public int getBuildCountByClassTypeForPlayer(ClassType classType, UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getBuildCountByClassType(classType);
+    }
+
+    public int getMaxBuildsForPlayer(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getMaxBuilds();
+    }
 }

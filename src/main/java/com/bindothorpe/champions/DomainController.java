@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.gui.GuiManager;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class DomainController {
     private final SkillManager skillManager = SkillManager.getInstance(this);
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
     private final BuildManager buildManager = BuildManager.getInstance(this);
+    private final GuiManager guiManager = GuiManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -120,5 +122,21 @@ public class DomainController {
 
     public SkillType getSkillType(SkillId skillId) {
         return skillManager.getSkillType(skillId);
+    }
+
+    public void openBuildsOverviewGui(UUID uuid, ClassType classType) {
+        guiManager.openBuildsOverviewGui(uuid, classType);
+    }
+
+    public void openClassOverviewGui(UUID uuid) {
+        guiManager.openClassOverviewGui(uuid);
+    }
+
+    public int getBuildCountByClassTypeForPlayer(ClassType classType, UUID uuid) {
+        return playerManager.getBuildCountByClassTypeForPlayer(classType, uuid);
+    }
+
+    public int getMaxBuildsForPlayer(UUID uuid) {
+        return playerManager.getMaxBuildsForPlayer(uuid);
     }
 }

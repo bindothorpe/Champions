@@ -11,7 +11,7 @@ public final class ChampionsPlugin extends JavaPlugin {
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
 
-        getCommand("build").setExecutor(new BuildCommand());
+        getCommand("build").setExecutor(new BuildCommand(dc));
 
     }
 
