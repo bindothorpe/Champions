@@ -5,10 +5,7 @@ import com.bindothorpe.champions.domain.player.PlayerData;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import org.bukkit.Bukkit;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class SkillManager {
 
@@ -76,4 +73,7 @@ public class SkillManager {
     }
 
 
+    public List<SkillType> getSkillTypes() {
+        return Arrays.asList(SkillType.SWORD, SkillType.AXE, SkillType.BOW, SkillType.PASSIVE_A, SkillType.PASSIVE_B, SkillType.PASSIVE_C);
+    }
 }

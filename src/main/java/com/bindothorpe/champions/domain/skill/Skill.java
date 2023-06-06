@@ -81,7 +81,15 @@ public abstract class Skill implements Listener {
             return;
 
         Player player = Bukkit.getPlayer(uuid);
-        player.sendMessage(String.format("You used %s level %d", this.name, this.users.get(uuid)));
+        String message = getActivateMessage(uuid);
+        if(message != null) {
+            player.sendMessage(message);
+        }
+        startCooldown(uuid);
+    }
+
+    protected String getActivateMessage(UUID uuid) {
+        return String.format("You used %s level %d", this.name, this.users.get(uuid));
     }
 
     private final boolean canUse(UUID uuid) {
@@ -103,6 +111,9 @@ public abstract class Skill implements Listener {
         return true;
     }
 
+    protected boolean isUser(UUID uuid) {
+        return users.containsKey(uuid);
+    }
 
 
 }

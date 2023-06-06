@@ -13,6 +13,9 @@ public class BuildManager {
 
     private BuildManager(DomainController dc) {
         this.dc = dc;
+
+        //TODO: normaly we would load the data from a database, but for now we just create some dummy data
+        buildMap = new HashMap<>();
     }
 
     public static BuildManager getInstance(DomainController dc) {

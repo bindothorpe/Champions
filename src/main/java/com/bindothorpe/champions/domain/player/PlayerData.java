@@ -60,4 +60,8 @@ public class PlayerData {
 
         return false;
     }
+
+    public int getBuildCount(ClassType classType) {
+        return buildIds.get(classType).size();
+    }
 }

@@ -7,6 +7,8 @@ import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
+import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.gui.GuiManager;
 
 import java.util.*;
 
@@ -16,6 +18,7 @@ public class DomainController {
     private final SkillManager skillManager = SkillManager.getInstance(this);
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
     private final BuildManager buildManager = BuildManager.getInstance(this);
+    private final GuiManager guiManager = GuiManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -43,6 +46,10 @@ public class DomainController {
 
     public boolean removeBuildIdFromPlayer(UUID uuid, String buildId) {
         return playerManager.removeBuildIdFromPlayer(uuid, buildId);
+    }
+
+    public int getBuildCountFromPlayer(UUID uuid, ClassType classType) {
+        return playerManager.getBuildCountFromPlayer(uuid, classType);
     }
 
     public void equipSkillForUser(UUID uuid, SkillId skillId, int level) {
@@ -109,4 +116,15 @@ public class DomainController {
         buildManager.unequipBuildForPlayer(uuid);
     }
 
+    public void openBuildsOverviewGui(UUID uuid) {
+        guiManager.openBuildsOverviewGui(uuid);
+    }
+
+    public void openEditBuildGui(UUID uuid, String buildId) {
+        guiManager.openEditBuildGui(uuid, buildId);
+    }
+
+    public List<SkillType> getSkillTypes() {
+        return skillManager.getSkillTypes();
+    }
 }

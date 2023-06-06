@@ -1,7 +1,6 @@
 package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.gui.TestGui;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,6 +11,9 @@ public class BuildCommand implements CommandExecutor {
 
     private DomainController dc;
 
+    public BuildCommand(DomainController dc) {
+        this.dc = dc;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -20,9 +22,7 @@ public class BuildCommand implements CommandExecutor {
             return true;
         }
 
-        TestGui gui = new TestGui();
-        gui.showGui((Player) commandSender);
-
+        dc.openBuildsOverviewGui(((Player) commandSender).getUniqueId());
         return true;
     }
 }

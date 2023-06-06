@@ -63,6 +63,13 @@ public class PlayerManager {
         return playerDataMap.get(uuid).removeBuildId(buildId);
     }
 
+    public int getBuildCountFromPlayer(UUID uuid, ClassType classType) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getBuildCount(classType);
+    }
+
     private void createPlayerDataForPlayer(UUID uuid) {
         playerDataMap.put(uuid, new PlayerData(uuid, null));
     }
