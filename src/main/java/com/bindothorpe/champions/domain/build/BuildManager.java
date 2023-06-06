@@ -132,4 +132,5 @@ public class BuildManager {
     public int getSkillLevelFromBuild(String buildId, SkillType skillType) {
         return buildMap.get(buildId).getSkillLevel(skillType);
     }
+
 }

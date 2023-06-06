@@ -31,11 +31,11 @@ public class TestGui {
         }
 
 
-        pane1.addItem(new ClassIconItem(ClassType.ASSASSIN), 0, 1);
-        pane1.addItem(new ClassIconItem(ClassType.MAGE), 2, 1);
-        pane1.addItem(new ClassIconItem(ClassType.KNIGHT), 4, 1);
-        pane1.addItem(new ClassIconItem(ClassType.RANGER), 6, 1);
-        pane1.addItem(new ClassIconItem(ClassType.BRUTE), 8, 1);
+//        pane1.addItem(new ClassIconItem(ClassType.ASSASSIN, dc), 0, 1);
+//        pane1.addItem(new ClassIconItem(ClassType.MAGE), 2, 1);
+//        pane1.addItem(new ClassIconItem(ClassType.KNIGHT), 4, 1);
+//        pane1.addItem(new ClassIconItem(ClassType.RANGER), 6, 1);
+//        pane1.addItem(new ClassIconItem(ClassType.BRUTE), 8, 1);
 
 
         gui.addPane(pane1);

@@ -12,6 +12,9 @@ public class BuildCommand implements CommandExecutor {
 
     private DomainController dc;
 
+    public BuildCommand(DomainController dc) {
+        this.dc = dc;
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -20,8 +23,8 @@ public class BuildCommand implements CommandExecutor {
             return true;
         }
 
-        TestGui gui = new TestGui();
-        gui.showGui((Player) commandSender);
+        Player player = (Player) commandSender;
+        dc.openClassOverviewGui(player.getUniqueId());
 
         return true;
     }
