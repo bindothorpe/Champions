@@ -100,7 +100,6 @@ public class Build {
     }
 
     public boolean levelDownSkill(SkillType skillType, SkillId skillId, int cost) {
-        //TODO: Implement
 
         // Check if the skill you want to level down is the skill that is equiped
         if(!skills.get(skillType).equals(skillId)) {
