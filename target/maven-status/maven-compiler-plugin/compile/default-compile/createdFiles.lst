@@ -14,6 +14,7 @@ com/bindothorpe/champions/gui/PlayerGui.class
 com/bindothorpe/champions/gui/items/BorderItem.class
 com/bindothorpe/champions/util/TextUtil.class
 com/bindothorpe/champions/gui/build/ClassOverviewGui.class
+com/bindothorpe/champions/gui/items/BuildItem.class
 com/bindothorpe/champions/domain/build/ClassType.class
 com/bindothorpe/champions/gui/items/ClassIconItem$1.class
 com/bindothorpe/champions/gui/GuiManager.class
