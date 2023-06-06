@@ -76,4 +76,7 @@ public class SkillManager {
     }
 
 
+    public SkillType getSkillType(SkillId skillId) {
+        return skillMap.get(skillId).getSkillType();
+    }
 }

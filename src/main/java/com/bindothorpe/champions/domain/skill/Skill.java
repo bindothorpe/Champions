@@ -107,4 +107,7 @@ public abstract class Skill implements Listener {
         return users.containsKey(uuid);
     }
 
+    public SkillType getSkillType() {
+        return skillType;
+    }
 }
