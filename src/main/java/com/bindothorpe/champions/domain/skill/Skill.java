@@ -77,7 +77,7 @@ public abstract class Skill implements Listener {
 
 
     protected final void activate(UUID uuid) {
-        if(!canUse(uuid))
+        if (!canUse(uuid))
             return;
 
         Player player = Bukkit.getPlayer(uuid);
@@ -86,7 +86,7 @@ public abstract class Skill implements Listener {
 
     private final boolean canUse(UUID uuid) {
 
-        if(!users.containsKey(uuid))
+        if (!users.containsKey(uuid))
             return false;
 
 //
@@ -103,6 +103,11 @@ public abstract class Skill implements Listener {
         return true;
     }
 
+    protected boolean isUser(UUID uuid) {
+        return users.containsKey(uuid);
+    }
 
-
+    public SkillType getSkillType() {
+        return skillType;
+    }
 }

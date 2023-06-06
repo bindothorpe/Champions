@@ -7,6 +7,7 @@ import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
+import com.bindothorpe.champions.domain.skill.SkillType;
 
 import java.util.*;
 
@@ -109,4 +110,15 @@ public class DomainController {
         buildManager.unequipBuildForPlayer(uuid);
     }
 
+    public SkillId getSkillFromBuild(String buildId, SkillType skillType) {
+        return buildManager.getSkillFromBuild(buildId, skillType);
+    }
+
+    public int getSkillLevelFromBuild(String buildId, SkillType skillType) {
+        return buildManager.getSkillLevelFromBuild(buildId, skillType);
+    }
+
+    public SkillType getSkillType(SkillId skillId) {
+        return skillManager.getSkillType(skillId);
+    }
 }

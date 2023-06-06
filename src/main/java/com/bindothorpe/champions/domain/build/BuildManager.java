@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.build;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.skill.SkillType;
 
 import java.util.*;
 
@@ -69,8 +70,9 @@ public class BuildManager {
 
         int maxLevel = dc.getSkillMaxLevel(skillId);
         int cost = dc.getSkillLevelUpCost(skillId);
+        SkillType skillType = dc.getSkillType(skillId);
 
-        return build.levelUpSkill(skillId, maxLevel, cost);
+        return build.levelUpSkill(skillType, skillId, maxLevel, cost);
     }
 
     public boolean levelDownSkillForBuild(String buildId, SkillId skillId) {
@@ -81,8 +83,9 @@ public class BuildManager {
         }
 
         int cost = dc.getSkillLevelUpCost(skillId);
+        SkillType skillType = dc.getSkillType(skillId);
 
-        return build.levelDownSkill(skillId, cost);
+        return build.levelDownSkill(skillType, skillId, cost);
     }
 
     public void equipBuildForPlayer(UUID uuid, String buildId) {
@@ -93,8 +96,13 @@ public class BuildManager {
             throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
         }
 
-        for (Map.Entry<SkillId, Integer> entry : build.getSkills().entrySet()) {
-            dc.equipSkillForUser(uuid, entry.getKey(), entry.getValue());
+        Map<SkillType, Integer> skillLevels = build.getSkillLevels();
+        for (Map.Entry<SkillType, SkillId> entry : build.getSkills().entrySet()) {
+            if(entry.getValue() == null) {
+                continue;
+            }
+
+            dc.equipSkillForUser(uuid, entry.getValue(), skillLevels.get(entry.getKey()));
         }
 
         dc.setSelectedBuildIdForPlayer(uuid, buildId);
@@ -111,10 +119,17 @@ public class BuildManager {
             throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
         }
 
-        for (SkillId skillId : build.getSkills().keySet()) {
+        for (SkillId skillId : build.getSkills().values()) {
             dc.unequipSkillForPlayer(uuid, skillId);
         }
 
         dc.setSelectedBuildIdForPlayer(uuid, null);
+    }
+
+    public SkillId getSkillFromBuild(String buildId, SkillType skillType) {
+        return buildMap.get(buildId).getSkill(skillType);
+    }
+    public int getSkillLevelFromBuild(String buildId, SkillType skillType) {
+        return buildMap.get(buildId).getSkillLevel(skillType);
     }
 }

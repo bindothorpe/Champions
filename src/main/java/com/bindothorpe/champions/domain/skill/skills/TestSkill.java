@@ -10,10 +10,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TestSkill extends Skill {
     public TestSkill() {
-        super(SkillId.TEST_SKILL, SkillType.SWORD, ClassType.ASSASSIN, "Test Skill", new ArrayList<>(), 3);
+        super(SkillId.TEST_SKILL, SkillType.SWORD, ClassType.ASSASSIN, "Test Skill", new ArrayList<>(), Arrays.asList(5.0, 3.0, 2.0), 3, 1);
     }
 
     @EventHandler
