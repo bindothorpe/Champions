@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -28,6 +29,8 @@ public class ClassIconItem extends GuiItem {
 
         ItemStack item = getItem();
         item.setType(getClassMaterial(classType));
+
+        item.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         ItemMeta meta = item.getItemMeta();
         meta.displayName(Component.text(TextUtil.camelCasing(classType.toString())));
