@@ -43,7 +43,7 @@ public class PlayerData {
     }
 
     public boolean addBuildId(ClassType classType, String buildId) {
-        if(buildIds.get(classType).size() == 3)
+        if(buildIds.get(classType).size() == getMaxBuilds())
             return false;
 
         buildIds.get(classType).add(buildId);

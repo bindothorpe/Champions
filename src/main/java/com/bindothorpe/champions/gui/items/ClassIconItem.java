@@ -19,14 +19,29 @@ import java.util.UUID;
 
 public class ClassIconItem extends GuiItem {
 
-    private DomainController dc;
-    private ClassType classType;
+    private final DomainController dc;
+    private final UUID uuid;
+    private final ClassType classType;
+    private final boolean showBuildCount;
+    private final boolean showLeftclickAction;
+    private final boolean showRightclickAction;
+    private final boolean showDescription;
 
     public ClassIconItem(UUID uuid, ClassType classType, DomainController dc, boolean showBuildCount, boolean showLeftclickAction, boolean showRightclickAction, boolean showDescription) {
         super(new ItemStack(Material.LEATHER_HELMET));
         this.dc = dc;
+        this.uuid = uuid;
         this.classType = classType;
+        this.showBuildCount = showBuildCount;
+        this.showLeftclickAction = showLeftclickAction;
+        this.showRightclickAction = showRightclickAction;
+        this.showDescription = showDescription;
 
+        initialize();
+        setAction(this::handleClick);
+    }
+
+    private void initialize() {
         ItemStack item = getItem();
         item.setType(getClassMaterial(classType));
 
@@ -68,30 +83,38 @@ public class ClassIconItem extends GuiItem {
         }
 
         item.setItemMeta(meta);
-        setAction(this::handleClick);
     }
 
 
     private void handleClick(InventoryClickEvent event) {
-//        event.setCancelled(true);
-        if (!event.getClick().equals(ClickType.LEFT)) {
-            return;
+
+        if (event.getClick().equals(ClickType.LEFT) && showLeftclickAction) {
+            dc.openBuildsOverviewGui(uuid, classType);
         }
-        dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType);
+
+        int buildCount = dc.getBuildCountByClassTypeForPlayer(classType, uuid);
+        int maxBuildCount = dc.getMaxBuildsForPlayer(uuid);
+
+        if (event.getClick().equals(ClickType.RIGHT)
+                && showRightclickAction
+                && buildCount < maxBuildCount) {
+
+
+            String buildId = dc.createEmptyBuild(classType);
+            dc.addBuildIdToPlayer(uuid, classType, buildId);
+            dc.openBuildsOverviewGui(uuid, classType);
+        }
+
+
     }
 
     private Material getClassMaterial(ClassType classType) {
-        switch (classType) {
-            case BRUTE:
-                return Material.DIAMOND_HELMET;
-            case RANGER:
-                return Material.CHAINMAIL_HELMET;
-            case KNIGHT:
-                return Material.IRON_HELMET;
-            case MAGE:
-                return Material.GOLDEN_HELMET;
-            default:
-                return Material.LEATHER_HELMET;
-        }
+        return switch (classType) {
+            case BRUTE -> Material.DIAMOND_HELMET;
+            case RANGER -> Material.CHAINMAIL_HELMET;
+            case KNIGHT -> Material.IRON_HELMET;
+            case MAGE -> Material.GOLDEN_HELMET;
+            default -> Material.LEATHER_HELMET;
+        };
     }
 }

@@ -5,12 +5,15 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.BackItem;
 import com.bindothorpe.champions.gui.items.BorderItem;
+import com.bindothorpe.champions.gui.items.BuildItem;
 import com.bindothorpe.champions.gui.items.ClassIconItem;
 import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class BuildsOverviewGui extends PlayerGui {
@@ -35,6 +38,14 @@ public class BuildsOverviewGui extends PlayerGui {
                 root.addItem(new BorderItem(), x, y);
 
         }
+
+        Set<String> buildIds = dc.getBuildIdsFromPlayer(uuid).get(classType);
+
+        for(int i = 0; i < buildIds.size(); i++) {
+            String buildId = (String) buildIds.toArray()[i];
+            buildsPane.addItem(new BuildItem(buildId, i + 1, dc));
+        }
+
         root.addItem(new BackItem(event -> dc.openClassOverviewGui(event.getWhoClicked().getUniqueId())), 0, 0);
         root.addItem(new ClassIconItem(uuid, classType, dc, true, false, true, false), 4, 0);
         gui.addPane(root);
