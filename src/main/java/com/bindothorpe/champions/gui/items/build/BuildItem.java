@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.gui.items;
+package com.bindothorpe.champions.gui.items.build;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;

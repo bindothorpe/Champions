@@ -5,17 +5,17 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.gui.PlayerGui;
-import com.bindothorpe.champions.gui.items.BackItem;
-import com.bindothorpe.champions.gui.items.BorderItem;
-import com.bindothorpe.champions.gui.items.SkillItem;
-import com.bindothorpe.champions.gui.items.SkillTypeItem;
+import com.bindothorpe.champions.gui.items.build.DeleteBuildItem;
+import com.bindothorpe.champions.gui.items.global.BackItem;
+import com.bindothorpe.champions.gui.items.global.BorderItem;
+import com.bindothorpe.champions.gui.items.skill.SkillItem;
+import com.bindothorpe.champions.gui.items.skill.SkillPointsItem;
+import com.bindothorpe.champions.gui.items.skill.SkillTypeItem;
 import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class EditBuildGui extends PlayerGui {
@@ -44,6 +44,8 @@ public class EditBuildGui extends PlayerGui {
                 root.addItem(new BorderItem(), x, y);
         }
         root.addItem(new BackItem(event -> dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType)), 0, 0);
+        root.addItem(new SkillPointsItem(buildId, dc), 0, 1);
+        root.addItem(new DeleteBuildItem(buildId, dc), 0, 5);
 
         for(SkillType skillType : SkillType.values()) {
             if(skillType.equals(SkillType.CLASS_PASSIVE)) {

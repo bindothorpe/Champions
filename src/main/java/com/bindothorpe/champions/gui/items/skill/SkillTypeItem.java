@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.gui.items;
+package com.bindothorpe.champions.gui.items.skill;
 
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.util.TextUtil;

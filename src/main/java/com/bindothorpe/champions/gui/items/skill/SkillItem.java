@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.gui.items;
+package com.bindothorpe.champions.gui.items.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -11,7 +11,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +36,8 @@ public class SkillItem extends GuiItem {
         ItemStack item = getItem();
         ItemMeta meta = item.getItemMeta();
 
+        int levelUpCost = dc.getSkillLevelUpCost(skillId);
+
         if(skillLevel > 0) {
             item.setAmount(skillLevel);
             item.addEnchantment(Enchantment.MENDING, 1);
@@ -47,19 +48,23 @@ public class SkillItem extends GuiItem {
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text(" "));
+        lore.add(Component.text("Level-up Cost: ").color(NamedTextColor.GRAY)
+                .append(Component.text(levelUpCost).color(NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(levelUpCost == 1 ? " Skill Point" : " Skill Points").color(NamedTextColor.LIGHT_PURPLE)));
         lore.add(Component.text("Level: ").color(NamedTextColor.GRAY)
                 .append(Component.text(skillLevel).color(NamedTextColor.YELLOW))
                 .append(Component.text("/").color(NamedTextColor.GRAY))
                 .append(Component.text(dc.getSkillMaxLevel(skillId)).color(NamedTextColor.GRAY)));
+
+        lore.add(Component.text(" "));
+
         lore.add(Component.text("Cooldown: ").color(NamedTextColor.GRAY)
                 .append(getCooldownTextComponent(dc.getSkillCooldownDuration(skillId), skillLevel)));
 
 
         lore.add(Component.text(" "));
 
-        dc.getSkillDescription(skillId, skillLevel).forEach(line -> {
-            lore.add(line);
-        });
+        lore.addAll(dc.getSkillDescription(skillId, skillLevel));
 
         lore.add(Component.text(" "));
         lore.add(Component.text("Left-click").color(NamedTextColor.YELLOW)

@@ -151,4 +151,13 @@ public class BuildManager {
 
         return buildMap.get(buildId).getClassType();
     }
+
+    public int getSkillPointsFromBuild(String buildId) {
+        Build build = buildMap.get(buildId);
+        if (build == null) {
+            throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
+        }
+
+        return build.getSkillPoints();
+    }
 }

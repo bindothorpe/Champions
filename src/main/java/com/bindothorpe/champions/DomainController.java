@@ -152,4 +152,8 @@ public class DomainController {
     public int getMaxBuildsForPlayer(UUID uuid) {
         return playerManager.getMaxBuildsForPlayer(uuid);
     }
+
+    public int getSkillPointsFromBuild(String buildId) {
+        return buildManager.getSkillPointsFromBuild(buildId);
+    }
 }
