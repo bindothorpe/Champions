@@ -1,14 +1,11 @@
 package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.player.PlayerData;
-import com.bindothorpe.champions.domain.player.PlayerManager;
+import com.bindothorpe.champions.domain.build.ClassType;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class SkillManager {
 
@@ -48,10 +45,10 @@ public class SkillManager {
         return skillMap.get(skillId).getName();
     }
 
-    public List<String> getSkillDescription(SkillId skillId) {
+    public List<Component> getSkillDescription(SkillId skillId, int skillLevel) {
         if(!skillMap.containsKey(skillId))
             throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
-        return skillMap.get(skillId).getDescription();
+        return skillMap.get(skillId).getDescription(skillLevel);
     }
 
     public List<Double> getSkillCooldownDuration(SkillId skillId) {
@@ -78,5 +75,14 @@ public class SkillManager {
 
     public SkillType getSkillType(SkillId skillId) {
         return skillMap.get(skillId).getSkillType();
+    }
+
+    public Set<SkillId> getClassSkillsForSkillType(ClassType classType, SkillType skillType) {
+        Set<SkillId> skillIds = new HashSet<>();
+        for(Skill skill : skillMap.values()) {
+            if((skill.getClassType() == classType || skill.getClassType() == ClassType.GLOBAL) && skill.getSkillType() == skillType)
+                skillIds.add(skill.getId());
+        }
+        return skillIds;
     }
 }

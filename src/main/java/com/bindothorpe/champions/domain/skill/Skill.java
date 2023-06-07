@@ -1,14 +1,12 @@
 package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.domain.build.ClassType;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class Skill implements Listener {
 
@@ -19,18 +17,18 @@ public abstract class Skill implements Listener {
     private SkillType skillType;
     private ClassType classType;
     private String name;
-    private List<String> description;
+    protected List<Component> description;
     private List<Double> cooldownDuration;
     private int maxLevel;
     private int levelUpCost;
 
 
-    public Skill(SkillId id, SkillType skillType, ClassType classType, String name, List<String> description, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
+    public Skill(SkillId id, SkillType skillType, ClassType classType, String name, List<Component> description, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
         this.id = id;
         this.skillType = skillType;
         this.classType = classType;
         this.name = name;
-        this.description = description;
+        this.description = new ArrayList<>();
         this.cooldownDuration = cooldownDuration;
         this.maxLevel = maxLevel;
         this.levelUpCost = levelUpCost;
@@ -55,9 +53,7 @@ public abstract class Skill implements Listener {
         return name;
     }
 
-    public List<String> getDescription() {
-        return description;
-    }
+    public abstract List<Component> getDescription(int skillLevel);
 
     public List<Double> getCooldownDuration() {
         return cooldownDuration;
@@ -109,5 +105,9 @@ public abstract class Skill implements Listener {
 
     public SkillType getSkillType() {
         return skillType;
+    }
+
+    public ClassType getClassType() {
+        return classType;
     }
 }

@@ -129,10 +129,26 @@ public class BuildManager {
     }
 
     public SkillId getSkillFromBuild(String buildId, SkillType skillType) {
-        return buildMap.get(buildId).getSkill(skillType);
+        Build build = buildMap.get(buildId);
+        if (build == null) {
+            throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
+        }
+        return build.getSkill(skillType);
     }
     public int getSkillLevelFromBuild(String buildId, SkillType skillType) {
-        return buildMap.get(buildId).getSkillLevel(skillType);
+        Build build = buildMap.get(buildId);
+        if (build == null) {
+            throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
+        }
+        return build.getSkillLevel(skillType);
     }
 
+    public ClassType getClassTypeFromBuild(String buildId) {
+        Build build = buildMap.get(buildId);
+        if (build == null) {
+            throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
+        }
+
+        return buildMap.get(buildId).getClassType();
+    }
 }

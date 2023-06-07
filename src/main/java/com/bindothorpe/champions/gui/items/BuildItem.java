@@ -34,7 +34,7 @@ public class BuildItem extends GuiItem {
         if (inventoryClickEvent.getClick().isLeftClick()) {
 //            dc.equipBuildForPlayer(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId);
         } else if (inventoryClickEvent.getClick().isRightClick()) {
-//            dc.openEditBuildGui();
+            dc.openEditBuildGui(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId, buildNumber);
         }
     }
 

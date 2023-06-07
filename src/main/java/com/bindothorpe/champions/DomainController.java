@@ -9,6 +9,7 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.gui.GuiManager;
+import net.kyori.adventure.text.Component;
 
 import java.util.*;
 
@@ -60,8 +61,8 @@ public class DomainController {
         return skillManager.getSkillName(skillId);
     }
 
-    public List<String> getSkillDescription(SkillId skillId) {
-        return skillManager.getSkillDescription(skillId);
+    public List<Component> getSkillDescription(SkillId skillId, int skillLevel) {
+        return skillManager.getSkillDescription(skillId, skillLevel);
     }
 
     public List<Double> getSkillCooldownDuration(SkillId skillId) {
@@ -94,6 +95,14 @@ public class DomainController {
 
     public boolean deleteBuild(String buildId) {
         return buildManager.deleteBuild(buildId);
+    }
+
+    public ClassType getClassTypeFromBuild(String buildId) {
+        return buildManager.getClassTypeFromBuild(buildId);
+    }
+
+    public Set<SkillId> getClassSkillsForSkillType(ClassType classType, SkillType skillType) {
+        return skillManager.getClassSkillsForSkillType(classType, skillType);
     }
 
     public boolean levelUpSkillForBuild(String buildId, SkillId skillId) {
@@ -130,6 +139,10 @@ public class DomainController {
 
     public void openClassOverviewGui(UUID uuid) {
         guiManager.openClassOverviewGui(uuid);
+    }
+
+    public void openEditBuildGui(UUID uuid, String buildId, int buildNumber) {
+        guiManager.openEditBuildGui(uuid, buildId, buildNumber);
     }
 
     public int getBuildCountByClassTypeForPlayer(ClassType classType, UUID uuid) {
