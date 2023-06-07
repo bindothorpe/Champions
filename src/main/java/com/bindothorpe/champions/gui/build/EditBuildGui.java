@@ -2,15 +2,20 @@ package com.bindothorpe.champions.gui.build;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.BackItem;
 import com.bindothorpe.champions.gui.items.BorderItem;
+import com.bindothorpe.champions.gui.items.SkillItem;
 import com.bindothorpe.champions.gui.items.SkillTypeItem;
 import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
+import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class EditBuildGui extends PlayerGui {
@@ -41,8 +46,19 @@ public class EditBuildGui extends PlayerGui {
         root.addItem(new BackItem(event -> dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType)), 0, 0);
 
         for(SkillType skillType : SkillType.values()) {
+            if(skillType.equals(SkillType.CLASS_PASSIVE)) {
+                continue;
+            }
+
             root.addItem(new SkillTypeItem(skillType), 1, skillType.ordinal());
+            OutlinePane skillTypePane = new OutlinePane(2, skillType.ordinal(), 6, 1);
+
+            for(SkillId skillId : dc.getClassSkillsForSkillType(classType, skillType)) {
+                skillTypePane.addItem(new SkillItem(buildId, skillId, dc));
+            }
+            gui.addPane(skillTypePane);
         }
+
 
         gui.addPane(root);
 

@@ -23,12 +23,12 @@ public class SkillItem extends GuiItem {
     private final SkillId skillId;
     private final int skillLevel;
 
-    public SkillItem(String buildId, SkillId skillId, int skillLevel, DomainController dc) {
+    public SkillItem(String buildId, SkillId skillId, DomainController dc) {
         super(new ItemStack(Material.BOOK));
         this.dc = dc;
         this.buildId = buildId;
         this.skillId = skillId;
-        this.skillLevel = skillLevel;
+        this.skillLevel = dc.getSkillLevelFromBuild(buildId, dc.getSkillType(skillId));
 
         initialize();
     }
@@ -68,6 +68,8 @@ public class SkillItem extends GuiItem {
                 .append(Component.text(" to level down").color(NamedTextColor.GRAY)));
 
 
+        meta.lore(lore);
+        getItem().setItemMeta(meta);
     }
 
     private Component getCooldownTextComponent(List<Double> cooldowns, int skillLevel) {

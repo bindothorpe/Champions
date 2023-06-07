@@ -8,6 +8,7 @@ com/bindothorpe/champions/domain/skill/SkillId.class
 com/bindothorpe/champions/domain/skill/SkillManager.class
 com/bindothorpe/champions/gui/build/BuildsOverviewGui.class
 com/bindothorpe/champions/domain/player/PlayerManager.class
+com/bindothorpe/champions/gui/items/SkillItem.class
 com/bindothorpe/champions/gui/TestGui.class
 com/bindothorpe/champions/InitDataConfig.class
 com/bindothorpe/champions/DomainController.class

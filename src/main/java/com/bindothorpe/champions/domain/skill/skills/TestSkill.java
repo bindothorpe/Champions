@@ -43,7 +43,7 @@ public class TestSkill extends Skill {
         description.add(Component.text("This is a test skill").color(NamedTextColor.GRAY));
         description.add(Component.text("Right-click").color(NamedTextColor.YELLOW)
                 .append(Component.text(" to heal ").color(NamedTextColor.GRAY))
-                .append(Component.text(healing.get(skillLevel - 1)).color(NamedTextColor.GREEN))
+                .append(Component.text(healing.get(Math.max(skillLevel - 1, 0))).color(NamedTextColor.GREEN))
                 .append(Component.text(" hp").color(NamedTextColor.GREEN)));
 
         return description;
