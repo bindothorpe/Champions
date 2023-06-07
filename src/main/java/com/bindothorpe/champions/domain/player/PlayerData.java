@@ -29,6 +29,11 @@ public class PlayerData {
     }
 
     public void setSelectedBuildId(String buildId) {
+        if(buildId == null) {
+            selectedBuildId = null;
+            return;
+        }
+
         for(Set<String> builds : buildIds.values()) {
             if(builds.contains(buildId)) {
                 selectedBuildId = buildId;

@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.domain.build.ClassType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -72,12 +73,17 @@ public abstract class Skill implements Listener {
     }
 
 
-    protected final void activate(UUID uuid) {
+    protected final boolean activate(UUID uuid) {
         if (!canUse(uuid))
-            return;
+            return false;
 
         Player player = Bukkit.getPlayer(uuid);
-        player.sendMessage(String.format("You used %s level %d", this.name, this.users.get(uuid)));
+        player.sendMessage(Component.text("You used ").color(NamedTextColor.GRAY)
+                .append(Component.text(this.name).color(NamedTextColor.YELLOW))
+                .append(Component.text(" level ").color(NamedTextColor.GRAY))
+                .append(Component.text(this.users.get(uuid)).color(NamedTextColor.YELLOW)));
+        startCooldown(uuid);
+        return true;
     }
 
     private final boolean canUse(UUID uuid) {
@@ -85,14 +91,38 @@ public abstract class Skill implements Listener {
         if (!users.containsKey(uuid))
             return false;
 
-//
-//        if(isOnCooldown(UUID uuid)) {
-//            print(cooldown remaining)
-//            return false;
-//        }
+
+        if(isOnCooldown(uuid)) {
+            double cooldownRemaining = getCooldownRemaining(uuid);
+            Player player = Bukkit.getPlayer(uuid);
+            player.sendMessage(Component.text("You cannot use this skill for another ").color(NamedTextColor.GRAY)
+                    .append(Component.text(cooldownRemaining).color(NamedTextColor.YELLOW))
+                    .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
+            return false;
+        }
 
 
         return canUseHook(uuid);
+    }
+
+    private boolean isOnCooldown(UUID uuid) {
+        if (!cooldownMap.containsKey(uuid))
+            return false;
+
+        long cooldownStart = cooldownMap.get(uuid);
+        long cooldownDuration = (long) (this.cooldownDuration.get(users.get(uuid) - 1) * 1000);
+
+        return System.currentTimeMillis() - cooldownStart < cooldownDuration;
+    }
+
+    private double getCooldownRemaining(UUID uuid) {
+        if (!cooldownMap.containsKey(uuid))
+            return 0;
+
+        long cooldownStart = cooldownMap.get(uuid);
+        long cooldownDuration = (long) (this.cooldownDuration.get(users.get(uuid) - 1) * 1000);
+
+        return (cooldownStart + cooldownDuration - System.currentTimeMillis()) / 1000.0;
     }
 
     protected boolean canUseHook(UUID uuid) {
@@ -109,5 +139,9 @@ public abstract class Skill implements Listener {
 
     public ClassType getClassType() {
         return classType;
+    }
+
+    protected int getSkillLevel(UUID uuid) {
+        return users.get(uuid);
     }
 }

@@ -15,6 +15,7 @@ import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.UUID;
 
@@ -30,6 +31,13 @@ public class EditBuildGui extends PlayerGui {
         this.classType = dc.getClassTypeFromBuild(buildId);
         this.buildNumber = buildNumber;
         initialize();
+        gui.setOnClose(this::handleClose);
+    }
+
+    private void handleClose(InventoryCloseEvent event) {
+        if(buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid))) {
+            dc.equipBuildForPlayer(uuid, buildId);
+        }
     }
 
     @Override

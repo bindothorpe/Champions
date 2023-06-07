@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.gui.items.build;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.util.TextUtil;
@@ -14,16 +15,21 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BuildItem extends GuiItem {
 
+    private UUID uuid;
     private String buildId;
+    private ClassType classType;
     private int buildNumber;
     private DomainController dc;
 
-    public BuildItem(String buildId, int buildNumber, DomainController dc) {
+    public BuildItem(UUID uuid, String buildId, int buildNumber, DomainController dc) {
         super(new ItemStack(Material.ARMOR_STAND));
+        this.uuid = uuid;
         this.buildId = buildId;
+        this.classType = dc.getClassTypeFromBuild(buildId);
         this.buildNumber = buildNumber;
         this.dc = dc;
         initialize();
@@ -32,16 +38,25 @@ public class BuildItem extends GuiItem {
 
     private void handleClick(InventoryClickEvent inventoryClickEvent) {
         if (inventoryClickEvent.getClick().isLeftClick()) {
-//            dc.equipBuildForPlayer(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId);
+            if(buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid))) {
+                dc.unequipBuildForPlayer(uuid);
+            } else {
+                dc.equipBuildForPlayer(uuid, buildId);
+            }
+            dc.openBuildsOverviewGui(uuid, classType);
         } else if (inventoryClickEvent.getClick().isRightClick()) {
-            dc.openEditBuildGui(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId, buildNumber);
+            dc.openEditBuildGui(uuid, buildId, buildNumber);
         }
     }
 
     private void initialize() {
         ItemMeta meta = getItem().getItemMeta();
+
+        boolean isSelected = buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid));
+
         meta.displayName(Component.text("Build ").color(NamedTextColor.WHITE)
-                .append(Component.text(buildNumber)));
+                .append(Component.text(buildNumber))
+                .append(Component.text(isSelected ? " (Selected)" : "").color(NamedTextColor.GREEN)));
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text(" "));
