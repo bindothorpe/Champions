@@ -2,6 +2,7 @@ package com.bindothorpe.champions.gui.items.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.util.ComponentUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -14,7 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SkillItem extends GuiItem {
 
@@ -79,7 +82,7 @@ public class SkillItem extends GuiItem {
         lore.add(Component.text(" "));
 
         lore.add(Component.text("Cooldown: ").color(NamedTextColor.GRAY)
-                .append(getCooldownTextComponent(dc.getSkillCooldownDuration(skillId), skillLevel)));
+                .append(ComponentUtil.skillLevelValues(skillLevel, dc.getSkillCooldownDuration(skillId), NamedTextColor.YELLOW)));
 
 
         lore.add(Component.text(" "));
