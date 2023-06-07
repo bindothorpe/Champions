@@ -8,15 +8,14 @@ import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestSkill extends Skill {
@@ -32,17 +31,34 @@ public class TestSkill extends Skill {
     @EventHandler
     public void onRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-
-        if (!event.getHand().equals(EquipmentSlot.HAND))
-            return;
-
-        boolean success = activate(player.getUniqueId());
+        boolean success = activate(player.getUniqueId(), event);
 
         if (!success) {
             return;
         }
 
-        player.setHealth(player.getHealth() + healing.get(Math.max(getSkillLevel(player.getUniqueId()) - 1, 0)));
+        player.setHealth(Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
+    }
+
+    @Override
+    protected boolean canUseHook(UUID uuid, Event e) {
+        if(!(e instanceof PlayerInteractEvent))
+            return false;
+
+        PlayerInteractEvent event = (PlayerInteractEvent) e;
+
+        if (!Objects.equals(event.getHand(), EquipmentSlot.HAND))
+            return false;
+
+        if(!event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_AXE"))
+            return false;
+
+        Player player = event.getPlayer();
+
+        if(event.getPlayer().getHealth() >= Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue())
+            return false;
+
+        return super.canUseHook(uuid, e);
     }
 
     @Override

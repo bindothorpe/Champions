@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 
 import java.util.*;
@@ -73,11 +74,15 @@ public abstract class Skill implements Listener {
     }
 
 
-    protected final boolean activate(UUID uuid) {
-        if (!canUse(uuid))
+    protected final boolean activate(UUID uuid, Event event) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null)
             return false;
 
-        Player player = Bukkit.getPlayer(uuid);
+        if (!canUse(uuid, event))
+            return false;
+
+
         player.sendMessage(Component.text("You used ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
                 .append(Component.text(" level ").color(NamedTextColor.GRAY))
@@ -86,13 +91,13 @@ public abstract class Skill implements Listener {
         return true;
     }
 
-    private final boolean canUse(UUID uuid) {
+    private final boolean canUse(UUID uuid, Event event) {
 
         if (!users.containsKey(uuid))
             return false;
 
 
-        if(isOnCooldown(uuid)) {
+        if (isOnCooldown(uuid)) {
             double cooldownRemaining = getCooldownRemaining(uuid);
             Player player = Bukkit.getPlayer(uuid);
             player.sendMessage(Component.text("You cannot use this skill for another ").color(NamedTextColor.GRAY)
@@ -102,7 +107,7 @@ public abstract class Skill implements Listener {
         }
 
 
-        return canUseHook(uuid);
+        return canUseHook(uuid, event);
     }
 
     private boolean isOnCooldown(UUID uuid) {
@@ -125,7 +130,7 @@ public abstract class Skill implements Listener {
         return (cooldownStart + cooldownDuration - System.currentTimeMillis()) / 1000.0;
     }
 
-    protected boolean canUseHook(UUID uuid) {
+    protected boolean canUseHook(UUID uuid, Event event) {
         return true;
     }
 

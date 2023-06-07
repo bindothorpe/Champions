@@ -7,14 +7,20 @@ import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class TestSkill2 extends Skill {
 
@@ -26,18 +32,35 @@ public class TestSkill2 extends Skill {
     }
 
     @EventHandler
-    public void onRightClick(PlayerInteractEvent event) {
+    public void onRightClickEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
 
-        if (!event.getHand().equals(EquipmentSlot.HAND))
+
+
+        if(!activate(player.getUniqueId(), event))
             return;
 
-        player.sendMessage("You right clicked");
+        LivingEntity entity = (LivingEntity) event.getRightClicked();
+        entity.damage(damage.get(getSkillLevel(player.getUniqueId()) - 1), player);
+    }
 
-        if (!isUser(player.getUniqueId()))
-            addUser(player.getUniqueId(), 2);
+    @Override
+    protected boolean canUseHook(UUID uuid, Event e) {
+        if(!(e instanceof PlayerInteractAtEntityEvent))
+            return false;
 
-        activate(player.getUniqueId());
+        PlayerInteractAtEntityEvent event = (PlayerInteractAtEntityEvent) e;
+
+        if (!event.getHand().equals(EquipmentSlot.HAND))
+            return false;
+
+        if(!event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("SWORD"))
+            return false;
+
+        if(!(event.getRightClicked() instanceof LivingEntity))
+            return false;
+
+        return super.canUseHook(uuid, event);
     }
 
     @Override
