@@ -3,12 +3,11 @@ package com.bindothorpe.champions.gui.build;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.gui.PlayerGui;
-import com.bindothorpe.champions.gui.items.BorderItem;
-import com.bindothorpe.champions.gui.items.ClassIconItem;
+import com.bindothorpe.champions.gui.items.global.BorderItem;
+import com.bindothorpe.champions.gui.items.build.ClassIconItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Arrays;
 import java.util.UUID;

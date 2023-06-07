@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.gui.items;
+package com.bindothorpe.champions.gui.items.global;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;

@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestSkill extends Skill {
+public class TestSkill2 extends Skill {
 
-    private List<Integer> healing = Arrays.asList(3, 5, 8);
+    private List<Integer> damage = Arrays.asList(3, 5, 8, 12);
 
-    public TestSkill() {
-        super(SkillId.TEST_SKILL, SkillType.AXE, ClassType.MAGE, "Test Skill", new ArrayList<>(), Arrays.asList(5.0, 3.0, 2.0), 3, 1);
+    public TestSkill2() {
+        super(SkillId.TEST_SKILL_2, SkillType.SWORD, ClassType.GLOBAL, "Test Skill 2", new ArrayList<>(), Arrays.asList(8.5, 7.0, 4.5, 3.5), 4, 2);
     }
 
     @EventHandler
@@ -43,9 +43,9 @@ public class TestSkill extends Skill {
         if(description.isEmpty()) {
             description.add(Component.text("This is a test skill").color(NamedTextColor.GRAY));
             description.add(Component.text("Right-click").color(NamedTextColor.YELLOW)
-                    .append(Component.text(" to heal ").color(NamedTextColor.GRAY))
-                    .append(Component.text(healing.get(Math.max(skillLevel - 1, 0))).color(NamedTextColor.GREEN))
-                    .append(Component.text(" hp").color(NamedTextColor.GREEN)));
+                    .append(Component.text(" to deal ").color(NamedTextColor.GRAY))
+                    .append(Component.text(damage.get(Math.max(skillLevel - 1, 0))).color(NamedTextColor.RED))
+                    .append(Component.text(" damage").color(NamedTextColor.RED)));
         }
         return description;
     }

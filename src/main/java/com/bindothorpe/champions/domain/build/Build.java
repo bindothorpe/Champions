@@ -68,6 +68,10 @@ public class Build {
         return skillLevels.get(skillType);
     }
 
+    public int getSkillPoints() {
+        return skillPoints;
+    }
+
     public boolean levelUpSkill(SkillType skillType, SkillId skillId, int maxLevel, int cost) {
 
         // Check if there are enough skill points left

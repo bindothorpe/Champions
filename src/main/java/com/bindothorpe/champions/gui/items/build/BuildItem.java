@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.gui.items;
+package com.bindothorpe.champions.gui.items.build;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -34,7 +34,7 @@ public class BuildItem extends GuiItem {
         if (inventoryClickEvent.getClick().isLeftClick()) {
 //            dc.equipBuildForPlayer(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId);
         } else if (inventoryClickEvent.getClick().isRightClick()) {
-//            dc.openEditBuildGui();
+            dc.openEditBuildGui(inventoryClickEvent.getWhoClicked().getUniqueId(), buildId, buildNumber);
         }
     }
 
