@@ -28,42 +28,46 @@ public class SkillManager {
     }
 
     public void equipSkillForUser(UUID uuid, SkillId skillId, int level) {
+        if(skillId == null)
+            return;
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         skillMap.get(skillId).addUser(uuid, level);
     }
 
     public void unequipSkillForPlayer(UUID uuid, SkillId skillId) {
+        if(skillId == null)
+            return;
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         skillMap.get(skillId).removeUser(uuid);
     }
 
     public String getSkillName(SkillId skillId) {
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         return skillMap.get(skillId).getName();
     }
 
     public List<Component> getSkillDescription(SkillId skillId, int skillLevel) {
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         return skillMap.get(skillId).getDescription(skillLevel);
     }
 
     public List<Double> getSkillCooldownDuration(SkillId skillId) {
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         return skillMap.get(skillId).getCooldownDuration();
     }
     public int getSkillMaxLevel(SkillId skillId) {
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         return skillMap.get(skillId).getMaxLevel();
     }
     public int getSkillLevelUpCost(SkillId skillId) {
         if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered."));
+            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         return skillMap.get(skillId).getLevelUpCost();
     }
 //    + registerSkill(skill : Skill) : void

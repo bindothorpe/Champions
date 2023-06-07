@@ -42,7 +42,7 @@ public class BuildsOverviewGui extends PlayerGui {
 
         for(int i = 0; i < buildIds.size(); i++) {
             String buildId = (String) buildIds.toArray()[i];
-            buildsPane.addItem(new BuildItem(buildId, i + 1, dc));
+            buildsPane.addItem(new BuildItem(uuid, buildId, i + 1, dc));
         }
 
         root.addItem(new BackItem(event -> dc.openClassOverviewGui(event.getWhoClicked().getUniqueId())), 0, 0);

@@ -29,6 +29,11 @@ public class PlayerManager {
     }
 
     public void setSelectedBuildIdForPlayer(UUID uuid, String buildId) {
+        if(buildId == null) {
+            playerDataMap.get(uuid).setSelectedBuildId(null);
+            return;
+        }
+
         if(!playerDataMap.containsKey(uuid))
             createPlayerDataForPlayer(uuid);
 
@@ -60,7 +65,11 @@ public class PlayerManager {
         if(!playerDataMap.containsKey(uuid))
             createPlayerDataForPlayer(uuid);
 
-        return playerDataMap.get(uuid).removeBuildId(buildId);
+        boolean success = playerDataMap.get(uuid).removeBuildId(buildId);
+        if(success) {
+            dc.unequipBuildForPlayer(uuid);
+        }
+        return success;
     }
 
     private void createPlayerDataForPlayer(UUID uuid) {

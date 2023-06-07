@@ -30,12 +30,13 @@ public class TestSkill extends Skill {
         if (!event.getHand().equals(EquipmentSlot.HAND))
             return;
 
-        player.sendMessage("You right clicked");
+        boolean success = activate(player.getUniqueId());
 
-        if (!isUser(player.getUniqueId()))
-            addUser(player.getUniqueId(), 2);
+        if(!success) {
+            return;
+        }
 
-        activate(player.getUniqueId());
+        player.setHealth(player.getHealth() + healing.get(Math.max(getSkillLevel(player.getUniqueId()) - 1, 0)));
     }
 
     @Override
