@@ -7,6 +7,7 @@ com/bindothorpe/champions/domain/build/Build.class
 com/bindothorpe/champions/domain/skill/SkillId.class
 com/bindothorpe/champions/gui/items/skill/SkillPointsItem.class
 com/bindothorpe/champions/domain/skill/SkillManager.class
+com/bindothorpe/champions/domain/skill/skills/TestSkill2.class
 com/bindothorpe/champions/gui/build/BuildsOverviewGui.class
 com/bindothorpe/champions/domain/player/PlayerManager.class
 com/bindothorpe/champions/gui/items/global/BorderItem.class
