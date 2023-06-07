@@ -8,6 +8,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,17 +20,36 @@ public class SkillItem extends GuiItem {
 
     private final DomainController dc;
     private final String buildId;
+    private final int buildNumber;
     private final SkillId skillId;
     private final int skillLevel;
 
-    public SkillItem(String buildId, SkillId skillId, DomainController dc) {
+    public SkillItem(String buildId, int buildNumber, SkillId skillId, DomainController dc) {
         super(new ItemStack(Material.BOOK));
         this.dc = dc;
         this.buildId = buildId;
+        this.buildNumber = buildNumber;
         this.skillId = skillId;
         this.skillLevel = dc.getSkillLevelFromBuild(buildId, dc.getSkillType(skillId));
 
         initialize();
+        setAction(this::handleClick);
+    }
+
+    private void handleClick(InventoryClickEvent event) {
+        boolean success = false;
+        if(event.isLeftClick()) {
+            success = dc.levelUpSkillForBuild(buildId, skillId);
+        } else if (event.isRightClick()) {
+            success = dc.levelDownSkillForBuild(buildId, skillId);
+        }
+
+        if(success) {
+            //TODO: play sound effect
+            dc.openEditBuildGui(event.getWhoClicked().getUniqueId(), buildId, buildNumber);
+        } else {
+            //TODO: play error effect
+        }
     }
 
     private void initialize() {
@@ -40,8 +60,8 @@ public class SkillItem extends GuiItem {
 
         if(skillLevel > 0) {
             item.setAmount(skillLevel);
-            item.addEnchantment(Enchantment.MENDING, 1);
-            item.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
         meta.displayName(Component.text(dc.getSkillName(skillId)).color(NamedTextColor.GREEN));

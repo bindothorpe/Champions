@@ -56,7 +56,7 @@ public class EditBuildGui extends PlayerGui {
             OutlinePane skillTypePane = new OutlinePane(2, skillType.ordinal(), 6, 1);
 
             for(SkillId skillId : dc.getClassSkillsForSkillType(classType, skillType)) {
-                skillTypePane.addItem(new SkillItem(buildId, skillId, dc));
+                skillTypePane.addItem(new SkillItem(buildId, buildNumber, skillId, dc));
             }
             gui.addPane(skillTypePane);
         }

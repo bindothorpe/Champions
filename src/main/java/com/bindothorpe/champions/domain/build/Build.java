@@ -93,17 +93,21 @@ public class Build {
         }
 
         // Check if the skill is already max level
-        if(skillLevels.get(skillId) == maxLevel) {
+        if(skillLevels.get(skillType) == maxLevel) {
             return false;
         }
 
         // Level up the skill and reduce the remaining skill points
-        skillLevels.put(skillType, skillLevels.get(skillId) + 1);
+        skillLevels.put(skillType, skillLevels.get(skillType) + 1);
         skillPoints -= cost;
         return true;
     }
 
     public boolean levelDownSkill(SkillType skillType, SkillId skillId, int cost) {
+
+        if(skills.get(skillType) == null) {
+            return false;
+        }
 
         // Check if the skill you want to level down is the skill that is equiped
         if(!skills.get(skillType).equals(skillId)) {
@@ -117,7 +121,7 @@ public class Build {
 
 
 
-        skillLevels.put(skillType, skillLevels.get(skillId) - 1);
+        skillLevels.put(skillType, skillLevels.get(skillType) - 1);
         skillPoints += cost;
 
         // If the skill level is equal to 0, remove the skill from the skills list

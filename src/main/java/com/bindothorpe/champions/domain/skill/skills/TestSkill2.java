@@ -27,12 +27,12 @@ public class TestSkill2 extends Skill {
     public void onRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
-        if(!event.getHand().equals(EquipmentSlot.HAND))
+        if (!event.getHand().equals(EquipmentSlot.HAND))
             return;
 
         player.sendMessage("You right clicked");
 
-        if(!isUser(player.getUniqueId()))
+        if (!isUser(player.getUniqueId()))
             addUser(player.getUniqueId(), 2);
 
         activate(player.getUniqueId());
@@ -40,13 +40,13 @@ public class TestSkill2 extends Skill {
 
     @Override
     public List<Component> getDescription(int skillLevel) {
-        if(description.isEmpty()) {
-            description.add(Component.text("This is a test skill").color(NamedTextColor.GRAY));
-            description.add(Component.text("Right-click").color(NamedTextColor.YELLOW)
-                    .append(Component.text(" to deal ").color(NamedTextColor.GRAY))
-                    .append(Component.text(damage.get(Math.max(skillLevel - 1, 0))).color(NamedTextColor.RED))
-                    .append(Component.text(" damage").color(NamedTextColor.RED)));
-        }
+        List<Component> description = new ArrayList<>();
+        description.add(Component.text("This is a test skill").color(NamedTextColor.GRAY));
+        description.add(Component.text("Right-click").color(NamedTextColor.YELLOW)
+                .append(Component.text(" to deal ").color(NamedTextColor.GRAY))
+                .append(Component.text(damage.get(Math.max(skillLevel - 1, 0))).color(NamedTextColor.RED))
+                .append(Component.text(" damage").color(NamedTextColor.RED)));
+
         return description;
     }
 }
