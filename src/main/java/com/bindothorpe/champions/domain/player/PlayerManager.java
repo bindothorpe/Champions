@@ -2,6 +2,8 @@ package com.bindothorpe.champions.domain.player;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.effect.PlayerEffect;
+import com.bindothorpe.champions.domain.effect.PlayerEffectType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +14,7 @@ public class PlayerManager {
 
     private static PlayerManager instance;
     private final DomainController dc;
-
-    private Map<UUID, PlayerData> playerDataMap;
+    private final Map<UUID, PlayerData> playerDataMap;
 
     private PlayerManager(DomainController dc) {
         this.dc = dc;
@@ -73,7 +74,7 @@ public class PlayerManager {
     }
 
     private void createPlayerDataForPlayer(UUID uuid) {
-        playerDataMap.put(uuid, new PlayerData(uuid, null));
+        playerDataMap.put(uuid, new PlayerData(dc, uuid, null));
     }
 
     public int getBuildCountByClassTypeForPlayer(ClassType classType, UUID uuid) {
@@ -88,34 +89,6 @@ public class PlayerManager {
             createPlayerDataForPlayer(uuid);
 
         return playerDataMap.get(uuid).getMaxBuilds();
-    }
-
-    public Map<UUID, PlayerEffect> getEffectsFromPlayer(UUID uuid) {
-        if(!playerDataMap.containsKey(uuid))
-            createPlayerDataForPlayer(uuid);
-
-        return playerDataMap.get(uuid).getEffects();
-    }
-
-    public Map<UUID, PlayerEffect> getEffectsFromPlayerByType(UUID uuid, PlayerEffectType type) {
-        if(!playerDataMap.containsKey(uuid))
-            createPlayerDataForPlayer(uuid);
-
-        return playerDataMap.get(uuid).getEffectsByType(type);
-    }
-
-    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
-        if(!playerDataMap.containsKey(uuid))
-            createPlayerDataForPlayer(uuid);
-
-        return playerDataMap.get(uuid).addEffect(effect);
-    }
-
-    public PlayerEffect removeEffectFromPlayer(UUID uuid, UUID effectId) {
-        if(!playerDataMap.containsKey(uuid))
-            createPlayerDataForPlayer(uuid);
-
-        return playerDataMap.get(uuid).removeEffect(effectId);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain.skill.skills;
+package com.bindothorpe.champions.domain.skill.skills.global;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;

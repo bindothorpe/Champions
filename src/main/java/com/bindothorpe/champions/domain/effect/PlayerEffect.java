@@ -1,11 +1,12 @@
-package com.bindothorpe.champions.domain.player;
+package com.bindothorpe.champions.domain.effect;
 
 import com.bindothorpe.champions.domain.skill.SkillId;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
-public class PlayerEffect implements Comparable<PlayerEffect>{
+public abstract class PlayerEffect implements Comparable<PlayerEffect>{
 
     private UUID id;
     private PlayerEffectType type;
@@ -60,4 +61,8 @@ public class PlayerEffect implements Comparable<PlayerEffect>{
 
         return 0;
     }
+
+    public abstract void applyEffect(UUID uuid, List<PlayerEffect> playerEffectList);
+
+
 }

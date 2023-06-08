@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain.player;
+package com.bindothorpe.champions.domain.effect;
 
 public enum PlayerEffectType {
 
