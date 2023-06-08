@@ -3,8 +3,9 @@ package com.bindothorpe.champions;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.player.PlayerEffect;
-import com.bindothorpe.champions.domain.player.PlayerEffectType;
+import com.bindothorpe.champions.domain.effect.PlayerEffect;
+import com.bindothorpe.champions.domain.effect.PlayerEffectManager;
+import com.bindothorpe.champions.domain.effect.PlayerEffectType;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -22,6 +23,8 @@ public class DomainController {
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
     private final BuildManager buildManager = BuildManager.getInstance(this);
     private final GuiManager guiManager = GuiManager.getInstance(this);
+
+    private final PlayerEffectManager playerEffectManager = PlayerEffectManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -160,18 +163,18 @@ public class DomainController {
     }
 
     public Map<UUID, PlayerEffect> getEffectsFromPlayer(UUID uuid) {
-        return playerManager.getEffectsFromPlayer(uuid);
+        return playerEffectManager.getEffectsFromPlayer(uuid);
     }
 
     public Map<UUID, PlayerEffect> getEffectsFromPlayerByType(UUID uuid, PlayerEffectType type) {
-        return playerManager.getEffectsFromPlayerByType(uuid, type);
+        return playerEffectManager.getEffectsFromPlayerByType(uuid, type);
     }
 
-    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
-        return playerManager.addEffectToPlayer(uuid, effect);
+    public void addEffectToPlayer(UUID uuid, PlayerEffect effect) {
+        playerEffectManager.addEffectToPlayer(uuid, effect);
     }
 
-    public PlayerEffect removeEffectFromPlayer(UUID uuid, UUID effectId) {
-        return playerManager.removeEffectFromPlayer(uuid, effectId);
+    public void removeEffectFromPlayer(UUID uuid, UUID effectId) {
+        playerEffectManager.removeEffectFromPlayer(uuid, effectId);
     }
 }
