@@ -2,6 +2,8 @@ package com.bindothorpe.champions.domain.player;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.effect.PlayerEffect;
+import com.bindothorpe.champions.domain.effect.PlayerEffectType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +14,7 @@ public class PlayerManager {
 
     private static PlayerManager instance;
     private final DomainController dc;
-
-    private Map<UUID, PlayerData> playerDataMap;
+    private final Map<UUID, PlayerData> playerDataMap;
 
     private PlayerManager(DomainController dc) {
         this.dc = dc;
@@ -73,7 +74,7 @@ public class PlayerManager {
     }
 
     private void createPlayerDataForPlayer(UUID uuid) {
-        playerDataMap.put(uuid, new PlayerData(uuid, null));
+        playerDataMap.put(uuid, new PlayerData(dc, uuid, null));
     }
 
     public int getBuildCountByClassTypeForPlayer(ClassType classType, UUID uuid) {
@@ -89,4 +90,5 @@ public class PlayerManager {
 
         return playerDataMap.get(uuid).getMaxBuilds();
     }
+
 }

@@ -3,6 +3,8 @@ package com.bindothorpe.champions;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.player.PlayerEffect;
+import com.bindothorpe.champions.domain.player.PlayerEffectType;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -155,5 +157,21 @@ public class DomainController {
 
     public int getSkillPointsFromBuild(String buildId) {
         return buildManager.getSkillPointsFromBuild(buildId);
+    }
+
+    public Map<UUID, PlayerEffect> getEffectsFromPlayer(UUID uuid) {
+        return playerManager.getEffectsFromPlayer(uuid);
+    }
+
+    public Map<UUID, PlayerEffect> getEffectsFromPlayerByType(UUID uuid, PlayerEffectType type) {
+        return playerManager.getEffectsFromPlayerByType(uuid, type);
+    }
+
+    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
+        return playerManager.addEffectToPlayer(uuid, effect);
+    }
+
+    public PlayerEffect removeEffectFromPlayer(UUID uuid, UUID effectId) {
+        return playerManager.removeEffectFromPlayer(uuid, effectId);
     }
 }

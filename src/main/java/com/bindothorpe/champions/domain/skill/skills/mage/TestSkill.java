@@ -1,5 +1,6 @@
-package com.bindothorpe.champions.domain.skill.skills;
+package com.bindothorpe.champions.domain.skill.skills.mage;
 
+import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -27,8 +28,8 @@ public class TestSkill extends Skill {
     private final List<Double> passiveHealing = Arrays.asList(0.5, 1.0, 1.5);
 
 
-    public TestSkill() {
-        super(SkillId.TEST_SKILL, SkillType.AXE, ClassType.MAGE, "Test Skill", new ArrayList<>(), Arrays.asList(5.0, 3.0, 2.0), 3, 1);
+    public TestSkill(DomainController dc) {
+        super(dc, SkillId.TEST_SKILL, SkillType.AXE, ClassType.MAGE, "Test Skill", Arrays.asList(5.0, 3.0, 2.0), 3, 1);
     }
 
     @EventHandler

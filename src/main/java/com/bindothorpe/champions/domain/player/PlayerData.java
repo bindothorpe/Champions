@@ -1,16 +1,24 @@
 package com.bindothorpe.champions.domain.player;
 
+import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.effect.PlayerEffect;
+import com.bindothorpe.champions.domain.effect.PlayerEffectType;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PlayerData {
 
+    private final DomainController dc;
     private final UUID uuid;
-    private Map<ClassType, Set<String>> buildIds;
+    private final Map<ClassType, Set<String>> buildIds;
     private String selectedBuildId;
 
-    public PlayerData(UUID uuid, Map<ClassType, Set<String>> buildIds) {
+    public PlayerData(DomainController dc, UUID uuid, Map<ClassType, Set<String>> buildIds) {
+        this.dc = dc;
         this.uuid = uuid;
         // In the future this data would come from a MySQL database
         // For now we just pass an empty Map
