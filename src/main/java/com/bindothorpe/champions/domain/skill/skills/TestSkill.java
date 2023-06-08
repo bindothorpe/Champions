@@ -4,10 +4,13 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.update.UpdateEvent;
+import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -38,6 +41,27 @@ public class TestSkill extends Skill {
         }
 
         player.setHealth(Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
+    }
+
+    @EventHandler
+    public void onTwoSecondsPassed(UpdateEvent event) {
+        if(!event.getUpdateType().equals(UpdateType.TWO_SECOND))
+            return;
+
+        for(UUID uuid : getUsers()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if(player == null)
+                continue;
+
+            //TODO: This logic is not working correctly, fix this.
+            double healingDone = Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()) - player.getHealth();
+
+
+            player.setHealth(Math.min(player.getHealth() + passiveHealing.get(getSkillLevel(uuid) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
+            player.sendMessage(Component.text("You have been healed for ").color(NamedTextColor.GRAY)
+                    .append(Component.text(healingDone).color(NamedTextColor.GREEN))
+                    .append(Component.text(" health").color(NamedTextColor.GRAY)));
+        }
     }
 
     @Override

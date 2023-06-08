@@ -2,6 +2,7 @@ package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.BuildCommand;
 import com.bindothorpe.champions.commands.SkillsCommand;
+import com.bindothorpe.champions.events.update.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChampionsPlugin extends JavaPlugin {
@@ -14,6 +15,7 @@ public final class ChampionsPlugin extends JavaPlugin {
 
         getCommand("build").setExecutor(new BuildCommand(dc));
         getCommand("skills").setExecutor(new SkillsCommand(dc));
+        Updater.getInstance(dc).start();
 
     }
 

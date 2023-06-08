@@ -149,4 +149,8 @@ public abstract class Skill implements Listener {
     protected int getSkillLevel(UUID uuid) {
         return users.get(uuid);
     }
+
+    protected Set<UUID> getUsers() {
+        return users.keySet();
+    }
 }
