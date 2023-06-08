@@ -89,4 +89,33 @@ public class PlayerManager {
 
         return playerDataMap.get(uuid).getMaxBuilds();
     }
+
+    public Map<UUID, PlayerEffect> getEffectsFromPlayer(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getEffects();
+    }
+
+    public Map<UUID, PlayerEffect> getEffectsFromPlayerByType(UUID uuid, PlayerEffectType type) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getEffectsByType(type);
+    }
+
+    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).addEffect(effect);
+    }
+
+    public PlayerEffect removeEffectFromPlayer(UUID uuid, UUID effectId) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).removeEffect(effectId);
+    }
+
 }

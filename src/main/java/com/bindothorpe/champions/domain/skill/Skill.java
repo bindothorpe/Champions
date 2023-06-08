@@ -1,5 +1,6 @@
 package com.bindothorpe.champions.domain.skill;
 
+import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,22 +16,22 @@ public abstract class Skill implements Listener {
     private Map<UUID, Integer> users;
     private Map<UUID, Long> cooldownMap;
 
+    protected DomainController dc;
     private SkillId id;
     private SkillType skillType;
     private ClassType classType;
     private String name;
-    protected List<Component> description;
     private List<Double> cooldownDuration;
     private int maxLevel;
     private int levelUpCost;
 
 
-    public Skill(SkillId id, SkillType skillType, ClassType classType, String name, List<Component> description, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
+    public Skill(DomainController dc, SkillId id, SkillType skillType, ClassType classType, String name, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
+        this.dc =dc;
         this.id = id;
         this.skillType = skillType;
         this.classType = classType;
         this.name = name;
-        this.description = new ArrayList<>();
         this.cooldownDuration = cooldownDuration;
         this.maxLevel = maxLevel;
         this.levelUpCost = levelUpCost;
