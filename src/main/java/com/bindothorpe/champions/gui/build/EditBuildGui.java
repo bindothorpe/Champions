@@ -17,7 +17,9 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class EditBuildGui extends PlayerGui {
 
@@ -63,7 +65,7 @@ public class EditBuildGui extends PlayerGui {
             root.addItem(new SkillTypeItem(skillType), 1, skillType.ordinal());
             OutlinePane skillTypePane = new OutlinePane(2, skillType.ordinal(), 6, 1);
 
-            for(SkillId skillId : dc.getClassSkillsForSkillType(classType, skillType)) {
+            for(SkillId skillId : dc.getClassSkillsForSkillType(classType, skillType).stream().sorted(Comparator.comparing(Enum::toString)).collect(Collectors.toList())) {
                 skillTypePane.addItem(new SkillItem(buildId, buildNumber, skillId, dc));
             }
             gui.addPane(skillTypePane);

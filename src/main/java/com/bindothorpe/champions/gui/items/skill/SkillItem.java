@@ -33,7 +33,11 @@ public class SkillItem extends GuiItem {
         this.buildId = buildId;
         this.buildNumber = buildNumber;
         this.skillId = skillId;
-        this.skillLevel = dc.getSkillLevelFromBuild(buildId, dc.getSkillType(skillId));
+        if(dc.getSkillFromBuild(buildId, dc.getSkillType(skillId)) == skillId) {
+            this.skillLevel = dc.getSkillLevelFromBuild(buildId, dc.getSkillType(skillId));
+        } else {
+            this.skillLevel = 0;
+        }
 
         initialize();
         setAction(this::handleClick);
