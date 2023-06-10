@@ -61,9 +61,6 @@ public class Explosion extends Skill {
         Vector dir = player.getLocation().getDirection().normalize();
         directionMap.put(player.getUniqueId(), dir);
 
-        System.out.println(dir.length());
-        System.out.println(player.getLocation().getDirection().normalize());
-
         ArmorStand explosionOrb = player.getWorld().spawn(player.getLocation(), ArmorStand.class);
         explosionOrb.setGravity(false);
         explosionOrb.setInvulnerable(true);
@@ -86,8 +83,8 @@ public class Explosion extends Skill {
             Vector add = direction.clone().multiply(travelSpeed.get(getSkillLevel(uuid) - 1) / 20);
 
             explosionOrb.teleport(explosionOrb.getLocation().add(add));
-            explosionOrb.getWorld().spawnParticle(Particle.FLAME, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0);
-            explosionOrb.getWorld().spawnParticle(Particle.SMOKE_LARGE, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0);
+            explosionOrb.getWorld().spawnParticle(Particle.FLAME, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
+            explosionOrb.getWorld().spawnParticle(Particle.SMOKE_LARGE, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
 
             Block block = explosionOrb.getEyeLocation().getBlock();
 
@@ -144,7 +141,7 @@ public class Explosion extends Skill {
             entity.damage(damage.get(getSkillLevel(uuid) - 1));
         }
 
-        location.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1, 0, 0, 0, 0);
+        location.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1, 0, 0, 0, 0, null, true);
     }
 
     @Override
