@@ -170,8 +170,8 @@ public class DomainController {
         return playerEffectManager.getEffectsFromPlayerByType(uuid, type);
     }
 
-    public void addEffectToPlayer(UUID uuid, PlayerEffect effect) {
-        playerEffectManager.addEffectToPlayer(uuid, effect);
+    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
+        return playerEffectManager.addEffectToPlayer(uuid, effect);
     }
 
     public Set<PlayerEffect> getPlayerEffectsByType(UUID uuid, PlayerEffectType playerEffectType, boolean isMultiply){

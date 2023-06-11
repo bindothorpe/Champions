@@ -1,0 +1,45 @@
+package com.bindothorpe.champions.domain.skill.skills.assassin;
+
+import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.effect.effects.MovementSpeedPlayerEffect;
+import com.bindothorpe.champions.domain.skill.Skill;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.skill.SkillType;
+import net.kyori.adventure.text.Component;
+
+import java.util.*;
+
+public class AssassinPassive extends Skill {
+
+    private final Map<UUID, Set<UUID>> effects;
+
+    public AssassinPassive(DomainController dc) {
+        super(dc, SkillId.ASSASSIN_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.ASSASSIN, "Assassin Passive", null, 1, 0);
+        this.effects = new HashMap<>();
+    }
+
+    @Override
+    public void addUser(UUID uuid, int skillLevel) {
+        super.addUser(uuid, skillLevel);
+        if (!effects.containsKey(uuid))
+            effects.put(uuid, new HashSet<>());
+
+        UUID id = dc.addEffectToPlayer(uuid, new MovementSpeedPlayerEffect(0.2, -1.0, false, getId()));
+        effects.get(uuid).add(id);
+    }
+
+    @Override
+    public void removeUser(UUID uuid) {
+        super.removeUser(uuid);
+        for(UUID id : effects.get(uuid)) {
+            dc.removeEffectFromPlayer(uuid, id);
+            System.out.println("Removed effect " + id);
+        }
+    }
+
+    @Override
+    public List<Component> getDescription(int skillLevel) {
+        return null;
+    }
+}

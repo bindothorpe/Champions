@@ -45,7 +45,7 @@ public class PlayerEffectManager {
                 .collect(Collectors.toMap(PlayerEffect::getId, playerEffect -> playerEffect));
     }
 
-    public void addEffectToPlayer(UUID uuid, PlayerEffect playerEffect) {
+    public UUID addEffectToPlayer(UUID uuid, PlayerEffect playerEffect) {
         // Check if the player already has an effect map
         if (!playerEffectMap.containsKey(uuid)) {
 
@@ -80,6 +80,7 @@ public class PlayerEffectManager {
 
         // Update the player effects for the player
         updatePlayerEffectsForPlayer(uuid, playerEffect);
+        return playerEffect.getId();
     }
 
     public void removeEffectFromPlayer(UUID uuid, UUID id) {
