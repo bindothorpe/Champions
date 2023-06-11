@@ -55,6 +55,11 @@ public class BuildManager {
         Build build = new Build(classType);
         String buildId = build.getId();
 
+        switch (classType) {
+            case ASSASSIN -> build.levelUpSkill(SkillType.CLASS_PASSIVE, SkillId.ASSASSIN_PASSIVE, 1, 0);
+            default -> System.out.println("No default skill for class " + classType);
+        }
+
         buildMap.put(buildId, build);
         return buildId;
     }

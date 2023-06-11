@@ -22,7 +22,7 @@ public class MovementSpeedPlayerEffect extends PlayerEffect {
     public void applyEffect(UUID uuid, List<PlayerEffect> playerEffectList) {
         Player player = Bukkit.getPlayer(uuid);
 
-        if(player == null)
+        if (player == null)
             return;
 
         List<PlayerEffect> modificationEffects = new ArrayList<>();
@@ -37,13 +37,9 @@ public class MovementSpeedPlayerEffect extends PlayerEffect {
         }
 
         float movementSpeed = DEFAULT_MOVEMENT_SPEED;
-        for (PlayerEffect playerEffect : modificationEffects) {
-            movementSpeed += playerEffect.getValue();
-        }
 
-        for(PlayerEffect playerEffect : multiplicationEffects) {
-            movementSpeed *= playerEffect.getValue();
-        }
+        movementSpeed += modificationEffects.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
+        movementSpeed *= multiplicationEffects.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
 
         movementSpeed = Math.max(0.0F, Math.min(1.0F, movementSpeed));
 

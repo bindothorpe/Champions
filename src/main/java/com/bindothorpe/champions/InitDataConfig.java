@@ -1,5 +1,6 @@
 package com.bindothorpe.champions;
 
+import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
 import com.bindothorpe.champions.domain.skill.skills.mage.Explosion;
 import com.bindothorpe.champions.domain.skill.skills.ranger.BouncingArrow;
 import com.bindothorpe.champions.domain.skill.skills.ranger.KitingArrow;
@@ -22,6 +23,7 @@ public class InitDataConfig {
         dc.registerSkill(new KitingArrow(dc));
         dc.registerSkill(new BouncingArrow(dc));
         dc.registerSkill(new Explosion(dc));
+        dc.registerSkill(new AssassinPassive(dc));
         Bukkit.getPluginManager().registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
     }
 }
