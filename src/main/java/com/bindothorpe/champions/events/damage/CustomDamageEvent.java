@@ -1,33 +1,82 @@
 package com.bindothorpe.champions.events.damage;
 
+import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.effect.PlayerEffect;
+import com.bindothorpe.champions.domain.effect.PlayerEffectType;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class CustomDamageEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS_LIST = new HandlerList();
-    private LivingEntity entity;
-    private Entity hitBy;
-    private double damage;
-    private Set<DamageModification> damageMods;
-    private Set<KnockbackModification> knockbackMods;
+    private final DomainController dc;
+    private final LivingEntity entity;
+    private final Entity hitBy;
+    private final double originalDamage;
+    private final static double ORIGINAL_KNOCBKAC = 0.6;
+    private final static double ORIGINAL_VERTICAL_KNOCKBACK = 0.9;
+    private Location attackLocation;
     private CustomDamageSource source;
     private boolean cancelled;
 
-    public CustomDamageEvent(LivingEntity entity, Entity hitBy, double damage, Set<DamageModification> damageMods, Set<KnockbackModification> knockbackMods, CustomDamageSource source) {
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, Entity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source) {
+        this.dc = dc;
         this.entity = entity;
         this.hitBy = hitBy;
-        this.damage = damage;
-        this.damageMods = damageMods;
-        this.knockbackMods = knockbackMods;
+        this.originalDamage = originalDamage;
+        this.attackLocation = attackLocation;
         this.source = source;
         this.cancelled = false;
+    }
+
+    public double getFinalDamage() {
+        return Math.max(0, calculateValue(PlayerEffectType.DAMAGE_DONE, PlayerEffectType.DAMAGE_RECEIVED, originalDamage));
+    }
+
+    public double getFinalKnockback() {
+        return Math.max(0, calculateValue(PlayerEffectType.KNOCKBACK_DONE, PlayerEffectType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
+    }
+
+    private double calculateValue(PlayerEffectType done, PlayerEffectType received, double originalValue) {
+
+        Set<PlayerEffect> doneSet = new HashSet<>();
+        Set<PlayerEffect> doneMultSet = new HashSet<>();
+
+        if(hitBy instanceof Player) {
+            doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
+            doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
+        }
+
+        Set<PlayerEffect> receivedSet = new HashSet<>();
+        Set<PlayerEffect> receivedMultSet = new HashSet<>();
+
+        if(entity instanceof Player) {
+            receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
+            receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
+        }
+
+
+        double doneAddSum = doneSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
+        double doneMultSum = doneMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
+
+        double finalDone = doneAddSum * doneMultSum;
+
+        double receivedAddSum = receivedSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
+        double receivedMultSum = receivedMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
+
+        double finalReceived = receivedAddSum * receivedMultSum;
+
+        return Math.max(0, originalValue + finalDone - finalReceived);
     }
 
     @Override
@@ -47,18 +96,9 @@ public class CustomDamageEvent extends Event implements Cancellable {
         return hitBy;
     }
 
-    public double getDamage() {
-        return damage;
+    public final double getOriginalDamage() {
+        return originalDamage;
     }
-
-    public Set<DamageModification> getDamageMods() {
-        return damageMods;
-    }
-
-    public Set<KnockbackModification> getKnockbackMods() {
-        return knockbackMods;
-    }
-
     public CustomDamageSource getSource() {
         return source;
     }
@@ -72,4 +112,9 @@ public class CustomDamageEvent extends Event implements Cancellable {
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
     }
+
+    public final Vector getKnockbackDirection() {
+        return entity.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
+    }
+
 }
