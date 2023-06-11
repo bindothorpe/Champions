@@ -98,6 +98,16 @@ public class PlayerEffectManager {
 
     }
 
+    public Set<PlayerEffect> getPlayerEffectsByType(UUID uuid, PlayerEffectType playerEffectType, boolean isMultiply) {
+        // Check if the player already has an effect map
+        if (!playerEffectMap.containsKey(uuid))
+            playerEffectMap.put(uuid, new HashMap<>());
+
+        return playerEffectMap.get(uuid).values().stream()
+                .filter(playerEffect -> playerEffect.getType() == playerEffectType && playerEffect.isMultiply() == isMultiply)
+                .collect(Collectors.toSet());
+    }
+
 
     private void updatePlayerEffectsForPlayer(UUID uuid, PlayerEffect playerEffect) {
         // Check if the player already has an effect map
@@ -136,4 +146,5 @@ public class PlayerEffectManager {
         }
         return null;
     }
+
 }
