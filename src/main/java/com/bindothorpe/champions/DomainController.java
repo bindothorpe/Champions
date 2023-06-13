@@ -7,6 +7,8 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.effect.PlayerEffect;
 import com.bindothorpe.champions.domain.effect.PlayerEffectManager;
 import com.bindothorpe.champions.domain.effect.PlayerEffectType;
+import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
@@ -16,6 +18,7 @@ import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -29,6 +32,8 @@ public class DomainController {
     private final GuiManager guiManager = GuiManager.getInstance(this);
     private final TemporaryBlockManager temporaryBlockManager = TemporaryBlockManager.getInstance(this);
     private final PlayerEffectManager playerEffectManager = PlayerEffectManager.getInstance(this);
+
+    private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -188,5 +193,24 @@ public class DomainController {
 
     public void spawnTemporaryBlock(Location location, Material material, double duration) {
         temporaryBlockManager.spawnTemporaryBlock(location, material, duration);
+    }
+
+    public void spawnGameItem(GameItem gameItem, Location startingLocation, Vector direction, double strength) {
+        gameItemManager.spawnGameItem(gameItem, startingLocation, direction, strength);
+    }
+    public boolean isGameItem(Item item) {
+        return gameItemManager.isGameItem(item);
+    }
+
+    public GameItem getGameItem(Item item) {
+        return gameItemManager.getGameItem(item);
+    }
+
+    public Set<GameItem> getGameItems() {
+        return gameItemManager.getGameItems();
+    }
+
+    public void despawnItem(UUID uuid) {
+        gameItemManager.despawnItem(uuid);
     }
 }
