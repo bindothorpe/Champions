@@ -6,6 +6,7 @@ import com.bindothorpe.champions.util.ShapeUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -16,8 +17,8 @@ public class IceOrbItem extends GameItem {
     private final double icePrisonDuration;
     private boolean collisionFlag = false;
     private Entity collidedEntity;
-    public IceOrbItem(DomainController dc, Material material, double duration, double icePrisonDuration, Entity owner) {
-        super(dc, material, duration, owner);
+    public IceOrbItem(DomainController dc, double duration, double icePrisonDuration, Entity owner) {
+        super(dc, Material.ICE, duration, owner, 0.5, -1);
         this.icePrisonDuration = icePrisonDuration;
     }
 
@@ -31,6 +32,11 @@ public class IceOrbItem extends GameItem {
         collisionFlag = true;
         collidedEntity = entity;
         dc.despawnItem(getId());
+    }
+
+    @Override
+    public void onCollideWithBlock(Block block) {
+
     }
 
     @Override

@@ -65,4 +65,16 @@ public abstract class PlayerEffect implements Comparable<PlayerEffect>{
     public abstract void applyEffect(UUID uuid, List<PlayerEffect> playerEffectList);
 
 
+    public double getModificationValue(List<PlayerEffect> playerEffectList) {
+        return Math.max(0.0F, Math.min(0.0F, playerEffectList.stream().filter(playerEffect -> !playerEffect.isMultiply()).reduce(0.0, (a, b) -> a + b.getValue(), Double::sum)));
+    }
+
+    public double getMultiplicationValue(List<PlayerEffect> playerEffectList) {
+        return Math.max(0.0F, Math.min(1.0F, playerEffectList.stream().filter(playerEffect -> playerEffect.isMultiply()).reduce(1.0, (a, b) -> a + b.getValue(), Double::sum)));
+    }
+
+    public double getValue(List<PlayerEffect> playerEffectList, double minValue, double maxValue) {
+        return Math.max(minValue, Math.min(maxValue, getModificationValue(playerEffectList) * getMultiplicationValue(playerEffectList)));
+    }
+
 }

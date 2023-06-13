@@ -2,11 +2,14 @@ package com.bindothorpe.champions.domain.item.listeners;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.item.events.GameItemCollideWithBlockEvent;
 import com.bindothorpe.champions.domain.item.events.GameItemCollideWithEntityEvent;
 import com.bindothorpe.champions.domain.item.events.GameItemPickupEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import com.bindothorpe.champions.util.BlockUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -33,8 +36,10 @@ public class GameItemListener implements Listener {
             return;
 
         GameItem item = dc.getGameItem(event.getItem());
-
         event.setCancelled(true);
+
+        if(event.getEntity().equals(item.getOwner()))
+            return;
 
         Bukkit.getPluginManager().callEvent(new GameItemPickupEvent(dc, item, event.getEntity()));
         dc.despawnItem(item.getId());
@@ -47,18 +52,35 @@ public class GameItemListener implements Listener {
 
         dc.getGameItems().forEach(GameItem::onUpdate);
         dc.getGameItems().forEach(gameItem -> {
-            List<Entity> colliding = new ArrayList<>(gameItem.getLocation().getNearbyEntities(COLLISION_RADIUS, COLLISION_RADIUS, COLLISION_RADIUS).stream().filter(entity -> entity instanceof LivingEntity).collect(Collectors.toList()));
-            colliding.remove(gameItem.getOwner());
+            double entityCollisionRadius = gameItem.getEntityCollisionRadius();
+            double blockCollisionRadius = gameItem.getBlockCollisionRadius();
 
-            if(colliding.isEmpty())
-                return;
+            List<Entity> colliding = new ArrayList<>();
+            if(entityCollisionRadius != -1) {
+                colliding.addAll(gameItem.getLocation().getNearbyEntities(entityCollisionRadius, entityCollisionRadius, entityCollisionRadius).stream().filter(entity -> entity instanceof LivingEntity).collect(Collectors.toList()));
+                colliding.remove(gameItem.getOwner());
+            }
 
-            Bukkit.getPluginManager().callEvent(new GameItemCollideWithEntityEvent(dc, gameItem, colliding.get(0)));
+            if(!colliding.isEmpty())
+                Bukkit.getPluginManager().callEvent(new GameItemCollideWithEntityEvent(dc, gameItem, colliding.get(0)));
+
+
+            List<Block> collidingBlocks = new ArrayList<>();
+            if(blockCollisionRadius != -1)
+                collidingBlocks.addAll(BlockUtil.getNearbyBlocks(gameItem.getLocation(), blockCollisionRadius));
+
+            if(!collidingBlocks.isEmpty())
+                Bukkit.getPluginManager().callEvent(new GameItemCollideWithBlockEvent(dc, gameItem, collidingBlocks.get(0)));
         });
     }
 
     @EventHandler
     public void onCollide(GameItemCollideWithEntityEvent event) {
         event.getGameItem().onCollide(event.getEntity());
+    }
+
+    @EventHandler
+    public void onCollideWithBlock(GameItemCollideWithBlockEvent event) {
+        event.getGameItem().onCollideWithBlock(event.getBlock());
     }
 }

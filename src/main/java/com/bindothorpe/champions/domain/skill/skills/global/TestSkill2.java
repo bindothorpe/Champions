@@ -36,8 +36,6 @@ public class TestSkill2 extends Skill {
     public void onRightClickEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
 
-
-
         if(!activate(player.getUniqueId(), event))
             return;
 

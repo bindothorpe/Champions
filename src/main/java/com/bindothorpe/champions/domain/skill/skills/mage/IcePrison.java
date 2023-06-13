@@ -36,7 +36,7 @@ public class IcePrison extends Skill {
             return;
         }
 
-        dc.spawnGameItem(new IceOrbItem(dc, Material.ICE, 5, duration.get(getSkillLevel(player.getUniqueId()) - 1), player), player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
+        dc.spawnGameItem(new IceOrbItem(dc, 5, duration.get(getSkillLevel(player.getUniqueId()) - 1), player), player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
     }
 
     @Override

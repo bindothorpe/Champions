@@ -33,6 +33,10 @@ public class GameItemManager {
         UUID uuid = gameItem.spawn(startingLocation, direction, strength);
         gameItems.put(uuid, gameItem);
 
+        if (gameItem.getDuration() <= 0) {
+            return;
+        }
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -59,6 +63,7 @@ public class GameItemManager {
     }
 
     public Set<GameItem> getGameItems() {
+        gameItems.values().removeIf(gameItem -> gameItem.getItem().isDead());
         return new HashSet<>(gameItems.values());
     }
 
