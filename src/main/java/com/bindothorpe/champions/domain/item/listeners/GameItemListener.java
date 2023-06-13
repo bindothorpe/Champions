@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GameItemListener implements Listener {
-    private final static double COLLISION_RADIUS = 0.8;
+    private final static double COLLISION_RADIUS = 0.5;
     private DomainController dc;
 
     public GameItemListener(DomainController dc) {
@@ -42,7 +42,7 @@ public class GameItemListener implements Listener {
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if (!event.getUpdateType().equals(UpdateType.RAPID))
+        if (!event.getUpdateType().equals(UpdateType.TICK))
             return;
 
         dc.getGameItems().forEach(GameItem::onUpdate);
@@ -52,7 +52,6 @@ public class GameItemListener implements Listener {
 
             if(colliding.isEmpty())
                 return;
-            System.out.println("Colliding with " + colliding.get(0).getName());
 
             Bukkit.getPluginManager().callEvent(new GameItemCollideWithEntityEvent(dc, gameItem, colliding.get(0)));
         });
