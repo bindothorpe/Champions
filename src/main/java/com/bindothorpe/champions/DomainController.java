@@ -1,5 +1,6 @@
 package com.bindothorpe.champions;
 
+import com.bindothorpe.champions.domain.block.TemporaryBlockManager;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
@@ -13,6 +14,9 @@ import com.bindothorpe.champions.domain.skill.SkillManager;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -23,7 +27,7 @@ public class DomainController {
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
     private final BuildManager buildManager = BuildManager.getInstance(this);
     private final GuiManager guiManager = GuiManager.getInstance(this);
-
+    private final TemporaryBlockManager temporaryBlockManager = TemporaryBlockManager.getInstance(this);
     private final PlayerEffectManager playerEffectManager = PlayerEffectManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
@@ -180,5 +184,9 @@ public class DomainController {
 
     public void removeEffectFromPlayer(UUID uuid, UUID effectId) {
         playerEffectManager.removeEffectFromPlayer(uuid, effectId);
+    }
+
+    public void spawnTemporaryBlock(Location location, Material material, double duration) {
+        temporaryBlockManager.spawnTemporaryBlock(location, material, duration);
     }
 }
