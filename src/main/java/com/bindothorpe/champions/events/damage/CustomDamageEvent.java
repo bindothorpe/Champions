@@ -6,7 +6,6 @@ import com.bindothorpe.champions.domain.effect.PlayerEffectType;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -52,19 +51,15 @@ public class CustomDamageEvent extends Event implements Cancellable {
         Set<PlayerEffect> doneSet = new HashSet<>();
         Set<PlayerEffect> doneMultSet = new HashSet<>();
 
-        if(hitBy instanceof Player) {
-            doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
-            doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
-        }
+        doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
+        doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
+
 
         Set<PlayerEffect> receivedSet = new HashSet<>();
         Set<PlayerEffect> receivedMultSet = new HashSet<>();
 
-        if(entity instanceof Player) {
-            receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
-            receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
-        }
-
+        receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
+        receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
 
         double doneAddSum = doneSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
         double doneMultSum = doneMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
@@ -99,6 +94,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
     public final double getOriginalDamage() {
         return originalDamage;
     }
+
     public CustomDamageSource getSource() {
         return source;
     }
