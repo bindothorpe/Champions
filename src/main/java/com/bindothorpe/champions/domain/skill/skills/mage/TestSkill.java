@@ -1,23 +1,22 @@
 package com.bindothorpe.champions.domain.skill.skills.mage;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.block.TemporaryBlock;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
-import com.bindothorpe.champions.events.update.UpdateEvent;
-import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.attribute.Attribute;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,29 +40,34 @@ public class TestSkill extends Skill {
             return;
         }
 
-        player.setHealth(Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
-    }
+        List<Vector> vectors = ShapeUtil.sphere(5).stream().sorted((v1, v2) -> v2.getBlockY() - v1.getBlockY()).collect(Collectors.toList());
 
-    @EventHandler
-    public void onTwoSecondsPassed(UpdateEvent event) {
-        if(!event.getUpdateType().equals(UpdateType.TWO_SECOND))
-            return;
-
-        for(UUID uuid : getUsers()) {
-            Player player = Bukkit.getPlayer(uuid);
-            if(player == null)
-                continue;
-
-            //TODO: This logic is not working correctly, fix this.
-            double healingDone = Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()) - player.getHealth();
-
-
-            player.setHealth(Math.min(player.getHealth() + passiveHealing.get(getSkillLevel(uuid) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
-            player.sendMessage(Component.text("You have been healed for ").color(NamedTextColor.GRAY)
-                    .append(Component.text(healingDone).color(NamedTextColor.GREEN))
-                    .append(Component.text(" health").color(NamedTextColor.GRAY)));
+        for(int i = 0; i < vectors.size(); i++) {
+            Vector v = vectors.get(i);
+            dc.spawnTemporaryBlock(player.getLocation().clone().add(v), Material.ICE, 5 + (i / 200D));
         }
     }
+
+//    @EventHandler
+//    public void onTwoSecondsPassed(UpdateEvent event) {
+//        if(!event.getUpdateType().equals(UpdateType.TWO_SECOND))
+//            return;
+//
+//        for(UUID uuid : getUsers()) {
+//            Player player = Bukkit.getPlayer(uuid);
+//            if(player == null)
+//                continue;
+//
+//            //TODO: This logic is not working correctly, fix this.
+//            double healingDone = Math.min(player.getHealth() + healing.get(getSkillLevel(player.getUniqueId()) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()) - player.getHealth();
+//
+//
+//            player.setHealth(Math.min(player.getHealth() + passiveHealing.get(getSkillLevel(uuid) - 1), Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue()));
+//            player.sendMessage(Component.text("You have been healed for ").color(NamedTextColor.GRAY)
+//                    .append(Component.text(healingDone).color(NamedTextColor.GREEN))
+//                    .append(Component.text(" health").color(NamedTextColor.GRAY)));
+//        }
+//    }
 
     @Override
     protected boolean canUseHook(UUID uuid, Event e) {
@@ -76,11 +80,6 @@ public class TestSkill extends Skill {
             return false;
 
         if(!event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_AXE"))
-            return false;
-
-        Player player = event.getPlayer();
-
-        if(event.getPlayer().getHealth() >= Objects.requireNonNull(player.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue())
             return false;
 
         return super.canUseHook(uuid, e);
