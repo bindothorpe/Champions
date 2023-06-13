@@ -4,6 +4,7 @@ import com.bindothorpe.champions.domain.block.TemporaryBlockManager;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.combat.CombatLogger;
 import com.bindothorpe.champions.domain.effect.PlayerEffect;
 import com.bindothorpe.champions.domain.effect.PlayerEffectManager;
 import com.bindothorpe.champions.domain.effect.PlayerEffectType;
@@ -32,8 +33,8 @@ public class DomainController {
     private final GuiManager guiManager = GuiManager.getInstance(this);
     private final TemporaryBlockManager temporaryBlockManager = TemporaryBlockManager.getInstance(this);
     private final PlayerEffectManager playerEffectManager = PlayerEffectManager.getInstance(this);
-
     private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
+    private final CombatLogger combatLogger = CombatLogger.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -213,4 +214,25 @@ public class DomainController {
     public void despawnItem(UUID uuid) {
         gameItemManager.despawnItem(uuid);
     }
+
+    public void logDamageTaken(UUID uuid) {
+        combatLogger.logDamageTaken(uuid);
+    }
+
+    public void logDamageDealt(UUID uuid) {
+        combatLogger.logDamageDealt(uuid);
+    }
+
+    public boolean isInCombat(UUID uuid) {
+        return combatLogger.isInCombat(uuid);
+    }
+
+    public boolean hasTakenDamageWithinDuration(UUID uuid, double duration) {
+        return combatLogger.hasTakenDamageWithinDuration(uuid, duration);
+    }
+
+    public boolean hasDealtDamageWithinDuration(UUID uuid, double duration) {
+        return combatLogger.hasDealtDamageWithinDuration(uuid, duration);
+    }
+
 }
