@@ -1,8 +1,7 @@
 package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.effect.PlayerEffect;
-import com.bindothorpe.champions.domain.effect.PlayerEffectType;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -39,37 +38,37 @@ public class CustomDamageEvent extends Event implements Cancellable {
     }
 
     public double getFinalDamage() {
-        return Math.max(0, calculateValue(PlayerEffectType.DAMAGE_DONE, PlayerEffectType.DAMAGE_RECEIVED, originalDamage));
+        return Math.max(0, calculateValue(EntityStatusType.DAMAGE_DONE, EntityStatusType.DAMAGE_RECEIVED, originalDamage));
     }
 
     public double getFinalKnockback() {
-        return Math.max(0, calculateValue(PlayerEffectType.KNOCKBACK_DONE, PlayerEffectType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
+        return Math.max(0, calculateValue(EntityStatusType.KNOCBKACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
     }
 
-    private double calculateValue(PlayerEffectType done, PlayerEffectType received, double originalValue) {
+    private double calculateValue(EntityStatusType done, EntityStatusType received, double originalValue) {
 
-        Set<PlayerEffect> doneSet = new HashSet<>();
-        Set<PlayerEffect> doneMultSet = new HashSet<>();
-
-        doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
-        doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
-
-
-        Set<PlayerEffect> receivedSet = new HashSet<>();
-        Set<PlayerEffect> receivedMultSet = new HashSet<>();
-
-        receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
-        receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
-
-        double doneAddSum = doneSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
-        double doneMultSum = doneMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
-
-        double finalDone = doneAddSum * doneMultSum;
-
-        double receivedAddSum = receivedSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
-        double receivedMultSum = receivedMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
-
-        double finalReceived = receivedAddSum * receivedMultSum;
+//        Set<PlayerEffect> doneSet = new HashSet<>();
+//        Set<PlayerEffect> doneMultSet = new HashSet<>();
+//
+//        doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
+//        doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
+//
+//
+//        Set<PlayerEffect> receivedSet = new HashSet<>();
+//        Set<PlayerEffect> receivedMultSet = new HashSet<>();
+//
+//        receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
+//        receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
+//
+//        double doneAddSum = doneSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
+//        double doneMultSum = doneMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
+//
+        double finalDone = dc.getFinalEntityStatusValue(hitBy.getUniqueId(), done, 0);
+//
+//        double receivedAddSum = receivedSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
+//        double receivedMultSum = receivedMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
+//
+        double finalReceived = dc.getFinalEntityStatusValue(entity.getUniqueId(), received, 0);
 
         return Math.max(0, originalValue + finalDone - finalReceived);
     }

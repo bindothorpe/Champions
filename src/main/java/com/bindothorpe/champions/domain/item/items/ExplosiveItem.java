@@ -1,12 +1,9 @@
 package com.bindothorpe.champions.domain.item.items;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.effect.PlayerEffect;
-import com.bindothorpe.champions.domain.effect.effects.KnockbackDonePlayerEffect;
-import com.bindothorpe.champions.domain.effect.effects.KnockbackReceivedPlayerEffect;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import org.bukkit.Material;
@@ -62,8 +59,8 @@ public class ExplosiveItem extends GameItem {
         if(nearby.isEmpty())
             return;
 
-        PlayerEffect effect = new KnockbackDonePlayerEffect(EXPLOSION_KNOCKBACK, -1, false, SkillId.EXPLOSIVE_BOMB);
-        dc.addEffectToPlayer(getOwner().getUniqueId(), effect);
+        EntityStatus status = new EntityStatus(EntityStatusType.KNOCBKACK_DONE, EXPLOSION_KNOCKBACK, -1, false, this);
+        dc.addStatusToEntity(getOwner().getUniqueId(), status);
         for(Entity e : nearby) {
             CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
 
@@ -80,6 +77,6 @@ public class ExplosiveItem extends GameItem {
             customDamageEvent.getEntity().setVelocity(customDamageEvent.getEntity().getVelocity().add(direction.multiply(customDamageEvent.getFinalKnockback())));
 
         }
-        dc.removeEffectFromPlayer(getOwner().getUniqueId(), effect.getId());
+        dc.removeStatusFromEntity(getOwner().getUniqueId(), EntityStatusType.KNOCBKACK_DONE, this);
     }
 }

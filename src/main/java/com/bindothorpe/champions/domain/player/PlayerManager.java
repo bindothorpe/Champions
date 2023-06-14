@@ -2,8 +2,6 @@ package com.bindothorpe.champions.domain.player;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.effect.PlayerEffect;
-import com.bindothorpe.champions.domain.effect.PlayerEffectType;
 
 import java.util.HashMap;
 import java.util.Map;

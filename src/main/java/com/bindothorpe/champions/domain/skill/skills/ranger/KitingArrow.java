@@ -2,7 +2,8 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.effect.effects.MovementSpeedPlayerEffect;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -43,7 +44,8 @@ public class KitingArrow extends Skill {
         if (!isUser(player.getUniqueId()))
             return;
 
-        dc.addEffectToPlayer(player.getUniqueId(), new MovementSpeedPlayerEffect(speed.get(getSkillLevel(player.getUniqueId()) - 1), speedDuration.get(getSkillLevel(player.getUniqueId()) - 1), false, getId()));
+        dc.addStatusToEntity(player.getUniqueId(), new EntityStatus(EntityStatusType.MOVEMENT_SPEED, speed.get(getSkillLevel(player.getUniqueId()) - 1), speedDuration.get(getSkillLevel(player.getUniqueId()) - 1), false, this));
+        dc.updateEntityStatus(player.getUniqueId(), EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override
