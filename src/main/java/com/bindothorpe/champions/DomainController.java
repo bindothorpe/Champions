@@ -15,6 +15,9 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -33,6 +36,7 @@ public class DomainController {
     private final GuiManager guiManager = GuiManager.getInstance(this);
     private final TemporaryBlockManager temporaryBlockManager = TemporaryBlockManager.getInstance(this);
     private final EntityStatusManager entityStatusManager = EntityStatusManager.getInstance(this);
+    private final StatusEffectManager statusEffectManager = StatusEffectManager.getInstance(this);
     private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
     private final CombatLogger combatLogger = CombatLogger.getInstance(this);
 
@@ -195,6 +199,7 @@ public class DomainController {
     public void spawnGameItem(GameItem gameItem, Location startingLocation, Vector direction, double strength) {
         gameItemManager.spawnGameItem(gameItem, startingLocation, direction, strength);
     }
+
     public boolean isGameItem(Item item) {
         return gameItemManager.isGameItem(item);
     }
@@ -229,6 +234,18 @@ public class DomainController {
 
     public boolean hasDealtDamageWithinDuration(UUID uuid, double duration) {
         return combatLogger.hasDealtDamageWithinDuration(uuid, duration);
+    }
+
+    public void registerStatusEffect(StatusEffect statusEffect) {
+        statusEffectManager.registerStatusEffect(statusEffect);
+    }
+
+    public void addStatusEffectToEntity(StatusEffectType type, UUID uuid, double duration) {
+        statusEffectManager.addStatusEffectToEntity(type, uuid, duration);
+    }
+
+    public void removeStatusEffectFromPlayer(StatusEffectType type, UUID uuid) {
+        statusEffectManager.removeStatusEffectFromPlayer(type, uuid);
     }
 
 }
