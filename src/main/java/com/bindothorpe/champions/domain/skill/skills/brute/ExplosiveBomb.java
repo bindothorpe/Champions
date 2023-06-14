@@ -8,7 +8,9 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
@@ -47,7 +49,20 @@ public class ExplosiveBomb extends Skill {
 
     @Override
     public List<Component> getDescription(int skillLevel) {
-        return new ArrayList<>();
+        List<Component> lore = new ArrayList<>();
+
+        lore.add(ComponentUtil.active()
+                .append(ComponentUtil.rightClick())
+                .append(Component.text("to throw an").color(NamedTextColor.GRAY)));
+        lore.add(Component.text("Explosive Bomb that sticks").color(NamedTextColor.GRAY));
+        lore.add(Component.text("to walls and explodes,").color(NamedTextColor.GRAY));
+        lore.add(Component.text("dealing ").color(NamedTextColor.GRAY)
+                .append(ComponentUtil.skillLevelValues(skillLevel, damage, NamedTextColor.YELLOW))
+                .append(Component.text(" damage,").color(NamedTextColor.GRAY)));
+        lore.add(Component.text("if you ").color(NamedTextColor.GRAY)
+                .append(ComponentUtil.rightClick())
+                .append(Component.text("again").color(NamedTextColor.GRAY)));
+        return lore;
     }
 
     public void removeBomb(UUID uuid) {
