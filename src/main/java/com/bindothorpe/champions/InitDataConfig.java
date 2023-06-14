@@ -26,7 +26,7 @@ public class InitDataConfig {
     public void initialize() {
         PluginManager pm = Bukkit.getPluginManager();
         dc.registerSkill(new IcePrison(dc));
-        dc.registerSkill(new TestSkill2(dc));
+//        dc.registerSkill(new TestSkill2(dc));
         dc.registerSkill(new KitingArrow(dc));
         dc.registerSkill(new BouncingArrow(dc));
         dc.registerSkill(new Explosion(dc));

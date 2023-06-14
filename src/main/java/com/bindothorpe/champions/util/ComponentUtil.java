@@ -19,5 +19,20 @@ public class ComponentUtil {
         return builder.build();
     }
 
+    public static Component leftClick() {
+        return Component.text("left-click ").color(NamedTextColor.YELLOW);
+    }
+
+    public static Component rightClick() {
+        return Component.text("right-click ").color(NamedTextColor.YELLOW);
+    }
+
+    public static Component passive() {
+        return Component.text("Passive ").color(NamedTextColor.WHITE);
+    }
+
+    public static Component active() {
+        return Component.text("Active: ").color(NamedTextColor.WHITE);
+    }
 
 }
