@@ -4,6 +4,7 @@ import com.bindothorpe.champions.domain.combat.CombatListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
 import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
+import com.bindothorpe.champions.domain.skill.skills.brute.HeadButt;
 import com.bindothorpe.champions.domain.skill.skills.global.TestSkill;
 import com.bindothorpe.champions.domain.skill.skills.mage.Explosion;
 import com.bindothorpe.champions.domain.skill.skills.ranger.BouncingArrow;
@@ -36,6 +37,7 @@ public class InitDataConfig {
         dc.registerSkill(new AssassinPassive(dc));
         dc.registerSkill(new HuntersHeart(dc));
         dc.registerSkill(new ExplosiveBomb(dc));
+        dc.registerSkill(new HeadButt(dc));
 
         dc.registerStatusEffect(new RootStatusEffect(dc));
         dc.registerStatusEffect(new StunStatusEffect(dc));
