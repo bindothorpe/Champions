@@ -5,9 +5,9 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.combat.CombatLogger;
-import com.bindothorpe.champions.domain.effect.PlayerEffect;
-import com.bindothorpe.champions.domain.effect.PlayerEffectManager;
-import com.bindothorpe.champions.domain.effect.PlayerEffectType;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
@@ -32,7 +32,7 @@ public class DomainController {
     private final BuildManager buildManager = BuildManager.getInstance(this);
     private final GuiManager guiManager = GuiManager.getInstance(this);
     private final TemporaryBlockManager temporaryBlockManager = TemporaryBlockManager.getInstance(this);
-    private final PlayerEffectManager playerEffectManager = PlayerEffectManager.getInstance(this);
+    private final EntityStatusManager entityStatusManager = EntityStatusManager.getInstance(this);
     private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
     private final CombatLogger combatLogger = CombatLogger.getInstance(this);
 
@@ -172,24 +172,20 @@ public class DomainController {
         return buildManager.getSkillPointsFromBuild(buildId);
     }
 
-    public Map<UUID, PlayerEffect> getEffectsFromPlayer(UUID uuid) {
-        return playerEffectManager.getEffectsFromPlayer(uuid);
+    public void addStatusToEntity(UUID uuid, EntityStatus status) {
+        entityStatusManager.addEntityStatus(uuid, status);
     }
 
-    public Map<UUID, PlayerEffect> getEffectsFromPlayerByType(UUID uuid, PlayerEffectType type) {
-        return playerEffectManager.getEffectsFromPlayerByType(uuid, type);
+    public void removeStatusFromEntity(UUID uuid, EntityStatusType type, Object source) {
+        entityStatusManager.removeEntityStatus(uuid, type, source);
     }
 
-    public UUID addEffectToPlayer(UUID uuid, PlayerEffect effect) {
-        return playerEffectManager.addEffectToPlayer(uuid, effect);
+    public double getFinalEntityStatusValue(UUID uuid, EntityStatusType type, double baseValue) {
+        return entityStatusManager.getFinalValue(uuid, type, baseValue);
     }
 
-    public Set<PlayerEffect> getPlayerEffectsByType(UUID uuid, PlayerEffectType playerEffectType, boolean isMultiply){
-        return playerEffectManager.getPlayerEffectsByType(uuid, playerEffectType, isMultiply);
-    }
-
-    public void removeEffectFromPlayer(UUID uuid, UUID effectId) {
-        playerEffectManager.removeEffectFromPlayer(uuid, effectId);
+    public void updateEntityStatus(UUID uuid, EntityStatusType type) {
+        entityStatusManager.updateEntityStatus(uuid, type);
     }
 
     public void spawnTemporaryBlock(Location location, Material material, double duration) {

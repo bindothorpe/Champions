@@ -2,7 +2,8 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.effect.effects.MovementSpeedPlayerEffect;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -22,20 +23,16 @@ public class AssassinPassive extends Skill {
     @Override
     public void addUser(UUID uuid, int skillLevel) {
         super.addUser(uuid, skillLevel);
-        if (!effects.containsKey(uuid))
-            effects.put(uuid, new HashSet<>());
-
-        UUID id = dc.addEffectToPlayer(uuid, new MovementSpeedPlayerEffect(0.2, -1.0, false, getId()));
-        effects.get(uuid).add(id);
+//        dc.addEffectToPlayer(uuid, new MovementSpeedPlayerEffect(0.2, -1.0, false, getId()));
+        dc.addStatusToEntity(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, 0.2, -1.0, false, this));
+        dc.updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override
     public void removeUser(UUID uuid) {
         super.removeUser(uuid);
-        for(UUID id : effects.get(uuid)) {
-            dc.removeEffectFromPlayer(uuid, id);
-            System.out.println("Removed effect " + id);
-        }
+        dc.removeStatusFromEntity(uuid, EntityStatusType.MOVEMENT_SPEED, this);
+        dc.updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override
