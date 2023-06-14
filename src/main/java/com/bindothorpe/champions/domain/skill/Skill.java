@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.events.skill.SkillUseEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -83,6 +84,11 @@ public abstract class Skill implements Listener {
         if (!canUse(uuid, event))
             return false;
 
+        SkillUseEvent skillUseEvent = new SkillUseEvent(player, getId(), users.get(uuid));
+        Bukkit.getPluginManager().callEvent(skillUseEvent);
+
+        if(skillUseEvent.isCancelled())
+            return false;
 
         player.sendMessage(Component.text("You used ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
