@@ -1,5 +1,8 @@
 package com.bindothorpe.champions;
 
+import com.bindothorpe.champions.database.Database;
+import com.bindothorpe.champions.database.DatabaseController;
+import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.block.TemporaryBlockManager;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
@@ -20,16 +23,20 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.sql.SQLException;
 import java.util.*;
 
 public class DomainController {
 
     private final ChampionsPlugin plugin;
+    private final DatabaseController databaseController = DatabaseController.getInstance(this);
     private final SkillManager skillManager = SkillManager.getInstance(this);
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
     private final BuildManager buildManager = BuildManager.getInstance(this);
@@ -42,11 +49,17 @@ public class DomainController {
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
+        try {
+            databaseController.initializeDatabase();
+        } catch (SQLException e) {
+            System.out.println("Error initializing database: " + e.getMessage());
+        }
     }
 
     public ChampionsPlugin getPlugin() {
         return plugin;
     }
+
 
     public void setSelectedBuildIdForPlayer(UUID uuid, String buildId) {
         playerManager.setSelectedBuildIdForPlayer(uuid, buildId);
@@ -112,7 +125,7 @@ public class DomainController {
         return buildManager.createEmptyBuild(classType);
     }
 
-    public boolean deleteBuild(String buildId) {
+    public Build deleteBuild(String buildId) {
         return buildManager.deleteBuild(buildId);
     }
 
@@ -248,4 +261,16 @@ public class DomainController {
         statusEffectManager.removeStatusEffectFromPlayer(type, uuid);
     }
 
+
+    public void addBuild(Build build) {
+        buildManager.addBuild(build);
+    }
+
+    public DatabaseController getDatabaseController() {
+        return databaseController;
+    }
+
+    public void deletePlayer(UUID uuid) {
+        playerManager.deletePlayer(uuid);
+    }
 }

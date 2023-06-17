@@ -3,6 +3,9 @@ package com.bindothorpe.champions.domain.build;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.build.EquipBuildEvent;
+import com.bindothorpe.champions.events.build.UnequipBuildEvent;
+import org.bukkit.Bukkit;
 
 import java.util.*;
 
@@ -64,8 +67,8 @@ public class BuildManager {
         return buildId;
     }
 
-    public boolean deleteBuild(String buildId) {
-        return buildMap.remove(buildId) != null;
+    public Build deleteBuild(String buildId) {
+        return buildMap.remove(buildId);
     }
 
     public boolean levelUpSkillForBuild(String buildId, SkillId skillId) {
@@ -113,6 +116,8 @@ public class BuildManager {
         }
 
         dc.setSelectedBuildIdForPlayer(uuid, buildId);
+
+        Bukkit.getPluginManager().callEvent(new EquipBuildEvent(build, uuid));
     }
 
     public void unequipBuildForPlayer(UUID uuid) {
@@ -131,6 +136,7 @@ public class BuildManager {
         }
 
         dc.setSelectedBuildIdForPlayer(uuid, null);
+        Bukkit.getPluginManager().callEvent(new UnequipBuildEvent(build, uuid));
     }
 
     public SkillId getSkillFromBuild(String buildId, SkillType skillType) {
@@ -164,5 +170,9 @@ public class BuildManager {
         }
 
         return build.getSkillPoints();
+    }
+
+    public void addBuild(Build build) {
+        buildMap.put(build.getId(), build);
     }
 }

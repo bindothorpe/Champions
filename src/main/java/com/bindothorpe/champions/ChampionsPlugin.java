@@ -2,8 +2,11 @@ package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.BuildCommand;
 import com.bindothorpe.champions.commands.SkillsCommand;
+import com.bindothorpe.champions.database.Database;
 import com.bindothorpe.champions.events.update.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.sql.SQLException;
 
 public final class ChampionsPlugin extends JavaPlugin {
 

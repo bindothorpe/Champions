@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.build.UpdateBuildEvent;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.build.DeleteBuildItem;
 import com.bindothorpe.champions.gui.items.global.BackItem;
@@ -15,6 +16,7 @@ import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.Comparator;

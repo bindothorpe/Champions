@@ -1,11 +1,14 @@
 package com.bindothorpe.champions.gui.items.build;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.events.build.DeleteBuildEvent;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -35,8 +38,13 @@ public class DeleteBuildItem extends GuiItem {
             return;
         }
 
-        if(dc.removeBuildIdFromPlayer(event.getWhoClicked().getUniqueId(), buildId) && dc.deleteBuild(buildId)) {
-                dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType);
+        if(dc.removeBuildIdFromPlayer(event.getWhoClicked().getUniqueId(), buildId)) {
+
+            Build build = dc.deleteBuild(buildId);
+            if(build != null)
+                Bukkit.getPluginManager().callEvent(new DeleteBuildEvent(build, event.getWhoClicked().getUniqueId()));
+
+            dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType);
         }
 
     }
