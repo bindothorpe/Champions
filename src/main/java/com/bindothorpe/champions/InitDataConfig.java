@@ -68,17 +68,19 @@ public class InitDataConfig {
                         dc.addBuildIdToPlayer(player.getUniqueId(), build.getClassType(), build.getId());
                         dc.addBuild(build);
                     }
+
+                    dbc.getPlayerSelectedBuildByUUID(player.getUniqueId(), new DatabaseResponse<String>() {
+                        @Override
+                        public void onResult(String result) {
+                            dc.setSelectedBuildIdForPlayer(player.getUniqueId(), result);
+                            if (result != null)
+                                dc.equipBuildForPlayer(player.getUniqueId(), result);
+                        }
+                    });
                 }
             });
 
-            dbc.getPlayerSelectedBuildByUUID(player.getUniqueId(), new DatabaseResponse<String>() {
-                @Override
-                public void onResult(String result) {
-                    dc.setSelectedBuildIdForPlayer(player.getUniqueId(), result);
-                    if (result != null)
-                        dc.equipBuildForPlayer(player.getUniqueId(), result);
-                }
-            });
+
         }
     }
 }
