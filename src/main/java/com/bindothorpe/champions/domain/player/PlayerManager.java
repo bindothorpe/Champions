@@ -28,13 +28,13 @@ public class PlayerManager {
     }
 
     public void setSelectedBuildIdForPlayer(UUID uuid, String buildId) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
         if(buildId == null) {
             playerDataMap.get(uuid).setSelectedBuildId(null);
             return;
         }
-
-        if(!playerDataMap.containsKey(uuid))
-            createPlayerDataForPlayer(uuid);
 
         playerDataMap.get(uuid).setSelectedBuildId(buildId);
     }
@@ -89,4 +89,10 @@ public class PlayerManager {
         return playerDataMap.get(uuid).getMaxBuilds();
     }
 
+    public void deletePlayer(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            return;
+
+        playerDataMap.remove(uuid);
+    }
 }

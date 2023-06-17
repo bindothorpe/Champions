@@ -1,5 +1,8 @@
 package com.bindothorpe.champions;
 
+import com.bindothorpe.champions.database.DatabaseController;
+import com.bindothorpe.champions.database.DatabaseResponse;
+import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
@@ -14,8 +17,13 @@ import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
+import com.bindothorpe.champions.listeners.BuildListener;
+import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+
+import java.util.List;
 
 public class InitDataConfig {
 
@@ -44,6 +52,31 @@ public class InitDataConfig {
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());
         pm.registerEvents(new CombatListener(dc), dc.getPlugin());
         pm.registerEvents(new InteractListener(), dc.getPlugin());
+        pm.registerEvents(new BuildListener(dc), dc.getPlugin());
 
+        pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
+
+        DatabaseController dbc = dc.getDatabaseController();
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            dbc.getBuildsByPlayerUUID(player.getUniqueId(), new DatabaseResponse<List<Build>>() {
+                @Override
+                public void onResult(List<Build> result) {
+                    for (Build build : result) {
+                        dc.addBuildIdToPlayer(player.getUniqueId(), build.getClassType(), build.getId());
+                        dc.addBuild(build);
+                    }
+                }
+            });
+
+            dbc.getPlayerSelectedBuildByUUID(player.getUniqueId(), new DatabaseResponse<String>() {
+                @Override
+                public void onResult(String result) {
+                    dc.setSelectedBuildIdForPlayer(player.getUniqueId(), result);
+                    if (result != null)
+                        dc.equipBuildForPlayer(player.getUniqueId(), result);
+                }
+            });
+        }
     }
 }

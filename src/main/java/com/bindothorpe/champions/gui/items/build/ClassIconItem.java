@@ -2,10 +2,12 @@ package com.bindothorpe.champions.gui.items.build;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.events.build.CreateBuildEvent;
 import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -103,6 +105,8 @@ public class ClassIconItem extends GuiItem {
             String buildId = dc.createEmptyBuild(classType);
             dc.addBuildIdToPlayer(uuid, classType, buildId);
             dc.openBuildsOverviewGui(uuid, classType);
+
+            Bukkit.getPluginManager().callEvent(new CreateBuildEvent(dc.getBuild(buildId), uuid));
         }
 
 
