@@ -46,6 +46,11 @@ public class EntityDamageByEntityListener implements Listener {
 
         CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
 
+        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(entity))) {
+            customDamageEvent.setCancelled(true);
+            event.setCancelled(true);
+        }
+
         if (customDamageEvent.isCancelled())
             return;
 

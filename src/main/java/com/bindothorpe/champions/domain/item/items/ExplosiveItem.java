@@ -62,7 +62,11 @@ public class ExplosiveItem extends GameItem {
         EntityStatus status = new EntityStatus(EntityStatusType.KNOCKBACK_DONE, EXPLOSION_KNOCKBACK, -1, false, false, this);
         dc.addStatusToEntity(getOwner().getUniqueId(), status);
         for(Entity e : nearby) {
+
             CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
+
+            if(dc.getTeamFromEntity(e) != null && dc.getTeamFromEntity(e).equals(dc.getTeamFromEntity(getOwner())) && (!e.equals(getOwner())))
+                continue;
 
             if(customDamageEvent.isCancelled())
                 return;
