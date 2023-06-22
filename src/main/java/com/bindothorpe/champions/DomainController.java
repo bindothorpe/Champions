@@ -21,13 +21,17 @@ import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
+import com.bindothorpe.champions.domain.team.TeamColor;
+import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import java.sql.SQLException;
@@ -46,6 +50,7 @@ public class DomainController {
     private final StatusEffectManager statusEffectManager = StatusEffectManager.getInstance(this);
     private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
     private final CombatLogger combatLogger = CombatLogger.getInstance(this);
+    private final TeamManager teamManager = TeamManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -280,5 +285,17 @@ public class DomainController {
 
     public void deletePlayer(UUID uuid) {
         playerManager.deletePlayer(uuid);
+    }
+
+    public void addEntityToTeam(Entity entity, TeamColor teamColor) {
+        teamManager.addEntityToTeam(entity, teamColor);
+    }
+
+    public TeamColor getTeamFromEntity(Entity entity) {
+        return teamManager.getTeamFromEntity(entity);
+    }
+
+    public void removeEntityFromTeam(Entity entity) {
+        teamManager.removeEntityFromTeam(entity);
     }
 }

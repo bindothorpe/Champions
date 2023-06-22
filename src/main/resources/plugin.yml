@@ -5,5 +5,7 @@ api-version: 1.19
 commands:
   build:
     usage: /build
+  team:
+    usage: /team <team color>
   skills:
     usage: /skills
