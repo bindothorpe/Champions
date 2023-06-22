@@ -57,7 +57,6 @@ public class Rally extends Skill {
         PlayerRightClickEvent e = (PlayerRightClickEvent) event;
 
         if(dc.getTeamFromEntity(e.getPlayer()) == null) {
-            System.out.println("No team");
             return false;
         }
 

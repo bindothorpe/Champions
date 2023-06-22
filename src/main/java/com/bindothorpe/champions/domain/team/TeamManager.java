@@ -42,12 +42,6 @@ public class TeamManager {
         team = teams.get(teamColor);
         team.addEntry(entity.getUniqueId().toString());
 
-        System.out.println("Added " + entity.getName() + " to team " + teamColor.toString());
-
-        for(Map.Entry<TeamColor, Team> entry : teams.entrySet()) {
-            System.out.println(entry.getKey().toString() + " " + entry.getValue().getEntries().size());
-        }
-
         if(entity instanceof Player) {
             Player player = (Player) entity;
             player.playerListName(Component.text(player.getName()).color(teamColor.getColor()));
