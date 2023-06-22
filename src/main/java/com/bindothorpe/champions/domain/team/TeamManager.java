@@ -71,7 +71,7 @@ public class TeamManager {
     }
 
     private void initialize() {
-        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
         Objective objective = scoreboard.registerNewObjective("champions", "dummy", Component.text("Champions").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
