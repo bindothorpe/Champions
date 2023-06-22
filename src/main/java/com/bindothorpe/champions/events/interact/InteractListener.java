@@ -19,7 +19,7 @@ public class InteractListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if(event.getAction().isRightClick() && event.getHand().equals(EquipmentSlot.HAND)) {
             pluginManager.callEvent(new PlayerRightClickEvent(event.getPlayer()));
-        } else if (event.getAction().isRightClick() && event.getHand().equals(EquipmentSlot.HAND)) {
+        } else if (event.getAction().isLeftClick() && event.getHand().equals(EquipmentSlot.HAND)) {
             pluginManager.callEvent(new PlayerLeftClickEvent(event.getPlayer()));
         }
     }

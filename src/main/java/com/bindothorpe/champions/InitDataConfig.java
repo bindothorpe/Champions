@@ -15,6 +15,7 @@ import com.bindothorpe.champions.domain.skill.skills.ranger.BouncingArrow;
 import com.bindothorpe.champions.domain.skill.skills.ranger.HuntersHeart;
 import com.bindothorpe.champions.domain.skill.skills.ranger.KitingArrow;
 import com.bindothorpe.champions.domain.skill.skills.mage.IcePrison;
+import com.bindothorpe.champions.domain.skill.skills.ranger.SonarArrow;
 import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
@@ -48,6 +49,7 @@ public class InitDataConfig {
         dc.registerSkill(new ExplosiveBomb(dc));
         dc.registerSkill(new HeadButt(dc));
         dc.registerSkill(new Rally(dc));
+        dc.registerSkill(new SonarArrow(dc));
 
         dc.registerStatusEffect(new RootStatusEffect(dc));
         dc.registerStatusEffect(new StunStatusEffect(dc));

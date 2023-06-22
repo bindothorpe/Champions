@@ -11,7 +11,6 @@ import org.bukkit.scoreboard.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class TeamManager {
 
@@ -44,7 +43,7 @@ public class TeamManager {
 
         if(entity instanceof Player) {
             Player player = (Player) entity;
-            player.playerListName(Component.text(player.getName()).color(teamColor.getColor()));
+            player.playerListName(Component.text(player.getName()).color(teamColor.getTextColor()));
         }
     }
 
@@ -73,15 +72,22 @@ public class TeamManager {
     private void initialize() {
         scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-        Objective objective = scoreboard.registerNewObjective("champions", "dummy", Component.text("Champions").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        if(scoreboard.getObjective("champions") == null) {
+            Objective objective = scoreboard.registerNewObjective("champions", "dummy", Component.text("Champions").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD));
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
 
         teams = new HashMap<>();
 
         for(TeamColor color : TeamColor.values()) {
-            Team team = scoreboard.registerNewTeam(color.toString());
-            team.color(color.getColor());
-            teams.put(color, team);
+            if(scoreboard.getTeam(color.name()) == null) {
+                Team team = scoreboard.registerNewTeam(color.name());
+                team.color(color.getTextColor());
+                team.displayName(Component.text(color.name()).color(color.getTextColor()));
+                teams.put(color, team);
+            } else {
+                teams.put(color, scoreboard.getTeam(color.name()));
+            }
         }
     }
 }
