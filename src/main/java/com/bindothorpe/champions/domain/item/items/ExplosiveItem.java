@@ -59,7 +59,7 @@ public class ExplosiveItem extends GameItem {
         if(nearby.isEmpty())
             return;
 
-        EntityStatus status = new EntityStatus(EntityStatusType.KNOCBKACK_DONE, EXPLOSION_KNOCKBACK, -1, false, this);
+        EntityStatus status = new EntityStatus(EntityStatusType.KNOCKBACK_DONE, EXPLOSION_KNOCKBACK, -1, false, false, this);
         dc.addStatusToEntity(getOwner().getUniqueId(), status);
         for(Entity e : nearby) {
             CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
@@ -77,6 +77,6 @@ public class ExplosiveItem extends GameItem {
             customDamageEvent.getEntity().setVelocity(customDamageEvent.getEntity().getVelocity().add(direction.multiply(customDamageEvent.getFinalKnockback())));
 
         }
-        dc.removeStatusFromEntity(getOwner().getUniqueId(), EntityStatusType.KNOCBKACK_DONE, this);
+        dc.removeStatusFromEntity(getOwner().getUniqueId(), EntityStatusType.KNOCKBACK_DONE, this);
     }
 }

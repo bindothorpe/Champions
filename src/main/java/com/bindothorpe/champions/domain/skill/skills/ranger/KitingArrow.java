@@ -44,7 +44,7 @@ public class KitingArrow extends Skill {
         if (!isUser(player.getUniqueId()))
             return;
 
-        dc.addStatusToEntity(player.getUniqueId(), new EntityStatus(EntityStatusType.MOVEMENT_SPEED, speed.get(getSkillLevel(player.getUniqueId()) - 1), speedDuration.get(getSkillLevel(player.getUniqueId()) - 1), false, this));
+        dc.addStatusToEntity(player.getUniqueId(), new EntityStatus(EntityStatusType.MOVEMENT_SPEED, speed.get(getSkillLevel(player.getUniqueId()) - 1), speedDuration.get(getSkillLevel(player.getUniqueId()) - 1), false, false, this));
         dc.updateEntityStatus(player.getUniqueId(), EntityStatusType.MOVEMENT_SPEED);
     }
 

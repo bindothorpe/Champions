@@ -201,6 +201,14 @@ public class DomainController {
         return entityStatusManager.getFinalValue(uuid, type, baseValue);
     }
 
+    public double getModificationEntityStatusValue(UUID uuid, EntityStatusType type) {
+        return entityStatusManager.getModifcationValue(uuid, type);
+    }
+
+    public double getMultiplicationEntityStatusValue(UUID uuid, EntityStatusType type) {
+        return entityStatusManager.getMultiplicationValue(uuid, type);
+    }
+
     public void updateEntityStatus(UUID uuid, EntityStatusType type) {
         entityStatusManager.updateEntityStatus(uuid, type);
     }

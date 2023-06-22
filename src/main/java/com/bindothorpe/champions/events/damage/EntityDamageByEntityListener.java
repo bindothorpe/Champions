@@ -1,8 +1,6 @@
 package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
-import org.bukkit.EntityEffect;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,23 +28,27 @@ public class EntityDamageByEntityListener implements Listener {
         if (!(event.getDamager() instanceof Player))
             return;
 
-        if(!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof LivingEntity))
             return;
-
 
         Player damager = (Player) event.getDamager();
         LivingEntity entity = (LivingEntity) event.getEntity();
 
-        if((!lastHit.containsKey(entity.getUniqueId())) || lastHit.get(entity.getUniqueId()) + DELAY < System.currentTimeMillis())
+        if ((lastHit.containsKey(entity.getUniqueId()) && lastHit.get(entity.getUniqueId()) + DELAY > System.currentTimeMillis())) {
+            event.setCancelled(true);
             return;
+        }
+
 
         if (event.isCancelled())
             return;
 
+
         CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
 
-        if(customDamageEvent.isCancelled())
+        if (customDamageEvent.isCancelled())
             return;
+
 
         event.setCancelled(true);
 
