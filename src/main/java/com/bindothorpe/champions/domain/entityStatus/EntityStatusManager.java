@@ -3,7 +3,6 @@ package com.bindothorpe.champions.domain.entityStatus;
 import com.bindothorpe.champions.DomainController;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -113,6 +112,11 @@ public class EntityStatusManager {
             return 0;
         }
 
+        Optional<EntityStatus> optionalStatus = statusSet.stream().filter(status -> !status.isMultiplier()).filter(EntityStatus::isAbsolute).findFirst();
+        if (optionalStatus.isPresent()) {
+            return optionalStatus.get().getValue();
+        }
+
         //Return the sum of the values of all the statuses that are not multipliers
         return statusSet.stream().filter(status -> !status.isMultiplier()).map(EntityStatus::getValue).reduce(0.0, Double::sum);
     }
@@ -132,6 +136,11 @@ public class EntityStatusManager {
             return 1;
         }
 
+        Optional<EntityStatus> optionalStatus = statusSet.stream().filter(EntityStatus::isMultiplier).filter(EntityStatus::isAbsolute).findFirst();
+        if (optionalStatus.isPresent()) {
+            return optionalStatus.get().getValue();
+        }
+
         //Return the sum of the values of all the statuses that are multipliers
         return statusSet.stream().filter(EntityStatus::isMultiplier).map(EntityStatus::getValue).reduce(1.0, (a, b) -> a + b);
     }
@@ -140,12 +149,13 @@ public class EntityStatusManager {
         return (baseValue + getModifcationValue(uuid, type)) * getMultiplicationValue(uuid, type);
     }
 
+
     public void updateEntityStatus(UUID uuid, EntityStatusType type) {
         if (entityStatusFunctionsMap.isEmpty()) {
             populate();
         }
 
-        if(!entityStatusFunctionsMap.containsKey(type))
+        if (!entityStatusFunctionsMap.containsKey(type))
             return;
 
         entityStatusFunctionsMap.get(type).apply(uuid);
@@ -168,7 +178,10 @@ public class EntityStatusManager {
             float defaultMovementSpeed = 0.2f;
 
             //Set the walking speed of the player
-            player.setWalkSpeed((float) getFinalValue(uuid, EntityStatusType.MOVEMENT_SPEED, defaultMovementSpeed));
+            if (getMultiplicationValue(uuid, EntityStatusType.MOVEMENT_SPEED) == 0)
+                player.setWalkSpeed(0);
+            else
+                player.setWalkSpeed((float) getFinalValue(uuid, EntityStatusType.MOVEMENT_SPEED, defaultMovementSpeed));
             return null;
         });
     }

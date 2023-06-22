@@ -11,9 +11,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class CustomDamageEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS_LIST = new HandlerList();
@@ -42,33 +39,26 @@ public class CustomDamageEvent extends Event implements Cancellable {
     }
 
     public double getFinalKnockback() {
-        return Math.max(0, calculateValue(EntityStatusType.KNOCBKACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
+        return Math.max(0, calculateValue(EntityStatusType.KNOCKBACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
     }
 
     private double calculateValue(EntityStatusType done, EntityStatusType received, double originalValue) {
 
-//        Set<PlayerEffect> doneSet = new HashSet<>();
-//        Set<PlayerEffect> doneMultSet = new HashSet<>();
-//
-//        doneSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, false));
-//        doneMultSet.addAll(dc.getPlayerEffectsByType(hitBy.getUniqueId(), done, true));
-//
-//
-//        Set<PlayerEffect> receivedSet = new HashSet<>();
-//        Set<PlayerEffect> receivedMultSet = new HashSet<>();
-//
-//        receivedSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, false));
-//        receivedMultSet.addAll(dc.getPlayerEffectsByType(entity.getUniqueId(), received, true));
-//
-//        double doneAddSum = doneSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
-//        double doneMultSum = doneMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
-//
-        double finalDone = dc.getFinalEntityStatusValue(hitBy.getUniqueId(), done, 0);
-//
-//        double receivedAddSum = receivedSet.stream().reduce(0.0, (a, b) -> a + b.getValue(), Double::sum);
-//        double receivedMultSum = receivedMultSet.stream().reduce(1.0, (a, b) -> a + b.getValue(), Double::sum);
-//
-        double finalReceived = dc.getFinalEntityStatusValue(entity.getUniqueId(), received, 0);
+        double finalDone, finalReceived = 0;
+
+        double doneMod = dc.getModificationEntityStatusValue(hitBy.getUniqueId(), done);
+        double doneMult = dc.getMultiplicationEntityStatusValue(hitBy.getUniqueId(), done);
+
+        double receivedMod = dc.getModificationEntityStatusValue(entity.getUniqueId(), received);
+        double receivedMult = dc.getMultiplicationEntityStatusValue(entity.getUniqueId(), received);
+
+        if (doneMult == 0 || receivedMult == 0) {
+            return 0;
+        }
+
+        finalDone = (originalValue + doneMod) * doneMult;
+        finalReceived = (originalValue + receivedMod) * receivedMult;
+
 
         return Math.max(0, originalValue + finalDone - finalReceived);
     }
