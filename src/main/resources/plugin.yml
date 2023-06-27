@@ -9,3 +9,5 @@ commands:
     usage: /team <team color>
   skills:
     usage: /skills
+  game:
+    usage: /game

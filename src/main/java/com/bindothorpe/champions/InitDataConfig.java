@@ -4,6 +4,7 @@ import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
+import com.bindothorpe.champions.domain.game.GameListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
 import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
@@ -61,6 +62,7 @@ public class InitDataConfig {
         pm.registerEvents(new CombatListener(dc), dc.getPlugin());
         pm.registerEvents(new InteractListener(), dc.getPlugin());
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
+        pm.registerEvents(new GameListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 
