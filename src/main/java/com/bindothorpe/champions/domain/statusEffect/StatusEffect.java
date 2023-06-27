@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public abstract class StatusEffect implements Listener {
 
-    private final DomainController dc;
+    protected final DomainController dc;
     private final String name;
     private final StatusEffectType type;
     private final Map<UUID, Long> activeEntities;

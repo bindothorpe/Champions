@@ -114,6 +114,7 @@ public class EntityStatusManager {
 
         Optional<EntityStatus> optionalStatus = statusSet.stream().filter(status -> !status.isMultiplier()).filter(EntityStatus::isAbsolute).findFirst();
         if (optionalStatus.isPresent()) {
+            System.out.println(optionalStatus.get().getValue());
             return optionalStatus.get().getValue();
         }
 

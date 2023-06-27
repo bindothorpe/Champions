@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class TestSkill extends Skill {
     public TestSkill(DomainController dc) {
-        super(dc, SkillId.TEST_SKILL, SkillType.SWORD, ClassType.GLOBAL, "Stun your self", Arrays.asList(3.0), 1, 2);
+        super(dc, SkillId.TEST_SKILL, SkillType.SWORD, ClassType.GLOBAL, "Root your self", Arrays.asList(3.0), 1, 2);
     }
 
     @EventHandler
@@ -30,7 +30,7 @@ public class TestSkill extends Skill {
             return;
         }
 
-        dc.addStatusEffectToEntity(StatusEffectType.STUN, event.getPlayer().getUniqueId(), 1.5D);
+        dc.addStatusEffectToEntity(StatusEffectType.ROOT, event.getPlayer().getUniqueId(), 1.5D);
     }
 
     @Override
