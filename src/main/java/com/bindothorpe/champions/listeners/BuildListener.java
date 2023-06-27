@@ -4,9 +4,13 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
+import com.bindothorpe.champions.domain.game.GameState;
 import com.bindothorpe.champions.events.build.*;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -68,10 +72,31 @@ public class BuildListener implements Listener {
                 });
             }
         });
-
-
     }
 
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+
+        if(event.getClickedInventory() == null)
+            return;
+
+
+        if(!(event.getClickedInventory().getType().equals(InventoryType.PLAYER) && isBlacklist(event.getSlot())))
+            return;
+
+        if(dc.getGameState().equals(GameState.LOBBY) || dc.getGameState().equals(GameState.LOBBY_COUNTDOWN))
+            return;
+        event.setCancelled(true);
+    }
+
+    private boolean isBlacklist(int slot) {
+        //If the slot is between 0 and 8 or 36 and 40 return true
+        return (slot >= 0 && slot <= 8) || (slot >= 36 && slot <= 40);
+    }
+
+
+    //TODO: Im not sure why there is no eventhandler here
+    @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         for(Set<String> ids : dc.getBuildIdsFromPlayer(event.getPlayer().getUniqueId()).values()) {
             for(String id : ids) {

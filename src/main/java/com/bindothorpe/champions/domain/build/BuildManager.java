@@ -6,6 +6,9 @@ import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.build.EquipBuildEvent;
 import com.bindothorpe.champions.events.build.UnequipBuildEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -14,11 +17,18 @@ public class BuildManager {
     private DomainController dc;
     private static BuildManager instance;
     private Map<String, Build> buildMap;
+    private Map<ClassType, ItemStack[]> armorContentsMap;
 
     private BuildManager(DomainController dc) {
         this.dc = dc;
         //TODO: Load data from database
         this.buildMap = new HashMap<>();
+        this.armorContentsMap = new HashMap<>();
+        armorContentsMap.put(ClassType.ASSASSIN, new ItemStack[]{new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_HELMET)});
+        armorContentsMap.put(ClassType.RANGER, new ItemStack[]{new ItemStack(Material.CHAINMAIL_BOOTS), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_CHESTPLATE), new ItemStack(Material.CHAINMAIL_HELMET)});
+        armorContentsMap.put(ClassType.KNIGHT, new ItemStack[]{new ItemStack(Material.IRON_BOOTS), new ItemStack(Material.IRON_LEGGINGS), new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_HELMET)});
+        armorContentsMap.put(ClassType.MAGE, new ItemStack[]{new ItemStack(Material.GOLDEN_BOOTS), new ItemStack(Material.GOLDEN_LEGGINGS), new ItemStack(Material.GOLDEN_CHESTPLATE), new ItemStack(Material.GOLDEN_HELMET)});
+        armorContentsMap.put(ClassType.BRUTE, new ItemStack[]{new ItemStack(Material.DIAMOND_BOOTS), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_CHESTPLATE), new ItemStack(Material.DIAMOND_HELMET)});
     }
 
     public static BuildManager getInstance(DomainController dc) {
@@ -108,16 +118,32 @@ public class BuildManager {
 
         Map<SkillType, Integer> skillLevels = build.getSkillLevels();
         for (Map.Entry<SkillType, SkillId> entry : build.getSkills().entrySet()) {
-            if(entry.getValue() == null) {
+            if (entry.getValue() == null) {
                 continue;
             }
 
             dc.equipSkillForUser(uuid, entry.getValue(), skillLevels.get(entry.getKey()));
         }
 
+        equipItems(uuid, build.getClassType());
+
         dc.setSelectedBuildIdForPlayer(uuid, buildId);
 
         Bukkit.getPluginManager().callEvent(new EquipBuildEvent(build, uuid));
+    }
+
+    private void equipItems(UUID uuid, ClassType classType) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return;
+        }
+
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(armorContentsMap.get(classType));
+        player.getInventory().setItem(0, new ItemStack(Material.IRON_SWORD));
+        player.getInventory().setItem(1, new ItemStack(Material.IRON_AXE));
+        if (classType == ClassType.RANGER || classType == ClassType.ASSASSIN)
+            player.getInventory().setItem(2, new ItemStack(Material.BOW));
     }
 
     public void unequipBuildForPlayer(UUID uuid) {
@@ -146,6 +172,7 @@ public class BuildManager {
         }
         return build.getSkill(skillType);
     }
+
     public int getSkillLevelFromBuild(String buildId, SkillType skillType) {
         Build build = buildMap.get(buildId);
         if (build == null) {
@@ -171,6 +198,7 @@ public class BuildManager {
 
         return build.getSkillPoints();
     }
+
 
     public void addBuild(Build build) {
         buildMap.put(build.getId(), build);
