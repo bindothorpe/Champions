@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.gui.items.skill;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.events.build.UpdateBuildEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
@@ -52,6 +53,15 @@ public class SkillItem extends GuiItem {
             success = dc.levelUpSkillForBuild(buildId, skillId);
         } else if (event.isRightClick()) {
             success = dc.levelDownSkillForBuild(buildId, skillId);
+
+            Build build = dc.getBuild(buildId);
+            int level = build.getSkillLevel(skillId.getSkillType());
+
+            if(success && level == 0) {
+                dc.unequipSkillForPlayer(event.getWhoClicked().getUniqueId(), skillId);
+            }
+
+
         }
 
         if(success) {

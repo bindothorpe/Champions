@@ -104,7 +104,6 @@ public class BuildManager {
 
         int cost = dc.getSkillLevelUpCost(skillId);
         SkillType skillType = dc.getSkillType(skillId);
-
         return build.levelDownSkill(skillType, skillId, cost);
     }
 

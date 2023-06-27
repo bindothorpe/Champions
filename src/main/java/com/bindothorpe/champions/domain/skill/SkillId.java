@@ -1,5 +1,27 @@
 package com.bindothorpe.champions.domain.skill;
 
 public enum SkillId {
-    TEST_SKILL, TEST_SKILL_2, KITING_ARROW, BOUNCING_ARROW, EXPLOSION, ASSASSIN_PASSIVE, ICE_PRISON, HUNTERS_HEART, EXPLOSIVE_BOMB, HEAD_BUTT, RALLY, SONAR_ARROW, GRAND_ENTRANCE;
+    TEST_SKILL(SkillType.SWORD),
+    TEST_SKILL_2(SkillType.SWORD),
+    KITING_ARROW(SkillType.BOW),
+    BOUNCING_ARROW(SkillType.PASSIVE_B),
+    EXPLOSION(SkillType.AXE),
+    ASSASSIN_PASSIVE(SkillType.CLASS_PASSIVE),
+    ICE_PRISON(SkillType.AXE),
+    HUNTERS_HEART(SkillType.PASSIVE_B),
+    EXPLOSIVE_BOMB(SkillType.AXE),
+    HEAD_BUTT(SkillType.AXE),
+    RALLY(SkillType.SWORD),
+    SONAR_ARROW(SkillType.BOW),
+    GRAND_ENTRANCE(SkillType.AXE);
+
+    private final SkillType skillType;
+
+    SkillId(SkillType skillType) {
+        this.skillType = skillType;
+    }
+
+    public SkillType getSkillType() {
+        return skillType;
+    }
 }
