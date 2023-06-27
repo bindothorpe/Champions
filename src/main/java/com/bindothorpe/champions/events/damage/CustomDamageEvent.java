@@ -18,7 +18,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private final LivingEntity entity;
     private final Entity hitBy;
     private final double originalDamage;
-    private final static double ORIGINAL_KNOCBKAC = 0.6;
+    private final static double ORIGINAL_KNOCKBACK = 0.6;
     private final static double ORIGINAL_VERTICAL_KNOCKBACK = 0.9;
     private Location attackLocation;
     private CustomDamageSource source;
@@ -39,7 +39,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
     }
 
     public double getFinalKnockback() {
-        return Math.max(0, calculateValue(EntityStatusType.KNOCKBACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCBKAC));
+        return Math.max(0, calculateValue(EntityStatusType.KNOCKBACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCKBACK));
     }
 
     private double calculateValue(EntityStatusType done, EntityStatusType received, double originalValue) {
