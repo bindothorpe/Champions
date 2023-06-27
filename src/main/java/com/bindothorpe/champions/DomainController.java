@@ -11,6 +11,8 @@ import com.bindothorpe.champions.domain.combat.CombatLogger;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.game.GameManager;
+import com.bindothorpe.champions.domain.game.GameState;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
@@ -50,6 +52,7 @@ public class DomainController {
     private final StatusEffectManager statusEffectManager = StatusEffectManager.getInstance(this);
     private final GameItemManager gameItemManager = GameItemManager.getInstance(this);
     private final CombatLogger combatLogger = CombatLogger.getInstance(this);
+    private final GameManager gameManager = GameManager.getInstance(this);
     private final TeamManager teamManager = TeamManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
@@ -273,8 +276,6 @@ public class DomainController {
     public void removeStatusEffectFromPlayer(StatusEffectType type, UUID uuid) {
         statusEffectManager.removeStatusEffectFromPlayer(type, uuid);
     }
-
-
     public void addBuild(Build build) {
         buildManager.addBuild(build);
     }
@@ -297,5 +298,11 @@ public class DomainController {
 
     public void removeEntityFromTeam(Entity entity) {
         teamManager.removeEntityFromTeam(entity);
+    }
+    public GameState getGameState() {
+        return gameManager.getGameState();
+    }
+    public void setNextGameState() {
+        gameManager.setNextGameState();
     }
 }

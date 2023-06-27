@@ -1,6 +1,7 @@
 package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.BuildCommand;
+import com.bindothorpe.champions.commands.GameCommand;
 import com.bindothorpe.champions.commands.SkillsCommand;
 import com.bindothorpe.champions.commands.TeamCommand;
 import com.bindothorpe.champions.database.Database;
@@ -20,6 +21,7 @@ public final class ChampionsPlugin extends JavaPlugin {
         getCommand("build").setExecutor(new BuildCommand(dc));
         getCommand("team").setExecutor(new TeamCommand(dc));
         getCommand("skills").setExecutor(new SkillsCommand(dc));
+        getCommand("game").setExecutor(new GameCommand(dc));
         Updater.getInstance(dc).start();
 
     }
