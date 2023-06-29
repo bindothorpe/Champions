@@ -4,6 +4,7 @@ import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
+import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.customItem.items.DuskBlade;
 import com.bindothorpe.champions.domain.customItem.items.LongSword;

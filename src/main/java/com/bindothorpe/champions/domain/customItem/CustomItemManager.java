@@ -3,9 +3,7 @@ package com.bindothorpe.champions.domain.customItem;
 import com.bindothorpe.champions.DomainController;
 import org.bukkit.Bukkit;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomItemManager {
 
@@ -13,6 +11,7 @@ public class CustomItemManager {
     private final DomainController dc;
 
     private final Map<CustomItemId, CustomItem> customItems = new HashMap<>();
+    private final Map<UUID, Set<CustomItemId>> playerItems = new HashMap<>();
 
     private CustomItemManager(DomainController dc) {
         this.dc = dc;
@@ -23,6 +22,23 @@ public class CustomItemManager {
             instance = new CustomItemManager(dc);
         }
         return instance;
+    }
+
+    public void addItemToUser(UUID uuid, CustomItemId customItemId) {
+        playerItems.computeIfAbsent(uuid, k -> new HashSet<>());
+        playerItems.get(uuid).add(customItemId);
+        customItems.get(customItemId).addUser(uuid);
+    }
+
+    public void removeItemFromUser(UUID uuid, CustomItemId customItemId) {
+        playerItems.computeIfAbsent(uuid, k -> new HashSet<>());
+        playerItems.get(uuid).remove(customItemId);
+        customItems.get(customItemId).removeUser(uuid);
+    }
+
+    public boolean doesUserHaveItem(UUID uuid, CustomItemId customItemId) {
+        playerItems.computeIfAbsent(uuid, k -> new HashSet<>());
+        return playerItems.get(uuid).contains(customItemId);
     }
 
 
