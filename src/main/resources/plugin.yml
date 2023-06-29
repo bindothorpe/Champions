@@ -11,3 +11,5 @@ commands:
     usage: /skills
   game:
     usage: /game
+  shop:
+    usage: /shop

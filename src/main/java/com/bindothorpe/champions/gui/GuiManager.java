@@ -2,9 +2,11 @@ package com.bindothorpe.champions.gui;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.gui.build.BuildsOverviewGui;
 import com.bindothorpe.champions.gui.build.ClassOverviewGui;
 import com.bindothorpe.champions.gui.build.EditBuildGui;
+import com.bindothorpe.champions.gui.shop.ShopGui;
 
 import java.util.UUID;
 
@@ -35,5 +37,9 @@ public class GuiManager {
 
     public void openEditBuildGui(UUID uuid, String buildId, int buildNumber) {
         new EditBuildGui(uuid, buildId, buildNumber, dc).open();
+    }
+
+    public void openShopGui(UUID uuid, CustomItemId customItemId) {
+        new ShopGui(uuid, customItemId, dc).open();
     }
 }

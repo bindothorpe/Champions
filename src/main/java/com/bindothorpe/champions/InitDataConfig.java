@@ -4,6 +4,11 @@ import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
+import com.bindothorpe.champions.domain.customItem.CustomItemManager;
+import com.bindothorpe.champions.domain.customItem.items.DuskBlade;
+import com.bindothorpe.champions.domain.customItem.items.LongSword;
+import com.bindothorpe.champions.domain.customItem.items.Phage;
+import com.bindothorpe.champions.domain.customItem.items.SerratedDirk;
 import com.bindothorpe.champions.domain.game.GameListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
@@ -56,6 +61,13 @@ public class InitDataConfig {
 
         dc.registerStatusEffect(new RootStatusEffect(dc));
         dc.registerStatusEffect(new StunStatusEffect(dc));
+
+        CustomItemManager cim = CustomItemManager.getInstance(dc);
+
+        dc.registerCustomItem(new LongSword(cim));
+        dc.registerCustomItem(new SerratedDirk(cim));
+        dc.registerCustomItem(new Phage(cim));
+        dc.registerCustomItem(new DuskBlade(cim));
 
         pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());

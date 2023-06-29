@@ -1,5 +1,5 @@
 package com.bindothorpe.champions.domain.customItem;
 
 public enum CustomItemId {
-    LONG_SWORD
+    SERRATED_DIRK, DUSK_BLADE, PHAGE, LONG_SWORD
 }
