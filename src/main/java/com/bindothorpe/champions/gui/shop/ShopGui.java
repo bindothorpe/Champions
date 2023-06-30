@@ -51,7 +51,7 @@ public class ShopGui extends PlayerGui {
             y = 3 - item.getTier();
         }
 
-        root.addItem(new CustomItemItem(item), x, y);
+        root.addItem(new CustomItemItem(dc, item), x, y);
 
         List<CustomItemId> subItems = dc.getCustomItemManager().getSubItems(item.getId());
 

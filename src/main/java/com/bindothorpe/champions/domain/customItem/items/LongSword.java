@@ -15,30 +15,8 @@ public class LongSword extends CustomItem {
 
 
     public LongSword(CustomItemManager manager) {
-        super(manager, CustomItemId.LONG_SWORD, "Long Sword", 500);
+        super(manager, CustomItemId.LONG_SWORD, "Long Sword", Material.STONE_SWORD, 500, List.of());
     }
 
-    @Override
-    public ItemStack getItem() {
-        ItemStack item = new ItemStack(Material.STONE_SWORD);
-        ItemMeta meta = item.getItemMeta();
 
-        meta.displayName(Component.text(getName()));
-        meta.lore(getLore());
-
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    @Override
-    protected List<Component> getLore() {
-        List<Component> lore = new ArrayList<>();
-
-        lore.add(Component.text(" "));
-        lore.add(Component.text("§7Tier: §f" + getTier()));
-        lore.add(Component.text(" "));
-
-        return lore;
-    }
 }

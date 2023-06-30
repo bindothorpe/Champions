@@ -1,7 +1,9 @@
 package com.bindothorpe.champions.domain.customItem;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
@@ -28,12 +30,28 @@ public class CustomItemManager {
         playerItems.computeIfAbsent(uuid, k -> new HashSet<>());
         playerItems.get(uuid).add(customItemId);
         customItems.get(customItemId).addUser(uuid);
+
+        Player player = Bukkit.getPlayer(uuid);
+        System.out.println(player.getWalkSpeed());
+        for(EntityStatus status : customItems.get(customItemId).getStatuses()) {
+            dc.addStatusToEntity(uuid, status);
+            dc.updateEntityStatus(uuid, status.getType());
+            System.out.println("Added status " + status.getType() + " to " + uuid + " from " + status.getSource());
+        }
+        System.out.println(player.getWalkSpeed());
+
+        player.sendMessage("You have purchased " + customItems.get(customItemId).getName() + " for " + customItems.get(customItemId).getUpgradePrice() + " coins.");
     }
 
     public void removeItemFromUser(UUID uuid, CustomItemId customItemId) {
         playerItems.computeIfAbsent(uuid, k -> new HashSet<>());
         playerItems.get(uuid).remove(customItemId);
         customItems.get(customItemId).removeUser(uuid);
+
+        for(EntityStatus status : customItems.get(customItemId).getStatuses()) {
+            dc.removeStatusFromEntity(uuid, status.getType(), status.getSource());
+            dc.updateEntityStatus(uuid, status.getType());
+        }
     }
 
     public boolean doesUserHaveItem(UUID uuid, CustomItemId customItemId) {
