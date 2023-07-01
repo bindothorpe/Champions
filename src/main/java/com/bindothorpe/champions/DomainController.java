@@ -8,6 +8,10 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.combat.CombatLogger;
+import com.bindothorpe.champions.domain.customItem.CustomItem;
+import com.bindothorpe.champions.domain.customItem.CustomItemId;
+import com.bindothorpe.champions.domain.customItem.CustomItemManager;
+import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
@@ -54,6 +58,7 @@ public class DomainController {
     private final CombatLogger combatLogger = CombatLogger.getInstance(this);
     private final GameManager gameManager = GameManager.getInstance(this);
     private final TeamManager teamManager = TeamManager.getInstance(this);
+    private final CustomItemManager customItemManager = CustomItemManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -175,6 +180,10 @@ public class DomainController {
 
     public void openBuildsOverviewGui(UUID uuid, ClassType classType) {
         guiManager.openBuildsOverviewGui(uuid, classType);
+    }
+
+    public void openShopGui(UUID uuid, CustomItemId customItemId, CustomItemType originType) {
+        guiManager.openShopGui(uuid, customItemId, originType);
     }
 
     public void openClassOverviewGui(UUID uuid) {
@@ -304,5 +313,27 @@ public class DomainController {
     }
     public void setNextGameState() {
         gameManager.setNextGameState();
+    }
+    public void registerCustomItem(CustomItem customItem) {
+        customItemManager.registerItem(customItem);
+    }
+
+    public CustomItemManager getCustomItemManager() {
+        return customItemManager;
+    }
+    public int getGold(UUID uuid) {
+        return playerManager.getGold(uuid);
+    }
+
+    public void addGold(UUID uuid, int gold) {
+        playerManager.addGold(uuid, gold);
+    }
+
+    public void reduceGold(UUID uuid, int gold) {
+        playerManager.reduceGold(uuid, gold);
+    }
+
+    public void openShopHomeGui(UUID uuid, CustomItemType type) {
+        guiManager.openShopHomeGui(uuid, type);
     }
 }

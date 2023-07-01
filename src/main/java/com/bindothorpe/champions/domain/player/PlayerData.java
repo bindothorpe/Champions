@@ -12,6 +12,7 @@ public class PlayerData {
     private final UUID uuid;
     private final Map<ClassType, Set<String>> buildIds;
     private String selectedBuildId;
+    private int gold = 0;
 
     public PlayerData(DomainController dc, UUID uuid, Map<ClassType, Set<String>> buildIds) {
         this.dc = dc;
@@ -30,6 +31,22 @@ public class PlayerData {
 
     public String getSelectedBuildId() {
         return selectedBuildId;
+    }
+
+    public int getGold() {
+        return gold;
+    }
+
+    public void addGold(int gold) {
+        if(gold < 0)
+            throw new IllegalArgumentException("Gold must be positive");
+        this.gold += gold;
+    }
+
+    public void reduceGold(int gold) {
+        if(gold < 0)
+            throw new IllegalArgumentException("Gold must be positive");
+        this.gold -= gold;
     }
 
     public void setSelectedBuildId(String buildId) {

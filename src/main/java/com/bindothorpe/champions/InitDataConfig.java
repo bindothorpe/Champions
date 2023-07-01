@@ -4,6 +4,13 @@ import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
+import com.bindothorpe.champions.domain.customItem.CustomItem;
+import com.bindothorpe.champions.domain.customItem.CustomItemId;
+import com.bindothorpe.champions.domain.customItem.CustomItemManager;
+import com.bindothorpe.champions.domain.customItem.items.DuskBlade;
+import com.bindothorpe.champions.domain.customItem.items.LongSword;
+import com.bindothorpe.champions.domain.customItem.items.Phage;
+import com.bindothorpe.champions.domain.customItem.items.SerratedDirk;
 import com.bindothorpe.champions.domain.game.GameListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
@@ -27,6 +34,7 @@ import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
+import org.reflections.Reflections;
 
 import java.util.List;
 
@@ -57,6 +65,20 @@ public class InitDataConfig {
         dc.registerStatusEffect(new RootStatusEffect(dc));
         dc.registerStatusEffect(new StunStatusEffect(dc));
 
+        CustomItemManager cim = CustomItemManager.getInstance(dc);
+
+        String packageName = getClass().getPackage().getName();
+
+        for(Class<?> clazz : new Reflections(packageName + ".domain.customItem.items").getSubTypesOf(CustomItem.class)) {
+            try {
+                CustomItem item = (CustomItem) clazz.getConstructor(CustomItemManager.class).newInstance(cim);
+                cim.registerItem(item);
+            } catch (Exception e) {
+                System.out.println("Failed to register custom item: " + clazz.getName());
+            }
+        }
+
+
         pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());
         pm.registerEvents(new CombatListener(dc), dc.getPlugin());
@@ -69,6 +91,8 @@ public class InitDataConfig {
         DatabaseController dbc = dc.getDatabaseController();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
+
+            dc.addGold(player.getUniqueId(), 10000);
             dbc.getBuildsByPlayerUUID(player.getUniqueId(), new DatabaseResponse<List<Build>>() {
                 @Override
                 public void onResult(List<Build> result) {

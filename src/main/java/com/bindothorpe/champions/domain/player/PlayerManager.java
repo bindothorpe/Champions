@@ -95,4 +95,25 @@ public class PlayerManager {
 
         playerDataMap.remove(uuid);
     }
+
+    public int getGold(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        return playerDataMap.get(uuid).getGold();
+    }
+
+    public void addGold(UUID uuid, int gold) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        playerDataMap.get(uuid).addGold(gold);
+    }
+
+    public void reduceGold(UUID uuid, int gold) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+
+        playerDataMap.get(uuid).reduceGold(gold);
+    }
 }

@@ -19,12 +19,20 @@ public class ComponentUtil {
         return builder.build();
     }
 
-    public static Component leftClick() {
-        return Component.text("left-click ").color(NamedTextColor.YELLOW);
+    public static Component leftClick(boolean capitalized) {
+        return Component.text(capitalized ? "Left-click " : "left-click ").color(NamedTextColor.YELLOW);
     }
 
+    public static Component leftClick() {
+        return leftClick(false);
+    }
+
+
+    public static Component rightClick(boolean capitalized) {
+        return Component.text(capitalized ? "Right-click " : "right-click ").color(NamedTextColor.YELLOW);
+    }
     public static Component rightClick() {
-        return Component.text("right-click ").color(NamedTextColor.YELLOW);
+        return rightClick(false);
     }
 
     public static Component passive() {

@@ -2,6 +2,7 @@ package com.bindothorpe.champions.gui;
 
 import com.bindothorpe.champions.DomainController;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
+import com.github.stefvanschie.inventoryframework.gui.type.util.Gui;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
