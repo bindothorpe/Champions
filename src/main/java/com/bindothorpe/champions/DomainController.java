@@ -11,6 +11,7 @@ import com.bindothorpe.champions.domain.combat.CombatLogger;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
+import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
@@ -330,5 +331,9 @@ public class DomainController {
 
     public void reduceGold(UUID uuid, int gold) {
         playerManager.reduceGold(uuid, gold);
+    }
+
+    public void openShopHomeGui(UUID uuid, CustomItemType type) {
+        guiManager.openShopHomeGui(uuid, type);
     }
 }

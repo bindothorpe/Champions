@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.customItem;
 
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.IntUtil;
 import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,15 +20,17 @@ public abstract class CustomItem implements Listener {
     private static Set<UUID> users = new HashSet<>();
     private final CustomItemManager manager;
     private final CustomItemId id;
+    private final CustomItemType type;
     private final String name;
     private final Material material;
     private final int upgradePrice;
     private final List<CustomItemId> subItems;
     private final List<EntityStatus> statuses;
 
-    public CustomItem(CustomItemManager manager, CustomItemId id, String name, Material material, int upgradePrice, List<CustomItemId> subItems, List<EntityStatus> statuses) {
+    public CustomItem(CustomItemManager manager, CustomItemId id, CustomItemType type, String name, Material material, int upgradePrice, List<CustomItemId> subItems, List<EntityStatus> statuses) {
         this.manager = manager;
         this.id = id;
+        this.type = type;
         this.name = name;
         this.material = material;
         this.upgradePrice = upgradePrice;
@@ -35,8 +38,8 @@ public abstract class CustomItem implements Listener {
         this.statuses = statuses;
     }
 
-    public CustomItem(CustomItemManager manager, CustomItemId id, String name, Material material, int upgradePrice, List<EntityStatus> statuses) {
-        this(manager, id, name, material, upgradePrice, List.of(), statuses);
+    public CustomItem(CustomItemManager manager, CustomItemId id, CustomItemType type, String name, Material material, int upgradePrice, List<EntityStatus> statuses) {
+        this(manager, id, type, name, material, upgradePrice, List.of(), statuses);
     }
 
     public void addUser(UUID uuid) {
@@ -95,25 +98,56 @@ public abstract class CustomItem implements Listener {
         return item;
     }
 
+
+    public ItemStack getItem() {
+        return getItem(null);
+    }
+
+    public CustomItemType getType() {
+        return type;
+    }
+
     protected Component getItemName() {
         Component c = Component.text(name);
         switch (getTier()) {
             case 1:
-                c = c.color(NamedTextColor.GRAY).decorate(TextDecoration.BOLD);
+                c = c.color(getColor()).decorate(TextDecoration.BOLD);
                 break;
             case 2:
-                c = c.color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
+                c = c.color(getColor()).decorate(TextDecoration.BOLD);
                 break;
             case 3:
-                c = c.color(NamedTextColor.RED).decorate(TextDecoration.BOLD);
+                c = c.color(getColor()).decorate(TextDecoration.BOLD);
                 break;
         }
 
         return c;
     }
 
+    protected NamedTextColor getColor() {
+        switch (getTier()) {
+            case 1:
+                return NamedTextColor.GRAY;
+            case 2:
+                return NamedTextColor.GOLD;
+            case 3:
+                return NamedTextColor.RED;
+        }
+
+        return NamedTextColor.WHITE;
+    }
+
     protected List<Component> getLore(UUID uuid) {
         List<Component> lore = new ArrayList<>();
+
+        if (uuid != null) {
+            lore.add(Component.text("Type: ").color(NamedTextColor.GRAY)
+                    .append(Component.text(TextUtil.camelCasing(type.toString().replace("_", " "))).color(NamedTextColor.YELLOW)));
+
+        } else {
+            lore.add(Component.text("Tier: ").color(NamedTextColor.GRAY)
+                    .append(Component.text(IntUtil.toRoman(getTier())).color(getColor())));
+        }
 
         lore.add(Component.text(" "));
         for (EntityStatus status : statuses) {
@@ -124,15 +158,16 @@ public abstract class CustomItem implements Listener {
                     .append(status.isMultiplier() ? Component.text("%").color(NamedTextColor.YELLOW) : Component.empty()));
         }
 
-        if(!statuses.isEmpty())
-        lore.add(Component.text(" "));
+        if (!statuses.isEmpty())
+            lore.add(Component.text(" "));
 
         lore.add(Component.text("Price: ").color(NamedTextColor.GRAY)
-                .append(Component.text(manager.getRemainingCost(uuid, id)).color(NamedTextColor.YELLOW)
+                .append(Component.text(uuid == null ? getTotalPrice() : manager.getRemainingCost(uuid, id)).color(NamedTextColor.YELLOW)
                         .append(Component.text(" gold"))));
 
-        lore.add(ComponentUtil.leftClick(true)
-                .append(Component.text("to purchase").color(NamedTextColor.GRAY)));
+        if (uuid != null)
+            lore.add(ComponentUtil.leftClick(true)
+                    .append(Component.text("to purchase").color(NamedTextColor.GRAY)));
 
         return lore;
     }
