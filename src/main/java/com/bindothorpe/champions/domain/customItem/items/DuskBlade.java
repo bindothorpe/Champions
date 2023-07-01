@@ -10,10 +10,11 @@ import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class DuskBlade extends CustomItem {
     public DuskBlade(CustomItemManager manager) {
-        super(manager, CustomItemId.DUSK_BLADE, CustomItemType.ATTACK, "Dusk Blade", Material.DIAMOND_SWORD, 500, List.of(CustomItemId.SERRATED_DIRK, CustomItemId.PHAGE), new ArrayList<>());
+        super(manager, CustomItemId.DUSK_BLADE, Set.of(CustomItemType.ATTACK), "Dusk Blade", Material.DIAMOND_SWORD, 500, List.of(CustomItemId.SERRATED_DIRK, CustomItemId.PHAGE));
         getStatuses().add(new EntityStatus(EntityStatusType.MOVEMENT_SPEED, 0.2, -1, false, false, this));
         getStatuses().add(new EntityStatus(EntityStatusType.DAMAGE_DONE, 0.15, -1, true, false, this));
         getStatuses().add(new EntityStatus(EntityStatusType.DAMAGE_RECEIVED, -0.15, -1, true, false, this));

@@ -3,6 +3,7 @@ package com.bindothorpe.champions.gui.items.customItem;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
+import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class CustomItemItem extends GuiItem {
     private final DomainController dc;
 
-    public CustomItemItem(DomainController dc, @NotNull CustomItem customItem, UUID uuid, @NotNull CustomItemId currentGuiItemId) {
+    public CustomItemItem(DomainController dc, @NotNull CustomItem customItem, UUID uuid, @NotNull CustomItemId currentGuiItemId, @NotNull CustomItemType originType) {
         super(customItem.getItem(uuid));
         this.dc = dc;
 
@@ -21,7 +22,7 @@ public class CustomItemItem extends GuiItem {
                 dc.getCustomItemManager().addItemToUser(event.getWhoClicked().getUniqueId(), customItem.getId());
             else if (event.getClick().equals(ClickType.RIGHT))
                 dc.getCustomItemManager().removeItemFromUser(event.getWhoClicked().getUniqueId(), customItem.getId());
-            dc.openShopGui(event.getWhoClicked().getUniqueId(), currentGuiItemId);
+            dc.openShopGui(event.getWhoClicked().getUniqueId(), currentGuiItemId, originType);
         });
     }
 }

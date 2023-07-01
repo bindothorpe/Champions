@@ -4,7 +4,9 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 public class ShopItem extends GuiItem {

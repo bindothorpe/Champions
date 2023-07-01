@@ -182,8 +182,8 @@ public class DomainController {
         guiManager.openBuildsOverviewGui(uuid, classType);
     }
 
-    public void openShopGui(UUID uuid, CustomItemId customItemId) {
-        guiManager.openShopGui(uuid, customItemId);
+    public void openShopGui(UUID uuid, CustomItemId customItemId, CustomItemType originType) {
+        guiManager.openShopGui(uuid, customItemId, originType);
     }
 
     public void openClassOverviewGui(UUID uuid) {

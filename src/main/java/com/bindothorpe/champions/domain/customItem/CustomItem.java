@@ -14,32 +14,33 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class CustomItem implements Listener {
 
     private static Set<UUID> users = new HashSet<>();
     private final CustomItemManager manager;
     private final CustomItemId id;
-    private final CustomItemType type;
+    private final Set<CustomItemType> types;
     private final String name;
     private final Material material;
     private final int upgradePrice;
     private final List<CustomItemId> subItems;
     private final List<EntityStatus> statuses;
 
-    public CustomItem(CustomItemManager manager, CustomItemId id, CustomItemType type, String name, Material material, int upgradePrice, List<CustomItemId> subItems, List<EntityStatus> statuses) {
+    public CustomItem(CustomItemManager manager, CustomItemId id, Set<CustomItemType> types, String name, Material material, int upgradePrice, List<CustomItemId> subItems) {
         this.manager = manager;
         this.id = id;
-        this.type = type;
+        this.types = types;
         this.name = name;
         this.material = material;
         this.upgradePrice = upgradePrice;
         this.subItems = subItems;
-        this.statuses = statuses;
+        this.statuses = new ArrayList<>();
     }
 
-    public CustomItem(CustomItemManager manager, CustomItemId id, CustomItemType type, String name, Material material, int upgradePrice, List<EntityStatus> statuses) {
-        this(manager, id, type, name, material, upgradePrice, List.of(), statuses);
+    public CustomItem(CustomItemManager manager, CustomItemId id, Set<CustomItemType> types, String name, Material material, int upgradePrice) {
+        this(manager, id, types, name, material, upgradePrice, List.of());
     }
 
     public void addUser(UUID uuid) {
@@ -103,8 +104,12 @@ public abstract class CustomItem implements Listener {
         return getItem(null);
     }
 
-    public CustomItemType getType() {
-        return type;
+    public Set<CustomItemType> getTypes() {
+        return types;
+    }
+
+    public boolean isType(CustomItemType type) {
+        return types.contains(type);
     }
 
     protected Component getItemName() {
@@ -141,9 +146,19 @@ public abstract class CustomItem implements Listener {
         List<Component> lore = new ArrayList<>();
 
         if (uuid != null) {
-            lore.add(Component.text("Type: ").color(NamedTextColor.GRAY)
-                    .append(Component.text(TextUtil.camelCasing(type.toString().replace("_", " "))).color(NamedTextColor.YELLOW)));
+            Component types = Component.text("Type: ").color(NamedTextColor.GRAY);
 
+            List<CustomItemType> sortedTypes = getTypes().stream().sorted(Comparator.comparingInt(CustomItemType::ordinal)).collect(Collectors.toList());
+
+            for (int i = 0; i < getTypes().size(); i++) {
+                CustomItemType type = sortedTypes.get(i);
+                types = types.append(Component.text(TextUtil.camelCasing(type.toString().replace("_", " "))).color(type.getColor()));
+
+                if (i < getTypes().size() - 1)
+                    types = types.append(Component.text(", ").color(NamedTextColor.GRAY));
+            }
+
+            lore.add(types);
         } else {
             lore.add(Component.text("Tier: ").color(NamedTextColor.GRAY)
                     .append(Component.text(IntUtil.toRoman(getTier())).color(getColor())));
@@ -158,6 +173,13 @@ public abstract class CustomItem implements Listener {
                     .append(status.isMultiplier() ? Component.text("%").color(NamedTextColor.YELLOW) : Component.empty()));
         }
 
+        List<Component> additionalLore = getAdditionalLore();
+
+        if(!additionalLore.isEmpty()) {
+            lore.addAll(additionalLore);
+            lore.add(Component.text(" "));
+        }
+
         if (!statuses.isEmpty())
             lore.add(Component.text(" "));
 
@@ -170,6 +192,10 @@ public abstract class CustomItem implements Listener {
                     .append(Component.text("to purchase").color(NamedTextColor.GRAY)));
 
         return lore;
+    }
+
+    protected List<Component> getAdditionalLore() {
+        return new ArrayList<>();
     }
 
 }
