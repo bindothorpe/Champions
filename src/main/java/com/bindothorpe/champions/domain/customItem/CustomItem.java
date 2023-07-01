@@ -81,12 +81,12 @@ public abstract class CustomItem implements Listener {
         return tier + 1;
     }
 
-    public ItemStack getItem() {
+    public ItemStack getItem(UUID uuid) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         meta.displayName(getItemName());
-        meta.lore(getLore());
+        meta.lore(getLore(uuid));
         meta.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
 
         item.setItemMeta(meta);
@@ -112,7 +112,7 @@ public abstract class CustomItem implements Listener {
         return c;
     }
 
-    protected List<Component> getLore() {
+    protected List<Component> getLore(UUID uuid) {
         List<Component> lore = new ArrayList<>();
 
         lore.add(Component.text(" "));
@@ -128,10 +128,8 @@ public abstract class CustomItem implements Listener {
         lore.add(Component.text(" "));
 
         lore.add(Component.text("Price: ").color(NamedTextColor.GRAY)
-                .append(Component.text(getTotalPrice()).color(NamedTextColor.YELLOW)
+                .append(Component.text(manager.getRemainingCost(uuid, id)).color(NamedTextColor.YELLOW)
                         .append(Component.text(" gold"))));
-
-        lore.add(Component.text(" "));
 
         lore.add(ComponentUtil.leftClick(true)
                 .append(Component.text("to purchase").color(NamedTextColor.GRAY)));

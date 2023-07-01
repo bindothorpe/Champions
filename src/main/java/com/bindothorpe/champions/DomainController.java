@@ -320,4 +320,15 @@ public class DomainController {
     public CustomItemManager getCustomItemManager() {
         return customItemManager;
     }
+    public int getGold(UUID uuid) {
+        return playerManager.getGold(uuid);
+    }
+
+    public void addGold(UUID uuid, int gold) {
+        playerManager.addGold(uuid, gold);
+    }
+
+    public void reduceGold(UUID uuid, int gold) {
+        playerManager.reduceGold(uuid, gold);
+    }
 }

@@ -82,6 +82,8 @@ public class InitDataConfig {
         DatabaseController dbc = dc.getDatabaseController();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
+
+            dc.addGold(player.getUniqueId(), 10000);
             dbc.getBuildsByPlayerUUID(player.getUniqueId(), new DatabaseResponse<List<Build>>() {
                 @Override
                 public void onResult(List<Build> result) {
