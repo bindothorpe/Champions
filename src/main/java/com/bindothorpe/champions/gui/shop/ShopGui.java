@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.customItem.CustomItemItem;
 import com.bindothorpe.champions.gui.items.customItem.PathItem;
+import com.bindothorpe.champions.gui.items.global.BackItem;
 import com.bindothorpe.champions.gui.items.global.BorderItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
@@ -37,6 +38,7 @@ public class ShopGui extends PlayerGui {
             }
         }
 
+        root.addItem(new BackItem(e -> dc.openShopHomeGui(uuid, dc.getCustomItemManager().getCustomItem(customItemId).getType())), 0, 0);
 
         CustomItem customItem = dc.getCustomItemManager().getCustomItem(customItemId);
         if (customItem != null) {
