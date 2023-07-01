@@ -41,8 +41,8 @@ public class GuiManager {
         new EditBuildGui(uuid, buildId, buildNumber, dc).open();
     }
 
-    public void openShopGui(UUID uuid, CustomItemId customItemId) {
-        new ShopGui(uuid, customItemId, dc).open();
+    public void openShopGui(UUID uuid, CustomItemId customItemId, CustomItemType originType) {
+        new ShopGui(uuid, customItemId, dc, originType).open();
     }
 
     public void openShopHomeGui(UUID uuid, CustomItemType type) {

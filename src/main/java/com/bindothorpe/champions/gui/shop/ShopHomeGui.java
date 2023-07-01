@@ -48,9 +48,9 @@ public class ShopHomeGui extends PlayerGui {
 
         Arrays.stream(CustomItemId.values())
                 .map(dc.getCustomItemManager()::getCustomItem)
-                .sorted((c1, c2) -> Integer.compare(c1.getTier(), c2.getTier()))
-                .filter(item -> item.getType() == type)
-                .forEach(c -> outlinePane.addItem(new ShopItem(c, dc)));
+                .sorted((c1, c2) -> Integer.compare(c2.getTier(), c1.getTier()))
+                .filter(item -> item.isType(type))
+                .forEach(c -> outlinePane.addItem(new ShopItem(c, dc, type)));
 
 
         gui.addPane(root);

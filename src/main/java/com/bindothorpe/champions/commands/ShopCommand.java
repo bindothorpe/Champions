@@ -9,6 +9,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 public class ShopCommand implements CommandExecutor {
 
     private final DomainController dc;
@@ -32,7 +34,8 @@ public class ShopCommand implements CommandExecutor {
         }
 
         try {
-            dc.openShopGui(player.getUniqueId(), CustomItemId.valueOf(strings[0]));
+            CustomItemId id = CustomItemId.valueOf(strings[0].toUpperCase());
+            dc.openShopGui(player.getUniqueId(), id, new ArrayList<>(dc.getCustomItemManager().getCustomItem(id).getTypes()).get(0));
         } catch (IllegalArgumentException e) {
             player.sendMessage("Invalid custom item id");
         }

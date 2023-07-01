@@ -3,6 +3,7 @@ package com.bindothorpe.champions.gui.shop;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
+import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.customItem.CustomItemItem;
 import com.bindothorpe.champions.gui.items.customItem.PathItem;
@@ -17,12 +18,14 @@ import java.util.UUID;
 public class ShopGui extends PlayerGui {
 
     private final CustomItemId customItemId;
+    private final CustomItemType typeOrigin;
     private static final int WIDTH = 9;
     private static final int HEIGHT = 6;
 
-    public ShopGui(UUID uuid, CustomItemId customItemId, DomainController dc) {
+    public ShopGui(UUID uuid, CustomItemId customItemId, DomainController dc, CustomItemType typeOrigin) {
         super(uuid, dc);
         this.customItemId = customItemId;
+        this.typeOrigin = typeOrigin;
         initialize();
     }
 
@@ -38,7 +41,7 @@ public class ShopGui extends PlayerGui {
             }
         }
 
-        root.addItem(new BackItem(e -> dc.openShopHomeGui(uuid, dc.getCustomItemManager().getCustomItem(customItemId).getType())), 0, 0);
+        root.addItem(new BackItem(e -> dc.openShopHomeGui(uuid, typeOrigin)), 0, 0);
 
         CustomItem customItem = dc.getCustomItemManager().getCustomItem(customItemId);
         if (customItem != null) {
@@ -53,7 +56,7 @@ public class ShopGui extends PlayerGui {
             y = 3 - item.getTier();
         }
 
-        root.addItem(new CustomItemItem(dc, item, uuid, customItemId), x, y);
+        root.addItem(new CustomItemItem(dc, item, uuid, customItemId, typeOrigin), x, y);
 
         List<CustomItemId> subItems = dc.getCustomItemManager().getSubItems(item.getId());
 

@@ -7,11 +7,12 @@ import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import org.bukkit.Material;
 
 import java.util.List;
+import java.util.Set;
 
 public class SerratedDirk extends CustomItem {
 
     public SerratedDirk(CustomItemManager manager) {
-        super(manager, CustomItemId.SERRATED_DIRK, CustomItemType.ATTACK, "Serrated Dirk", Material.IRON_SWORD, 500, List.of(CustomItemId.LONG_SWORD,CustomItemId.LONG_SWORD), List.of());
+        super(manager, CustomItemId.SERRATED_DIRK, Set.of(CustomItemType.ATTACK), "Serrated Dirk", Material.IRON_SWORD, 500, List.of(CustomItemId.LONG_SWORD,CustomItemId.LONG_SWORD));
     }
 
 
