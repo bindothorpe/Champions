@@ -26,22 +26,6 @@ public final class ChampionsPlugin extends JavaPlugin {
         Updater.getInstance(dc).start();
 
 
-        CustomItemManager customItemManager = CustomItemManager.getInstance(dc);
-        int tier1 = customItemManager.getTier(CustomItemId.LONG_SWORD);
-        int tier2 = customItemManager.getTier(CustomItemId.SERRATED_DIRK);
-        int tier3 = customItemManager.getTier(CustomItemId.DUSK_BLADE);
-
-        System.out.println("Long Sword: ");
-        System.out.println("tier: " + tier1);
-        System.out.println("price: " + customItemManager.getTotalPrice(CustomItemId.LONG_SWORD));
-        System.out.println("Serrated Dirk: ");
-        System.out.println("tier: " + tier2);
-        System.out.println("price: " + customItemManager.getTotalPrice(CustomItemId.SERRATED_DIRK));
-        System.out.println("Dusk Blade: ");
-        System.out.println("tier: " + tier3);
-        System.out.println("price: " + customItemManager.getTotalPrice(CustomItemId.DUSK_BLADE));
-
-
     }
 
     @Override

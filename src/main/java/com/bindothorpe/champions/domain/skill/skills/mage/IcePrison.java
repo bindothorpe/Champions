@@ -24,7 +24,7 @@ public class IcePrison extends Skill {
 
 
     public IcePrison(DomainController dc) {
-        super(dc, SkillId.ICE_PRISON, SkillType.AXE, ClassType.MAGE, "Ice Prison", Arrays.asList(5.0, 3.0, 2.0), 3, 1);
+        super(dc, SkillId.ICE_PRISON, SkillType.AXE, ClassType.MAGE, "Ice Prison", Arrays.asList(13.0, 10.0, 8.0), 3, 1);
     }
 
     @EventHandler

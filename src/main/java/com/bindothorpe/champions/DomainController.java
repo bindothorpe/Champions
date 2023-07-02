@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.combat.CombatLogger;
+import com.bindothorpe.champions.domain.cooldown.CooldownManager;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
@@ -61,6 +62,7 @@ public class DomainController {
     private final TeamManager teamManager = TeamManager.getInstance(this);
     private final CustomItemManager customItemManager = CustomItemManager.getInstance(this);
     private final ScoreboardManager scoreboardManager = ScoreboardManager.getInstance(this);
+    private final CooldownManager cooldownManager = CooldownManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -78,6 +80,10 @@ public class DomainController {
 
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+
+    public CooldownManager getCooldownManager() {
+        return cooldownManager;
     }
 
     public void setSelectedBuildIdForPlayer(UUID uuid, String buildId) {

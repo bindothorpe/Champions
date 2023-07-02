@@ -70,6 +70,7 @@ public class BuildManager {
 
         switch (classType) {
             case ASSASSIN -> build.levelUpSkill(SkillType.CLASS_PASSIVE, SkillId.ASSASSIN_PASSIVE, 1, 0);
+            case MAGE -> build.levelUpSkill(SkillType.CLASS_PASSIVE, SkillId.MAGE_PASSIVE, 1, 0);
             default -> System.out.println("No default skill for class " + classType);
         }
 

@@ -31,6 +31,7 @@ public class EntityStatusManager {
     }
 
     public void addEntityStatus(UUID uuid, EntityStatus entityStatus) {
+
         //Get the map of statuses for the entity
         Map<EntityStatusType, Set<EntityStatus>> statuses = entityStatuses.get(uuid);
 
@@ -54,6 +55,7 @@ public class EntityStatusManager {
 
         //Add the status to the set
         statusSet.add(entityStatus);
+
 
         //If the status has a duration, create a task to remove it after the duration
         if (entityStatus.getDuration() != -1) {

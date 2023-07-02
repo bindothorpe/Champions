@@ -2,12 +2,15 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.events.cooldown.CooldownEndEvent;
 import com.bindothorpe.champions.events.skill.SkillUseEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.util.*;
@@ -15,7 +18,7 @@ import java.util.*;
 public abstract class Skill implements Listener {
 
     private Map<UUID, Integer> users;
-    private Map<UUID, Long> cooldownMap;
+//    private Map<UUID, Long> cooldownMap;
 
     protected DomainController dc;
     private SkillId id;
@@ -37,7 +40,7 @@ public abstract class Skill implements Listener {
         this.maxLevel = maxLevel;
         this.levelUpCost = levelUpCost;
         this.users = new HashMap<>();
-        this.cooldownMap = new HashMap<>();
+//        this.cooldownMap = new HashMap<>();
     }
 
 
@@ -72,7 +75,22 @@ public abstract class Skill implements Listener {
     }
 
     private void startCooldown(UUID uuid) {
-        cooldownMap.put(uuid, System.currentTimeMillis());
+        double duration = 0;
+        if(cooldownDuration == null || cooldownDuration.isEmpty())
+            return;
+        try {
+            duration = cooldownDuration.get(users.get(uuid) - 1);
+        } catch (IndexOutOfBoundsException e) {
+            duration = cooldownDuration.get(0);
+        }
+
+        if(duration == 0)
+            return;
+
+        double cooldownMultiplier = dc.getMultiplicationEntityStatusValue(uuid, EntityStatusType.COOLDOWN_REDUCTION) - 1;
+        double cooldownReduction = duration * cooldownMultiplier;
+
+        dc.getCooldownManager().startCooldown(uuid, this, duration - cooldownReduction);
     }
 
 
@@ -118,23 +136,11 @@ public abstract class Skill implements Listener {
     }
 
     private boolean isOnCooldown(UUID uuid) {
-        if (!cooldownMap.containsKey(uuid))
-            return false;
-
-        long cooldownStart = cooldownMap.get(uuid);
-        long cooldownDuration = (long) (this.cooldownDuration.get(users.get(uuid) - 1) * 1000);
-
-        return System.currentTimeMillis() - cooldownStart < cooldownDuration;
+        return dc.getCooldownManager().isOnCooldown(uuid, this);
     }
 
     private double getCooldownRemaining(UUID uuid) {
-        if (!cooldownMap.containsKey(uuid))
-            return 0;
-
-        long cooldownStart = cooldownMap.get(uuid);
-        long cooldownDuration = (long) (this.cooldownDuration.get(users.get(uuid) - 1) * 1000);
-
-        return (cooldownStart + cooldownDuration - System.currentTimeMillis()) / 1000.0;
+        return dc.getCooldownManager().getCooldownRemaining(uuid, this);
     }
 
     protected boolean canUseHook(UUID uuid, Event event) {
@@ -159,5 +165,20 @@ public abstract class Skill implements Listener {
 
     protected Set<UUID> getUsers() {
         return users.keySet();
+    }
+
+    @EventHandler
+    public void onCooldownEnd(CooldownEndEvent event) {
+        if(!equals(event.getSource()))
+            return;
+
+        Player player = Bukkit.getPlayer(event.getUuid());
+
+        if(player == null)
+            return;
+
+        player.sendMessage(Component.text("You can use ").color(NamedTextColor.GRAY)
+                .append(Component.text(this.name).color(NamedTextColor.YELLOW))
+                .append(Component.text(" again").color(NamedTextColor.GRAY)));
     }
 }

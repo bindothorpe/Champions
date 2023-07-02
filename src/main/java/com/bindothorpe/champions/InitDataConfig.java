@@ -20,6 +20,7 @@ import com.bindothorpe.champions.domain.skill.skills.brute.HeadButt;
 import com.bindothorpe.champions.domain.skill.skills.global.Rally;
 import com.bindothorpe.champions.domain.skill.skills.global.TestSkill;
 import com.bindothorpe.champions.domain.skill.skills.mage.Explosion;
+import com.bindothorpe.champions.domain.skill.skills.mage.MagePassive;
 import com.bindothorpe.champions.domain.skill.skills.ranger.BouncingArrow;
 import com.bindothorpe.champions.domain.skill.skills.ranger.HuntersHeart;
 import com.bindothorpe.champions.domain.skill.skills.ranger.KitingArrow;
@@ -55,6 +56,7 @@ public class InitDataConfig {
         dc.registerSkill(new BouncingArrow(dc));
         dc.registerSkill(new Explosion(dc));
         dc.registerSkill(new AssassinPassive(dc));
+        dc.registerSkill(new MagePassive(dc));
         dc.registerSkill(new HuntersHeart(dc));
         dc.registerSkill(new ExplosiveBomb(dc));
         dc.registerSkill(new HeadButt(dc));
