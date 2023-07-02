@@ -41,7 +41,7 @@ public class ScoreboardManager {
             return;
 
         FastBoard board = new FastBoard(player);
-        board.updateTitle(Component.text("Champions").color(NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true));
+        board.updateTitle(Component.text(String.format("%-12s", String.format("%8s", "Champions"))).color(NamedTextColor.GOLD).decoration(TextDecoration.BOLD, true));
         boards.put(uuid, board);
 
         updateScoreboard(uuid);
@@ -71,6 +71,18 @@ public class ScoreboardManager {
 
         List<Component> lines = new ArrayList<>();
 
+        NamedTextColor lineColor = NamedTextColor.YELLOW;
+        NamedTextColor crystalColor = NamedTextColor.WHITE;
+
+        Component line = Component.text("⎯⎯⎯⎯⎯⎯⎯").color(lineColor).decoration(TextDecoration.STRIKETHROUGH, true).decoration(TextDecoration.BOLD, false)
+                .append(Component.text("≺").color(lineColor).decoration(TextDecoration.STRIKETHROUGH, false).decoration(TextDecoration.BOLD, true))
+                .append(Component.text("♦").color(crystalColor).decoration(TextDecoration.STRIKETHROUGH, false).decoration(TextDecoration.BOLD, false))
+                .append(Component.text("≻").color(lineColor).decoration(TextDecoration.STRIKETHROUGH, false).decoration(TextDecoration.BOLD, true))
+                .append(Component.text("⎯⎯⎯⎯⎯⎯⎯").color(lineColor).decoration(TextDecoration.STRIKETHROUGH, true).decoration(TextDecoration.BOLD, false));
+
+        Component fullLine = Component.text("⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯").color(lineColor).decoration(TextDecoration.STRIKETHROUGH, true).decoration(TextDecoration.BOLD, false);
+
+        lines.add(line);
         lines.add(Component.empty());
         if(playerTeam != null) {
             String teamName = TextUtil.camelCasing(playerTeam.name());
@@ -91,6 +103,11 @@ public class ScoreboardManager {
         lines.add(Component.text("Gold: ").color(NamedTextColor.WHITE));
         String formattedNumber = String.format(Locale.ENGLISH, "%,d", dc.getGold(uuid));
         lines.add(Component.text(formattedNumber).color(NamedTextColor.YELLOW));
+
+        lines.add(Component.empty());
+        lines.add(line);
+
+
         board.updateLines(lines);
 
     }
