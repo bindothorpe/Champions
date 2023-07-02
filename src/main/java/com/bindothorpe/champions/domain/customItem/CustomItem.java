@@ -169,7 +169,7 @@ public abstract class CustomItem implements Listener {
             lore.add(Component.text(TextUtil.camelCasing(status.getType().toString().replace("_", " "))).color(NamedTextColor.GRAY)
                     .append(Component.text(": ").color(NamedTextColor.GRAY))
                     .append(Component.text(status.getValue() < 0 ? "" : "+").color(NamedTextColor.YELLOW))
-                    .append(Component.text(status.getValue()).color(NamedTextColor.YELLOW))
+                    .append(Component.text(status.isMultiplier() ? status.getValue() * 100 : status.getValue()).color(NamedTextColor.YELLOW))
                     .append(status.isMultiplier() ? Component.text("%").color(NamedTextColor.YELLOW) : Component.empty()));
         }
 
