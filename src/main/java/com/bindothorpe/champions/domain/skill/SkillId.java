@@ -13,7 +13,8 @@ public enum SkillId {
     HEAD_BUTT(SkillType.AXE),
     RALLY(SkillType.SWORD),
     SONAR_ARROW(SkillType.BOW),
-    GRAND_ENTRANCE(SkillType.AXE);
+    GRAND_ENTRANCE(SkillType.AXE),
+    MAGE_PASSIVE(SkillType.CLASS_PASSIVE);
 
     private final SkillType skillType;
 
