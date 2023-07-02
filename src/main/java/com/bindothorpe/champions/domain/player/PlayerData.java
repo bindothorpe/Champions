@@ -13,6 +13,7 @@ public class PlayerData {
     private final Map<ClassType, Set<String>> buildIds;
     private String selectedBuildId;
     private int gold = 0;
+    private int kills, deaths, assists = 0;
 
     public PlayerData(DomainController dc, UUID uuid, Map<ClassType, Set<String>> buildIds) {
         this.dc = dc;
@@ -93,5 +94,29 @@ public class PlayerData {
 
     public int getMaxBuilds() {
         return 7;
+    }
+
+    public int getKills() {
+        return kills;
+    }
+
+    public int getDeaths() {
+        return deaths;
+    }
+
+    public int getAssists() {
+        return assists;
+    }
+
+    public void addKill() {
+        this.kills += 1;
+    }
+
+    public void addDeath() {
+        this.deaths += 1;
+    }
+
+    public void addAssist() {
+        this.assists += 1;
     }
 }

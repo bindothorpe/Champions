@@ -92,6 +92,8 @@ public class InitDataConfig {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
 
+            dc.getScoreboardManager().setScoreboard(player.getUniqueId());
+
             dc.addGold(player.getUniqueId(), 10000);
             dbc.getBuildsByPlayerUUID(player.getUniqueId(), new DatabaseResponse<List<Build>>() {
                 @Override
