@@ -5,7 +5,7 @@ import java.util.Objects;
 public class EntityStatus {
 
     private final EntityStatusType type;
-    private final double value;
+    private double value;
     private final double duration;
     private final boolean isMultiplier;
     private final boolean isAbsolute;
@@ -38,6 +38,10 @@ public class EntityStatus {
 
     public boolean isAbsolute() {
         return isAbsolute;
+    }
+
+    public EntityStatus multiplyValue(int multiplier) {
+        return new EntityStatus(type, value * multiplier, duration, isMultiplier, isAbsolute, source);
     }
 
     public Object getSource() {
