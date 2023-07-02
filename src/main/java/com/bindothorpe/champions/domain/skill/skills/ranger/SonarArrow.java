@@ -35,7 +35,7 @@ public class SonarArrow extends Skill {
     private final double range = 10;
 
     public SonarArrow(DomainController dc) {
-        super(dc, SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER, "Sonar Arrow", Arrays.asList(3.0), 1, 2);
+        super(dc, SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER, "Sonar Arrow", Arrays.asList(10.0), 1, 2);
     }
 
     @EventHandler

@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.customItem;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -49,11 +50,14 @@ public class CustomItemManager {
         customItems.get(customItemId).addUser(uuid);
 
         for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
-            dc.addStatusToEntity(uuid, status);
+            int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
+
+            dc.addStatusToEntity(uuid, status.multiplyValue(itemCount));
             dc.updateEntityStatus(uuid, status.getType());
         }
 
         updatePlayerInventory(uuid);
+        System.out.println("Cooldown reduction: " + dc.getMultiplicationEntityStatusValue(uuid, EntityStatusType.COOLDOWN_REDUCTION));
     }
 
     private boolean doesUserHaveEnoughGold(UUID uuid, CustomItemId customItemId) {

@@ -126,7 +126,7 @@ public abstract class CustomItem implements Listener {
                 break;
         }
 
-        return c;
+        return c.decoration(TextDecoration.ITALIC, false);
     }
 
     protected NamedTextColor getColor() {
@@ -191,7 +191,11 @@ public abstract class CustomItem implements Listener {
             lore.add(ComponentUtil.leftClick(true)
                     .append(Component.text("to purchase").color(NamedTextColor.GRAY)));
 
-        return lore;
+        List<Component> nonItalicLore = new ArrayList<>();
+        for(Component c :  lore) {
+            nonItalicLore.add(c.decoration(TextDecoration.ITALIC, false));
+        }
+        return nonItalicLore;
     }
 
     protected List<Component> getAdditionalLore() {
