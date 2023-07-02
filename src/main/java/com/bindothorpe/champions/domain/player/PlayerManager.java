@@ -2,11 +2,9 @@ package com.bindothorpe.champions.domain.player;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import org.bukkit.Bukkit;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerManager {
 
@@ -108,6 +106,7 @@ public class PlayerManager {
             createPlayerDataForPlayer(uuid);
 
         playerDataMap.get(uuid).addGold(gold);
+        dc.getScoreboardManager().updateScoreboard(uuid);
     }
 
     public void reduceGold(UUID uuid, int gold) {
@@ -115,5 +114,42 @@ public class PlayerManager {
             createPlayerDataForPlayer(uuid);
 
         playerDataMap.get(uuid).reduceGold(gold);
+        dc.getScoreboardManager().updateScoreboard(uuid);
+    }
+
+    public int getKills(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        return playerDataMap.get(uuid).getKills();
+    }
+
+    public int getDeaths(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        return playerDataMap.get(uuid).getDeaths();
+    }
+
+    public int getAssists(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        return playerDataMap.get(uuid).getAssists();
+    }
+
+    public void addKill(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        playerDataMap.get(uuid).addKill();
+    }
+
+    public void addDeath(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        playerDataMap.get(uuid).addDeath();
+    }
+
+    public void addAssist(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            createPlayerDataForPlayer(uuid);
+        playerDataMap.get(uuid).addAssist();
     }
 }

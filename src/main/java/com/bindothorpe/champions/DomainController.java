@@ -20,6 +20,7 @@ import com.bindothorpe.champions.domain.game.GameState;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
+import com.bindothorpe.champions.domain.scoreboard.ScoreboardManager;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillManager;
@@ -59,6 +60,7 @@ public class DomainController {
     private final GameManager gameManager = GameManager.getInstance(this);
     private final TeamManager teamManager = TeamManager.getInstance(this);
     private final CustomItemManager customItemManager = CustomItemManager.getInstance(this);
+    private final ScoreboardManager scoreboardManager = ScoreboardManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -73,6 +75,10 @@ public class DomainController {
         return plugin;
     }
 
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
+    }
 
     public void setSelectedBuildIdForPlayer(UUID uuid, String buildId) {
         playerManager.setSelectedBuildIdForPlayer(uuid, buildId);
@@ -331,6 +337,30 @@ public class DomainController {
 
     public void reduceGold(UUID uuid, int gold) {
         playerManager.reduceGold(uuid, gold);
+    }
+
+    public int getDeaths(UUID uuid) {
+        return playerManager.getDeaths(uuid);
+    }
+
+    public void addDeath(UUID uuid) {
+        playerManager.addDeath(uuid);
+    }
+
+    public int getKills(UUID uuid) {
+        return playerManager.getKills(uuid);
+    }
+
+    public void addKill(UUID uuid) {
+        playerManager.addKill(uuid);
+    }
+
+    public int getAssists(UUID uuid) {
+        return playerManager.getAssists(uuid);
+    }
+
+    public void addAssist(UUID uuid) {
+        playerManager.addAssist(uuid);
     }
 
     public void openShopHomeGui(UUID uuid, CustomItemType type) {
