@@ -8,10 +8,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,18 +87,23 @@ public abstract class CustomItem implements Listener {
         return tier + 1;
     }
 
-    public ItemStack getItem(UUID uuid) {
+    public ItemStack getItem(UUID uuid, boolean isShop) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         meta.displayName(getItemName());
-        meta.lore(getLore(uuid));
+        meta.lore(getLore(uuid, isShop));
         meta.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-
+        meta.getPersistentDataContainer().set(manager.getCustomItemKey(), PersistentDataType.STRING, id.toString());
         item.setItemMeta(meta);
         item.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
 
+
         return item;
+    }
+
+    public ItemStack getItem(UUID uuid) {
+        return getItem(uuid, true);
     }
 
 
@@ -142,7 +149,7 @@ public abstract class CustomItem implements Listener {
         return NamedTextColor.WHITE;
     }
 
-    protected List<Component> getLore(UUID uuid) {
+    protected List<Component> getLore(UUID uuid, boolean isShop) {
         List<Component> lore = new ArrayList<>();
 
         if (uuid != null) {
@@ -183,13 +190,13 @@ public abstract class CustomItem implements Listener {
         if (!statuses.isEmpty())
             lore.add(Component.text(" "));
 
-        lore.add(Component.text("Price: ").color(NamedTextColor.GRAY)
-                .append(Component.text(uuid == null ? getTotalPrice() : manager.getRemainingCost(uuid, id)).color(NamedTextColor.YELLOW)
+        lore.add(Component.text(isShop ? "Price: " : "Sell for: ").color(NamedTextColor.GRAY)
+                .append(Component.text(isShop ? uuid == null ? getTotalPrice() : manager.getRemainingCost(uuid, id) : getSellPrice()).color(NamedTextColor.YELLOW)
                         .append(Component.text(" gold"))));
 
         if (uuid != null)
             lore.add(ComponentUtil.leftClick(true)
-                    .append(Component.text("to purchase").color(NamedTextColor.GRAY)));
+                    .append(Component.text(isShop ? "to purchase" : "to sell").color(NamedTextColor.GRAY)));
 
         List<Component> nonItalicLore = new ArrayList<>();
         for(Component c :  lore) {
@@ -202,4 +209,7 @@ public abstract class CustomItem implements Listener {
         return new ArrayList<>();
     }
 
+    public int getSellPrice() {
+        return (int) (getTotalPrice() * 0.7);
+    }
 }

@@ -2,8 +2,8 @@ package com.bindothorpe.champions.domain.customItem;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +13,7 @@ public class CustomItemManager {
 
     private static CustomItemManager instance;
     private final DomainController dc;
-
+    private NamespacedKey customItemKey;
     private final Map<CustomItemId, CustomItem> customItems = new HashMap<>();
     private final Map<UUID, List<CustomItemId>> playerItems = new HashMap<>();
 
@@ -49,15 +49,14 @@ public class CustomItemManager {
         playerItems.get(uuid).add(customItemId);
         customItems.get(customItemId).addUser(uuid);
 
-        for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
-            int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
+        int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
 
+        for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
             dc.addStatusToEntity(uuid, status.multiplyValue(itemCount));
             dc.updateEntityStatus(uuid, status.getType());
         }
 
         updatePlayerInventory(uuid);
-        System.out.println("Cooldown reduction: " + dc.getMultiplicationEntityStatusValue(uuid, EntityStatusType.COOLDOWN_REDUCTION));
     }
 
     private boolean doesUserHaveEnoughGold(UUID uuid, CustomItemId customItemId) {
@@ -69,8 +68,15 @@ public class CustomItemManager {
         playerItems.get(uuid).remove(customItemId);
         customItems.get(customItemId).removeUser(uuid);
 
+        int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
+
         for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
             dc.removeStatusFromEntity(uuid, status.getType(), status.getSource());
+            dc.updateEntityStatus(uuid, status.getType());
+        }
+
+        for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
+            dc.addStatusToEntity(uuid, status.multiplyValue(itemCount));
             dc.updateEntityStatus(uuid, status.getType());
         }
 
@@ -100,8 +106,7 @@ public class CustomItemManager {
             ItemStack itemStack = null;
 
             if (item != null) {
-                itemStack = item.getItem(uuid);
-
+                itemStack = item.getItem(uuid, false);
             }
 
 
@@ -256,5 +261,21 @@ public class CustomItemManager {
 
     public List<CustomItemId> getSubItems(CustomItemId customItemId) {
         return customItems.get(customItemId).getSubItems();
+    }
+
+    public NamespacedKey getCustomItemKey() {
+        if(customItemKey == null)
+            customItemKey = new NamespacedKey(dc.getPlugin(), "custom-item-id");
+        return customItemKey;
+    }
+
+    public void sellItem(UUID uuid, CustomItemId id) {
+        if (!doesUserHaveItem(uuid, id))
+            return;
+
+        int sellPrice = getCustomItem(id).getSellPrice();
+
+        dc.addGold(uuid, sellPrice);
+        removeItemFromUser(uuid, id, true);
     }
 }
