@@ -30,6 +30,7 @@ import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
+import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import org.bukkit.Bukkit;
@@ -87,6 +88,7 @@ public class InitDataConfig {
         pm.registerEvents(new InteractListener(), dc.getPlugin());
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
         pm.registerEvents(new GameListener(dc), dc.getPlugin());
+        pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 

@@ -1,8 +1,6 @@
 package com.bindothorpe.champions;
 
-import com.bindothorpe.champions.database.Database;
 import com.bindothorpe.champions.database.DatabaseController;
-import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.block.TemporaryBlockManager;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.BuildManager;
@@ -33,13 +31,10 @@ import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 
 import java.sql.SQLException;
