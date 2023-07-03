@@ -17,17 +17,25 @@ public class CombatListener implements Listener {
 
     @EventHandler
     public void onTakeDamage(EntityDamageEvent event) {
+        if(event.isCancelled())
+            return;
+
         if (!(event.getEntity() instanceof Player))
             return;
+
+        event.getCause();
 
         dc.logDamageTaken(event.getEntity().getUniqueId());
     }
 
     @EventHandler
     public void onDealDamage(CustomDamageEvent event) {
-        if (!(event.getHitBy() instanceof Player))
+        if(event.isCancelled())
             return;
 
-        dc.logDamageDealt(event.getHitBy().getUniqueId());
+        if (!(event.getDamager() instanceof Player))
+            return;
+
+        dc.logDamageDealt(event.getDamager().getUniqueId());
     }
 }

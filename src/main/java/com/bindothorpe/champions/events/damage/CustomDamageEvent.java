@@ -1,7 +1,7 @@
 package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -15,52 +15,30 @@ public class CustomDamageEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS_LIST = new HandlerList();
     private final DomainController dc;
-    private final LivingEntity entity;
-    private final Entity hitBy;
+    private final LivingEntity damagee;
+    private final LivingEntity damager;
     private final double originalDamage;
-    private final static double ORIGINAL_KNOCKBACK = 0.6;
-    private final static double ORIGINAL_VERTICAL_KNOCKBACK = 0.9;
     private Location attackLocation;
     private CustomDamageSource source;
     private boolean cancelled;
+    private CustomDamageCommand command;
 
-    public CustomDamageEvent(DomainController dc, LivingEntity entity, Entity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source) {
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source) {
         this.dc = dc;
-        this.entity = entity;
-        this.hitBy = hitBy;
+        this.damagee = entity;
+        this.damager = hitBy;
         this.originalDamage = originalDamage;
         this.attackLocation = attackLocation;
         this.source = source;
         this.cancelled = false;
     }
 
-    public double getFinalDamage() {
-        return Math.max(0, calculateValue(EntityStatusType.DAMAGE_DONE, EntityStatusType.DAMAGE_RECEIVED, originalDamage));
+    public CustomDamageCommand getCommand() {
+        return command;
     }
 
-    public double getFinalKnockback() {
-        return Math.max(0, calculateValue(EntityStatusType.KNOCKBACK_DONE, EntityStatusType.KNOCKBACK_RECEIVED, ORIGINAL_KNOCKBACK));
-    }
-
-    private double calculateValue(EntityStatusType done, EntityStatusType received, double originalValue) {
-
-        double finalDone, finalReceived = 0;
-
-        double doneMod = dc.getModificationEntityStatusValue(hitBy.getUniqueId(), done);
-        double doneMult = dc.getMultiplicationEntityStatusValue(hitBy.getUniqueId(), done);
-
-        double receivedMod = dc.getModificationEntityStatusValue(entity.getUniqueId(), received);
-        double receivedMult = dc.getMultiplicationEntityStatusValue(entity.getUniqueId(), received);
-
-        if (doneMult == 0 || receivedMult == 0) {
-            return 0;
-        }
-
-        finalDone = (originalValue + doneMod) * doneMult;
-        finalReceived = (originalValue + receivedMod) * receivedMult;
-
-
-        return Math.max(0, originalValue + finalDone - finalReceived);
+    public void setCommand(CustomDamageCommand command) {
+        this.command = command;
     }
 
     @Override
@@ -72,12 +50,12 @@ public class CustomDamageEvent extends Event implements Cancellable {
         return HANDLERS_LIST;
     }
 
-    public LivingEntity getEntity() {
-        return entity;
+    public LivingEntity getDamagee() {
+        return damagee;
     }
 
-    public Entity getHitBy() {
-        return hitBy;
+    public Entity getDamager() {
+        return damager;
     }
 
     public final double getOriginalDamage() {
@@ -98,8 +76,5 @@ public class CustomDamageEvent extends Event implements Cancellable {
         this.cancelled = cancelled;
     }
 
-    public final Vector getKnockbackDirection() {
-        return entity.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
-    }
 
 }

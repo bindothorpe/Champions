@@ -1,11 +1,13 @@
 package com.bindothorpe.champions.domain.item.items;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -61,9 +63,14 @@ public class ExplosiveItem extends GameItem {
 
         EntityStatus status = new EntityStatus(EntityStatusType.KNOCKBACK_DONE, EXPLOSION_KNOCKBACK, -1, false, false, this);
         dc.addStatusToEntity(getOwner().getUniqueId(), status);
+
         for(Entity e : nearby) {
 
-            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, (LivingEntity) getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
+            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
+            customDamageEvent.setCommand(customDamageCommand);
+
+            Bukkit.getPluginManager().callEvent(customDamageEvent);
 
             if(dc.getTeamFromEntity(e) != null && dc.getTeamFromEntity(e).equals(dc.getTeamFromEntity(getOwner())) && (!e.equals(getOwner())))
                 continue;
@@ -71,15 +78,16 @@ public class ExplosiveItem extends GameItem {
             if(customDamageEvent.isCancelled())
                 return;
 
-            if(!customDamageEvent.getHitBy().equals(getOwner())) {
-                customDamageEvent.getEntity().setHealth(Math.max(0, customDamageEvent.getEntity().getHealth() - customDamageEvent.getFinalDamage()));
-            }
-            Vector direction = customDamageEvent.getEntity().getLocation().toVector().subtract(getLocation().toVector()).normalize();
-            if(!e.equals(getOwner())) {
-                direction = customDamageEvent.getKnockbackDirection();
-            }
-            customDamageEvent.getEntity().setVelocity(customDamageEvent.getEntity().getVelocity().add(direction.multiply(customDamageEvent.getFinalKnockback())));
 
+            if(!customDamageEvent.getDamager().equals(getOwner())) {
+                customDamageCommand.damage(0);
+            }
+
+            if(e.equals(getOwner())) {
+                customDamageCommand.direction(customDamageEvent.getDamagee().getLocation().toVector().subtract(getLocation().toVector()).normalize());
+            }
+
+            customDamageCommand.execute();
         }
         dc.removeStatusFromEntity(getOwner().getUniqueId(), EntityStatusType.KNOCKBACK_DONE, this);
     }
