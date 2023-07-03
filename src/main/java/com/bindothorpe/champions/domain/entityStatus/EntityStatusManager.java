@@ -32,6 +32,24 @@ public class EntityStatusManager {
 
     public void addEntityStatus(UUID uuid, EntityStatus entityStatus) {
 
+        if(entityStatus.getType().equals(EntityStatusType.DAMAGE_DONE)) {
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.ATTACK_DAMAGE_DONE, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.SKILL_DAMAGE_DONE, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            return;
+        } else if(entityStatus.getType().equals(EntityStatusType.DAMAGE_RECEIVED)) {
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.ATTACK_DAMAGE_RECEIVED, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.SKILL_DAMAGE_RECEIVED, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            return;
+        } else if (entityStatus.getType().equals(EntityStatusType.KNOCKBACK_DONE)) {
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.ATTACK_KNOCKBACK_DONE, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.SKILL_KNOCKBACK_DONE, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            return;
+        } else if (entityStatus.getType().equals(EntityStatusType.KNOCKBACK_RECEIVED)) {
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.ATTACK_KNOCKBACK_RECEIVED, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            addEntityStatus(uuid, new EntityStatus(EntityStatusType.SKILL_KNOCKBACK_RECEIVED, entityStatus.getValue(), entityStatus.getDuration(), entityStatus.isMultiplier(), entityStatus.isAbsolute(), entityStatus.getSource()));
+            return;
+        }
+
         //Get the map of statuses for the entity
         Map<EntityStatusType, Set<EntityStatus>> statuses = entityStatuses.get(uuid);
 
@@ -72,6 +90,23 @@ public class EntityStatusManager {
     }
 
     public void removeEntityStatus(UUID uuid, EntityStatusType type, Object source) {
+        if(type.equals(EntityStatusType.DAMAGE_DONE)) {
+            removeEntityStatus(uuid,EntityStatusType.ATTACK_DAMAGE_DONE, source);
+            removeEntityStatus(uuid,EntityStatusType.SKILL_DAMAGE_DONE, source);
+            return;
+        } else if(type.equals(EntityStatusType.DAMAGE_RECEIVED)) {
+            removeEntityStatus(uuid,EntityStatusType.ATTACK_DAMAGE_RECEIVED, source);
+            removeEntityStatus(uuid,EntityStatusType.SKILL_DAMAGE_RECEIVED, source);
+            return;
+        } else if (type.equals(EntityStatusType.KNOCKBACK_DONE)) {
+            removeEntityStatus(uuid,EntityStatusType.ATTACK_KNOCKBACK_DONE, source);
+            removeEntityStatus(uuid,EntityStatusType.SKILL_KNOCKBACK_DONE, source);
+            return;
+        } else if (type.equals(EntityStatusType.KNOCKBACK_RECEIVED)) {
+            removeEntityStatus(uuid,EntityStatusType.ATTACK_KNOCKBACK_RECEIVED, source);
+            removeEntityStatus(uuid,EntityStatusType.SKILL_KNOCKBACK_RECEIVED, source);
+            return;
+        }
         //Get the map of statuses for the entity
         Map<EntityStatusType, Set<EntityStatus>> statuses = entityStatuses.get(uuid);
 

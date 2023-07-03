@@ -7,12 +7,10 @@ import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.skill.SkillUseEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
-import io.papermc.paper.event.entity.EntityMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
-import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +59,7 @@ public class StunStatusEffect extends StatusEffect {
 
     @EventHandler
     public void onCustomDamageEvent(CustomDamageEvent event) {
-        if (!locationMap.containsKey(event.getHitBy().getUniqueId()))
+        if (!locationMap.containsKey(event.getDamager().getUniqueId()))
             return;
         event.setCancelled(true);
     }

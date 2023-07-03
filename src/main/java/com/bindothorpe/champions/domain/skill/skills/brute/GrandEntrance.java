@@ -1,10 +1,13 @@
 package com.bindothorpe.champions.domain.skill.skills.brute;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -29,6 +32,7 @@ public class GrandEntrance extends Skill {
 
     private final Set<UUID> active = new HashSet<>();
     private final Set<UUID> active2 = new HashSet<>();
+    private final List<Double> damage = List.of(1.0, 1.5, 2.0);
     private static final double DOWNWARDS_SPEED = 4;
     private static final double KNOCKUP_SPEED = 1;
     private static final double LAUNCH_SPEED = 1.5;
@@ -63,7 +67,7 @@ public class GrandEntrance extends Skill {
             public void run() {
                 active.add(player.getUniqueId());
             }
-        }.runTaskLater(dc.getPlugin(), 1L);
+        }.runTaskLater(dc.getPlugin(), 2L);
 
     }
 
@@ -112,8 +116,19 @@ public class GrandEntrance extends Skill {
                 .filter(Entity::isOnGround)
                 .collect(Collectors.toSet());
 
+        double damage = this.damage.get(getSkillLevel(player.getUniqueId()) - 1);
+        Vector direction = new Vector(0, 1, 0);
+
         for(Entity entity : nearby) {
-            entity.setVelocity(new Vector(0, 1, 0).multiply(KNOCKUP_SPEED));
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).direction(direction).force(KNOCKUP_SPEED);
+            damageEvent.setCommand(customDamageCommand);
+            Bukkit.getPluginManager().callEvent(damageEvent);
+
+            if(damageEvent.isCancelled())
+                continue;
+
+            customDamageCommand.execute();
         }
     }
 

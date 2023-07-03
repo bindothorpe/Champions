@@ -1,11 +1,14 @@
 package com.bindothorpe.champions.domain.skill.skills.brute;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
+import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
@@ -31,12 +34,14 @@ public class HeadButt extends Skill {
 
     private static final double COLLISION_RADIUS = 0.5;
     private static final double VELOCITY = 1.5;
-    private final List<Double> damage = Arrays.asList(3.0, 4.0, 5.0);
+    private final List<Double> damage = Arrays.asList(1.0, 2.0, 3.0);
+    private final List<Double> impactDamage = Arrays.asList(2.0, 4.0, 7.0);
 
     private final Set<UUID> active = new HashSet<>();
     private final Map<UUID, Location> startingLocations = new HashMap<>();
 
     private final Set<UUID> hitActive = new HashSet<>();
+    private final Map<UUID, UUID> hitBy = new HashMap<>();
     private final Map<UUID, Location> hitStartingLocations = new HashMap<>();
 
     public HeadButt(DomainController dc) {
@@ -83,16 +88,37 @@ public class HeadButt extends Skill {
             Entity hit = nearby.stream().findFirst().get();
             Location startingLocation = startingLocations.get(uuid);
 
+
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, damage.get(getSkillLevel(uuid) - 1), player.getLocation(), CustomDamageSource.SKILL);
+
             //Get the direction of the player's headbutt by subtracting the starting location's vector from the current location's vector
             Vector dir = player.getLocation().toVector().subtract(startingLocation.toVector()).setY(0).normalize().setY(0.2).normalize();
 
+            CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
+                    .direction(dir)
+                    .force(VELOCITY);
+
+            damageEvent.setCommand(damageCommand);
+
+
+            Bukkit.getPluginManager().callEvent(damageEvent);
+
+            if(damageEvent.isCancelled()) {
+                active.remove(uuid);
+                startingLocations.remove(uuid);
+                continue;
+            }
+
+
+
             hit.teleport(hit.getLocation().add(0, 0.2, 0));
-            hit.setVelocity(dir.multiply(VELOCITY));
+            damageCommand.execute();
 
             active.remove(uuid);
             startingLocations.remove(uuid);
 
             hitActive.add(hit.getUniqueId());
+            hitBy.put(hit.getUniqueId(), player.getUniqueId());
             hitStartingLocations.put(hit.getUniqueId(), hit.getLocation());
 
             player.sendMessage(Component.text("You hit ").color(NamedTextColor.GRAY)
@@ -122,8 +148,28 @@ public class HeadButt extends Skill {
             if(nearbyBlocks.isEmpty())
                 continue;
 
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), impactDamage.get(getSkillLevel(hitBy.get(uuid)) - 1), entity.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
+                    .direction(new Vector(0, 0, 0));
+            damageEvent.setCommand(damageCommand);
+
+            Bukkit.getPluginManager().callEvent(damageEvent);
+
+            if(damageEvent.isCancelled()) {
+                hitActive.remove(uuid);
+                hitBy.remove(uuid);
+                hitStartingLocations.remove(uuid);
+                continue;
+
+            }
+
+
+
+            damageCommand.execute();
+
             dc.addStatusEffectToEntity(StatusEffectType.STUN, uuid, 0.5);
             hitActive.remove(uuid);
+            hitBy.remove(uuid);
             hitStartingLocations.remove(uuid);
 
         }
@@ -132,6 +178,7 @@ public class HeadButt extends Skill {
             Entity entity = Bukkit.getEntity(uuid);
             if (!BlockUtil.getNearbyBlocks(entity.getLocation(), 1, 0, 0.1, 0).isEmpty()) {
                 hitStartingLocations.remove(uuid);
+                hitBy.remove(uuid);
                 return true;
             }
             return false;

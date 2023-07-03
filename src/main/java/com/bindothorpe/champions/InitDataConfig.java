@@ -33,6 +33,7 @@ import com.bindothorpe.champions.events.interact.InteractListener;
 import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
+import com.bindothorpe.champions.listeners.damage.CustomDamageListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -89,6 +90,7 @@ public class InitDataConfig {
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
         pm.registerEvents(new GameListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
+        pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 

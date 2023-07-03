@@ -1,6 +1,8 @@
 package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,9 +34,9 @@ public class EntityDamageByEntityListener implements Listener {
             return;
 
         Player damager = (Player) event.getDamager();
-        LivingEntity entity = (LivingEntity) event.getEntity();
+        LivingEntity damagee = (LivingEntity) event.getEntity();
 
-        if ((lastHit.containsKey(entity.getUniqueId()) && lastHit.get(entity.getUniqueId()) + DELAY > System.currentTimeMillis())) {
+        if ((lastHit.containsKey(damagee.getUniqueId()) && lastHit.get(damagee.getUniqueId()) + DELAY > System.currentTimeMillis())) {
             event.setCancelled(true);
             return;
         }
@@ -45,8 +47,13 @@ public class EntityDamageByEntityListener implements Listener {
 
 
         CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
 
-        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(entity))) {
+        customDamageEvent.setCommand(customDamageCommand);
+
+        Bukkit.getPluginManager().callEvent(customDamageEvent);
+
+        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(damagee))) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }
@@ -57,10 +64,8 @@ public class EntityDamageByEntityListener implements Listener {
 
         event.setCancelled(true);
 
-        customDamageEvent.getEntity().setHealth(Math.max(0, customDamageEvent.getEntity().getHealth() - customDamageEvent.getFinalDamage()));
-        customDamageEvent.getEntity().setVelocity(customDamageEvent.getEntity().getVelocity().add(customDamageEvent.getKnockbackDirection().multiply(customDamageEvent.getFinalKnockback())));
-//        TODO: Make this work
-//        customDamageEvent.getEntity().playEffect(EntityEffect.HURT_EXPLOSION);
-        lastHit.put(entity.getUniqueId(), System.currentTimeMillis());
+        customDamageCommand.execute();
+
+        lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
     }
 }
