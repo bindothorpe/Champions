@@ -5,15 +5,16 @@ import com.bindothorpe.champions.command.Command;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
-import org.bukkit.EntityEffect;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
 
 public class CustomDamageCommand implements Command {
 
@@ -45,7 +46,7 @@ public class CustomDamageCommand implements Command {
 
     @Override
     public void execute() {
-        if(hasExecuted) {
+        if (hasExecuted) {
             throw new IllegalStateException("This command has already been executed");
         }
 
@@ -54,7 +55,7 @@ public class CustomDamageCommand implements Command {
         damagee.setHealth(newHealth > 0 ? newHealth : 0);
 
         // Knock back the entity
-        if(overwriteDirection == null) {
+        if (overwriteDirection == null) {
             overwriteDirection = getKnockbackDirection();
         }
 
@@ -62,7 +63,7 @@ public class CustomDamageCommand implements Command {
         damagee.setVelocity(newVelocity);
 
         // Play the damage animation
-        damagee.playEffect(EntityEffect.HURT);
+        playDamageAnimation(damagee);
         hasExecuted = true;
     }
 
@@ -126,5 +127,20 @@ public class CustomDamageCommand implements Command {
 
     private final Vector getKnockbackDirection() {
         return damagee.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
+    }
+
+    public void playDamageAnimation(LivingEntity entity) {
+        PacketContainer packet = dc.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_STATUS);
+
+        packet.getIntegers().write(0, entity.getEntityId());
+        packet.getBytes().write(0, (byte) 2); // 2 is the status ID for the "Living Entity Hurt" animation.
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            try {
+                ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

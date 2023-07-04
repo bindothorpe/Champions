@@ -6,15 +6,20 @@ import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.events.update.Updater;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
 
 public final class ChampionsPlugin extends JavaPlugin {
 
+    private ProtocolManager protocolManager;
+
     @Override
     public void onEnable() {
-        DomainController dc = new DomainController(this);
+        protocolManager = ProtocolLibrary.getProtocolManager();
+        DomainController dc = new DomainController(this, protocolManager);
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
 

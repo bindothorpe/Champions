@@ -30,6 +30,7 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
+import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -43,6 +44,7 @@ import java.util.*;
 public class DomainController {
 
     private final ChampionsPlugin plugin;
+    private final ProtocolManager protocolManager;
     private final DatabaseController databaseController = DatabaseController.getInstance(this);
     private final SkillManager skillManager = SkillManager.getInstance(this);
     private final PlayerManager playerManager = PlayerManager.getInstance(this);
@@ -59,8 +61,9 @@ public class DomainController {
     private final ScoreboardManager scoreboardManager = ScoreboardManager.getInstance(this);
     private final CooldownManager cooldownManager = CooldownManager.getInstance(this);
 
-    public DomainController(ChampionsPlugin plugin) {
+    public DomainController(ChampionsPlugin plugin, ProtocolManager protocolManager) {
         this.plugin = plugin;
+        this.protocolManager = protocolManager;
         try {
             databaseController.initializeDatabase();
         } catch (SQLException e) {
@@ -70,6 +73,9 @@ public class DomainController {
 
     public ChampionsPlugin getPlugin() {
         return plugin;
+    }
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
     }
 
 
