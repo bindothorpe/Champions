@@ -28,6 +28,10 @@ public class CustomItemManager {
         return instance;
     }
 
+    public DomainController getDc() {
+        return dc;
+    }
+
     public void addItemToUser(UUID uuid, CustomItemId customItemId) {
         playerItems.computeIfAbsent(uuid, k -> new ArrayList<>());
 

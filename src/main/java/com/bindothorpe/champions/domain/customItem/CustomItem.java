@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public abstract class CustomItem implements Listener {
 
     private static Set<UUID> users = new HashSet<>();
-    private final CustomItemManager manager;
+    protected final CustomItemManager manager;
     private final CustomItemId id;
     private final Set<CustomItemType> types;
     private final String name;
