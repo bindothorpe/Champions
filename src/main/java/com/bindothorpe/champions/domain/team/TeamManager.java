@@ -45,6 +45,10 @@ public class TeamManager {
             Player player = (Player) entity;
             player.playerListName(Component.text(player.getName()).color(teamColor.getTextColor()));
         }
+
+        if(entity instanceof Player) {
+            dc.getScoreboardManager().updateScoreboard(entity.getUniqueId());
+        }
     }
 
     public void removeEntityFromTeam(Entity entity) {

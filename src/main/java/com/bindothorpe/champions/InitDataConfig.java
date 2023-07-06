@@ -12,6 +12,8 @@ import com.bindothorpe.champions.domain.customItem.items.LongSword;
 import com.bindothorpe.champions.domain.customItem.items.Phage;
 import com.bindothorpe.champions.domain.customItem.items.SerratedDirk;
 import com.bindothorpe.champions.domain.game.GameListener;
+import com.bindothorpe.champions.domain.game.GameManager;
+import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
 import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
@@ -28,12 +30,14 @@ import com.bindothorpe.champions.domain.skill.skills.mage.IcePrison;
 import com.bindothorpe.champions.domain.skill.skills.ranger.SonarArrow;
 import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
+import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
 import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import com.bindothorpe.champions.listeners.damage.CustomDamageListener;
+import com.bindothorpe.champions.listeners.game.capturepoint.CapturePointListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -91,12 +95,16 @@ public class InitDataConfig {
         pm.registerEvents(new GameListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
         pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());
+        pm.registerEvents(CapturePointManager.getInstance(GameManager.getInstance(dc)), dc.getPlugin());
+        pm.registerEvents(new CapturePointListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 
         DatabaseController dbc = dc.getDatabaseController();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
+
+            dc.addEntityToTeam(player, TeamColor.BLUE);
 
             dc.getScoreboardManager().setScoreboard(player.getUniqueId());
 

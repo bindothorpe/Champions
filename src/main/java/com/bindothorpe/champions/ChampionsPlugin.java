@@ -23,6 +23,7 @@ public final class ChampionsPlugin extends JavaPlugin {
         getCommand("skills").setExecutor(new SkillsCommand(dc));
         getCommand("game").setExecutor(new GameCommand(dc));
         getCommand("shop").setExecutor(new ShopCommand(dc));
+        getCommand("cp").setExecutor(new CapturePointCommand(dc));
         Updater.getInstance(dc).start();
 
 

@@ -5,13 +5,11 @@ import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.TextUtil;
 import fr.mrmicky.fastboard.adventure.FastBoard;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.*;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 
@@ -22,6 +20,8 @@ public class ScoreboardManager {
     private final DomainController dc;
 
     private final Map<UUID, FastBoard> boards = new HashMap<>();
+
+    private final Map<String, Component> capturePoints = new HashMap<>();
 
     private ScoreboardManager(DomainController dc) {
         this.dc = dc;
@@ -54,6 +54,12 @@ public class ScoreboardManager {
             board.delete();
         }
 
+    }
+
+    public void updateScoreboard() {
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            updateScoreboard(player.getUniqueId());
+        }
     }
 
     public void updateScoreboard(UUID uuid) {
@@ -105,10 +111,29 @@ public class ScoreboardManager {
         lines.add(Component.text(formattedNumber).color(NamedTextColor.YELLOW));
 
         lines.add(Component.empty());
+
+        if(!getCapturePointComponents().isEmpty()) {
+            for(Component component : getCapturePointComponents()) {
+                lines.add(component);
+            }
+            lines.add(Component.empty());
+        }
+
+
         lines.add(line);
 
 
         board.updateLines(lines);
 
+    }
+
+    public void updateCapturePoint(String name, Component component) {
+        capturePoints.put(name, component);
+    }
+
+    private List<Component> getCapturePointComponents() {
+        List<Component> components = new ArrayList<>();
+        capturePoints.keySet().stream().sorted().forEach(name -> components.add(capturePoints.get(name)));
+        return components;
     }
 }
