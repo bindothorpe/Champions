@@ -15,3 +15,7 @@ commands:
     usage: /shop
   cp:
     usage: /cp
+  map:
+    usage: /map
+  gamemap:
+    usage: /gamemap

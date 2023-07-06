@@ -1,5 +1,7 @@
 package com.bindothorpe.champions.util;
 
+import org.bukkit.util.Vector;
+
 public class TextUtil {
 
     public static String camelCasing(String enumText) {
