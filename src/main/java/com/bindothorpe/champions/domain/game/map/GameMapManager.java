@@ -2,6 +2,8 @@ package com.bindothorpe.champions.domain.game.map;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.config.CustomConfig;
+import com.bindothorpe.champions.domain.team.TeamColor;
+import com.bindothorpe.champions.util.SerializationUtil;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -9,7 +11,9 @@ import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class GameMapManager {
 
@@ -41,6 +45,7 @@ public class GameMapManager {
     }
 
     public boolean createGameMap(String name) {
+
         if(gameMapDataMap.containsKey(name)) {
             return false;
         }
@@ -66,6 +71,10 @@ public class GameMapManager {
     }
 
     public boolean loadMap(String mapName) {
+        if(gameMapDataMap.isEmpty()) {
+            loadAllMapsFromConfig();
+        }
+
         if(!gameMapDataMap.containsKey(mapName))
             return false;
 
@@ -83,6 +92,7 @@ public class GameMapManager {
         }
 
         map = new LocalGameMap(dc.getGameMapManager().getGameMapsFolder(), mapData.getName(), true);
+        mapData.loadMapData(map.getWorld());
         return true;
     }
 
@@ -115,5 +125,59 @@ public class GameMapManager {
 
         map.unload();
         map = null;
+    }
+
+    private void loadAllMapsFromConfig() {
+        CustomConfig config = dc.getCustomConfigManager().getConfig("map_config");
+        if(config == null)
+            return;
+
+        if(config.getFile() == null)
+            return;
+
+        config.reloadFile();
+
+        String defaultPath = "maps";
+
+        for(String path : config.getFile().getConfigurationSection(defaultPath).getKeys(false)) {
+            path = defaultPath + "." + path;
+            String name = config.getFile().getString(path + ".name");
+            Map<String, Vector> capturePoints = new HashMap<>();
+            Map<TeamColor, Set<Vector>> spawnPoints = new HashMap<>();
+            Map<Vector, Vector> spawnPointDirection = new HashMap<>();
+
+            for(String capturePoint : config.getFile().getConfigurationSection(path + ".capturePoints").getKeys(false)) {
+                String capturePointPath = path + ".capturePoints." + capturePoint;
+
+                String capturePointVectorAsString = config.getFile().getString(capturePointPath);
+                if(capturePointVectorAsString == null)
+                    continue;
+                capturePoints.put(capturePoint, SerializationUtil.stringToVector(capturePointVectorAsString));
+            }
+
+            for(String spawnpointTeam : config.getFile().getConfigurationSection(path + ".spawnPoints").getKeys(false)) {
+                String spawnpointTeamPath = path + ".spawnPoints." + spawnpointTeam;
+                TeamColor teamColor = TeamColor.valueOf(spawnpointTeam.toUpperCase());
+                Set<Vector> spawnpointVectors = new HashSet<>();
+
+                for(String spawnpoint : config.getFile().getConfigurationSection(spawnpointTeamPath).getKeys(false)) {
+                    String spawnpointPath = spawnpointTeamPath + "." + spawnpoint;
+                    String spawnpointVectorAsString = config.getFile().getString(spawnpointPath);
+                    if(spawnpointVectorAsString == null)
+                        continue;
+
+                    Vector spawnPoint = SerializationUtil.stringToVector(spawnpoint);
+                    Vector direction = SerializationUtil.stringToVector(spawnpointVectorAsString);
+                    spawnpointVectors.add(spawnPoint);
+                    spawnPointDirection.put(spawnPoint, direction);
+                }
+
+                spawnPoints.put(teamColor, spawnpointVectors);
+            }
+
+            GameMapData gameMapData = new GameMapData(dc, name, capturePoints, spawnPoints, spawnPointDirection);
+            gameMapDataMap.put(name, gameMapData);
+            System.out.println("Loaded map " + name + " from config");
+        }
     }
 }

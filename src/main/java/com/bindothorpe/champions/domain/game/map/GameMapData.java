@@ -2,8 +2,10 @@ package com.bindothorpe.champions.domain.game.map;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.config.CustomConfig;
+import com.bindothorpe.champions.domain.game.capturePoint.CapturePoint;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.SerializationUtil;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.util.Vector;
 
@@ -77,5 +79,12 @@ public class GameMapData {
 
     public Map<TeamColor, Set<Vector>> getSpawnPoints() {
         return spawnPoints;
+    }
+
+    public void loadMapData(World world) {
+        for(String capturePointName : capturePoints.keySet()) {
+            Vector location = capturePoints.get(capturePointName);
+            dc.getGameManager().addCapturePoint(new CapturePoint(dc.getGameManager(), capturePointName, location, world));
+        }
     }
 }
