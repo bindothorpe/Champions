@@ -2,6 +2,7 @@ package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePoint;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,6 +35,11 @@ public class CapturePointCommand implements CommandExecutor {
 
         if(!arg1.equals("create")) {
             player.sendMessage("Invalid argument " + arg1);
+            return true;
+        }
+
+        if(!player.getLocation().clone().subtract(0, 2, 0).getBlock().getType().equals(Material.BEACON)) {
+            player.sendMessage("You need to be standing on a beacon to create a capture point.");
             return true;
         }
 
