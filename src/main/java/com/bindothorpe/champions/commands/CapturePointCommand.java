@@ -43,8 +43,12 @@ public class CapturePointCommand implements CommandExecutor {
             return true;
         }
 
-        dc.getGameManager().addCapturePoint(new CapturePoint(dc.getGameManager(), arg2, player.getLocation().toVector(), player.getWorld()));
-        player.sendMessage("Capture point \"" + arg2 + "\" created.");
+        boolean success = dc.getGameManager().addCapturePoint(new CapturePoint(dc.getGameManager(), arg2, player.getLocation().toVector(), player.getWorld()));
+        if(success) {
+            player.sendMessage("Capture point created.");
+        } else {
+            player.sendMessage("Capture point already exists.");
+        }
         return true;
     }
 }
