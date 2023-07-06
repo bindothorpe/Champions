@@ -31,6 +31,10 @@ public class GameManager {
         return capturePointManager.addCapturePoint(capturePoint);
     }
 
+    public void removeCapturePoint(String name) {
+        capturePointManager.removeCapturePoint(name);
+    }
+
     public static GameManager getInstance(DomainController dc) {
         if (instance == null) {
             instance = new GameManager(dc);

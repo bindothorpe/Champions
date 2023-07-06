@@ -87,4 +87,10 @@ public class GameMapData {
             dc.getGameManager().addCapturePoint(new CapturePoint(dc.getGameManager(), capturePointName, location, world));
         }
     }
+
+    public void unloadMapData() {
+        for(String capturePointName : capturePoints.keySet()) {
+            dc.getGameManager().removeCapturePoint(capturePointName);
+        }
+    }
 }

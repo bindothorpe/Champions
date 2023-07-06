@@ -7,6 +7,8 @@ import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -33,15 +35,13 @@ public class GameMapCommand implements CommandExecutor {
 
         Player player = (Player) commandSender;
 
-        String[] args = strings;
-
-        if (args.length < 2) {
-            player.sendMessage("Usage: /gamemap <create|delete|edit|tp|load|add-cp|add-sp|info> <name>");
+        if (strings.length < 2) {
+            player.sendMessage("Usage: /map <create|edit|tp|load|unload|add-cp|add-sp|info> <name>");
             return true;
         }
 
-        String action = args[0];
-        String mapName = args[1];
+        String action = strings[0];
+        String mapName = strings[1];
 
         if (action.equalsIgnoreCase("create")) {
             handleCreate(player, mapName);
@@ -61,7 +61,7 @@ public class GameMapCommand implements CommandExecutor {
                 return true;
             }
 
-            handleAddCapturePoint(player, args[1]);
+            handleAddCapturePoint(player, strings[1]);
 
         } else if (action.equalsIgnoreCase("add-sp")) {
             if (gameMapData == null) {
@@ -72,9 +72,9 @@ public class GameMapCommand implements CommandExecutor {
             TeamColor team = null;
 
             try {
-                team = TeamColor.valueOf(args[1].toUpperCase());
+                team = TeamColor.valueOf(strings[1].toUpperCase());
             } catch (IllegalArgumentException e) {
-                player.sendMessage("Invalid team: " + args[2]);
+                player.sendMessage("Invalid team: " + strings[1]);
                 return true;
             }
 
@@ -84,6 +84,8 @@ public class GameMapCommand implements CommandExecutor {
             handleInfo(player, mapName);
         } else if (action.equalsIgnoreCase("load")) {
             handleLoad(player, mapName);
+        } else if (action.equalsIgnoreCase("unload")) {
+            handleUnload(player);
         } else {
             player.sendMessage("Unknown action: " + action);
         }
@@ -94,11 +96,24 @@ public class GameMapCommand implements CommandExecutor {
 
     private void handleLoad(Player player, String mapName) {
         boolean success = dc.getGameMapManager().loadMap(mapName);
-        if(!success) {
+        if (!success) {
             player.sendMessage("Failed to load map: " + mapName);
         }
 
         player.sendMessage("Loaded map: " + mapName);
+    }
+
+    private void handleUnload(Player player) {
+        World world = Bukkit.getWorld("world");
+
+        if (world == null) {
+            player.sendMessage("World not found");
+            return;
+        }
+
+        if (!player.getLocation().getWorld().equals(world))
+            player.teleport(world.getSpawnLocation());
+        dc.getGameMapManager().unloadMap();
     }
 
     private void handleTeleport(Player player, String mapName) {
@@ -127,7 +142,7 @@ public class GameMapCommand implements CommandExecutor {
     }
 
     private void handleEdit(Player player, String mapName) {
-        if(gameMapData != null) {
+        if (gameMapData != null) {
             player.sendMessage("Stopped editing map: " + gameMapData.getName());
             this.gameMapData = null;
             return;

@@ -36,6 +36,13 @@ public class CapturePointManager implements Listener {
         return true;
     }
 
+    public void removeCapturePoint(String capturePointName) {
+        if(!capturePointMap.keySet().contains(capturePointName))
+            return;
+
+        capturePointMap.remove(capturePointName);
+    }
+
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if(!event.getUpdateType().equals(UpdateType.HALF_SECOND))

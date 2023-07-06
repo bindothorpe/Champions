@@ -17,5 +17,3 @@ commands:
     usage: /cp
   map:
     usage: /map
-  gamemap:
-    usage: /gamemap

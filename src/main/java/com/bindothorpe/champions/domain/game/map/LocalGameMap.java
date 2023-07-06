@@ -8,15 +8,20 @@ import org.bukkit.WorldCreator;
 import java.io.File;
 import java.io.IOException;
 
-public class LocalGameMap implements GameMap{
+public class LocalGameMap implements GameMap {
+    private final String name;
     private final File sourceWorldFolder;
     private File activeWorldFolder;
     private World bukkitWorld;
 
     public LocalGameMap(File worldFolder, String worldName, boolean loadOnInit) {
         this.sourceWorldFolder = new File(worldFolder, worldName);
-
+        this.name = worldName;
         if(loadOnInit) load();
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

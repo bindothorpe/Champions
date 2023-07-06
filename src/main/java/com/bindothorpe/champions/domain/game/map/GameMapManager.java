@@ -123,7 +123,13 @@ public class GameMapManager {
         if(map == null)
             return;
 
+        GameMapData data = getGameMapData(map.getName());
+
+        if(data == null)
+            return;
+
         map.unload();
+        data.unloadMapData();
         map = null;
     }
 
