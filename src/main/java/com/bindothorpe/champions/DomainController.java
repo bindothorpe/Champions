@@ -367,4 +367,8 @@ public class DomainController {
     public void openShopHomeGui(UUID uuid, CustomItemType type) {
         guiManager.openShopHomeGui(uuid, type);
     }
+
+    public GameManager getGameManager() {
+        return gameManager;
+    }
 }
