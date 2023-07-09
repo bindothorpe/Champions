@@ -111,8 +111,6 @@ public class GameMapCommand implements CommandExecutor {
             return;
         }
 
-        if (!player.getLocation().getWorld().equals(world))
-            player.teleport(world.getSpawnLocation());
         dc.getGameMapManager().unloadMap();
     }
 

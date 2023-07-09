@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.config.CustomConfig;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.SerializationUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -159,6 +160,12 @@ public class GameMapManager {
 
         if (data == null)
             return;
+
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            if(player.getWorld().equals(map.getWorld())) {
+                player.teleport(Bukkit.getWorld("world").getSpawnLocation());
+            }
+        }
 
         map.unload();
         data.unload();
