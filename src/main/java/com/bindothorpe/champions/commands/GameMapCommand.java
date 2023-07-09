@@ -20,7 +20,6 @@ public class GameMapCommand implements CommandExecutor {
 
     private final DomainController dc;
     private GameMapData gameMapData;
-
     public GameMapCommand(DomainController dc) {
         this.dc = dc;
     }
@@ -36,7 +35,8 @@ public class GameMapCommand implements CommandExecutor {
         Player player = (Player) commandSender;
 
         if (strings.length < 2) {
-            player.sendMessage("Usage: /map <create|edit|tp|load|unload|add-cp|add-sp|info> <name>");
+            dc.getGuiManager().openMapMainGui(player.getUniqueId());
+//            player.sendMessage("Usage: /map <create|edit|tp|load|unload|add-cp|add-sp|info> <name>");
             return true;
         }
 
@@ -117,7 +117,7 @@ public class GameMapCommand implements CommandExecutor {
     }
 
     private void handleTeleport(Player player, String mapName) {
-        dc.getGameMapManager().tpToMap(player, mapName);
+        dc.getGameMapManager().teleportToMap(player, mapName);
     }
 
     private void handleAddSpawnPoint(Player player, TeamColor team) {

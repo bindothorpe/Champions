@@ -10,7 +10,7 @@ public class GameManager {
 
     private static GameManager instance;
     private final DomainController dc;
-    private final CapturePointManager capturePointManager = CapturePointManager.getInstance(this);
+    private final CapturePointManager capturePointManager = CapturePointManager.getInstance();
     private GameState gameState = GameState.LOBBY;
 
     private GameManager(DomainController dc) {

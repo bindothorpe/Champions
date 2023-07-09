@@ -5,22 +5,19 @@ import com.bindothorpe.champions.config.CustomConfig;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.SerializationUtil;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GameMapManager {
 
     private static GameMapManager instance;
     private final DomainController dc;
     private static File gameMapsFolder;
-    private LocalGameMap map;
+    private GameMap map;
 
     private final Map<String, GameMapData> gameMapDataMap = new HashMap<>();
 
@@ -32,31 +29,32 @@ public class GameMapManager {
         if (instance == null) {
             instance = new GameMapManager(dc);
         }
+
         return instance;
     }
 
     public File getGameMapsFolder() {
-        if(gameMapsFolder == null) {
+        if (gameMapsFolder == null) {
             dc.getPlugin().getDataFolder().mkdirs();
             gameMapsFolder = new File(dc.getPlugin().getDataFolder(), "gameMaps");
-            if(!gameMapsFolder.exists()) gameMapsFolder.mkdirs();
+            if (!gameMapsFolder.exists()) gameMapsFolder.mkdirs();
         }
         return gameMapsFolder;
     }
 
     public boolean createGameMap(String name) {
 
-        if(gameMapDataMap.containsKey(name)) {
+        if (gameMapDataMap.containsKey(name)) {
             return false;
         }
 
         CustomConfig config = dc.getCustomConfigManager().getConfig("map_config");
 
-        if(config == null) {
+        if (config == null) {
             return false;
         }
 
-        if(config.getFile() == null)
+        if (config.getFile() == null)
             return false;
 
         gameMapDataMap.put(name, new GameMapData(dc, name));
@@ -70,12 +68,18 @@ public class GameMapManager {
         return gameMapDataMap.get(mapName);
     }
 
+    public List<String> getGameMapNames() {
+        if(gameMapDataMap.isEmpty())
+            loadAllMapsFromConfig();
+        return gameMapDataMap.keySet().stream().sorted().collect(Collectors.toList());
+    }
+
     public boolean loadMap(String mapName) {
-        if(gameMapDataMap.isEmpty()) {
+        if (gameMapDataMap.isEmpty()) {
             loadAllMapsFromConfig();
         }
 
-        if(!gameMapDataMap.containsKey(mapName))
+        if (!gameMapDataMap.containsKey(mapName))
             return false;
 
         return loadMap(gameMapDataMap.get(mapName));
@@ -83,93 +87,121 @@ public class GameMapManager {
 
     public boolean loadMap(GameMapData mapData) {
 
-        if(mapData == null)
+        if (mapData == null)
             return false;
 
-        if(map != null) {
+        if (map != null) {
             map.unload();
             map = null;
         }
 
-        map = new LocalGameMap(dc.getGameMapManager().getGameMapsFolder(), mapData.getName(), true);
-        mapData.loadMapData(map.getWorld());
+        map = new GameMap(dc.getGameMapManager().getGameMapsFolder(), mapData.getName(), true);
+        mapData.load(map.getWorld());
         return true;
     }
 
-    public void tpToMap(Player player, String mapName) {
-
-        if(map == null) {
-            player.sendMessage("Map does not exist: " + mapName);
-            return;
+    public void teleportToMap(Player player, String mapName) throws IllegalArgumentException {
+        if(player == null) {
+            throw new IllegalArgumentException("Player is null");
         }
 
-        Vector spawnVector = gameMapDataMap.get(mapName).getCapturePoints().values().stream().findFirst().orElse(null);
-        if(spawnVector == null) {
-            player.sendMessage("Map does not have a spawn point: " + mapName);
-            return;
+        if(dc.getTeamFromEntity(player) == null) {
+            throw new IllegalArgumentException("Player is not on a team");
         }
 
-        if(map.getWorld() == null) {
-            player.sendMessage("Map world does not exist: " + mapName);
-            return;
+        TeamColor team = dc.getTeamFromEntity(player);
+
+        if (map == null) {
+            throw new IllegalArgumentException(String.format("Map is not loaded: %s", mapName));
         }
 
-        Location loc = new Location(map.getWorld(), spawnVector.getX(), spawnVector.getY(), spawnVector.getZ());
+        Map<TeamColor, Set<Vector>> spawnPoints = gameMapDataMap.get(mapName).getSpawnPoints();
 
+        if(spawnPoints.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Map does not have any spawnpoints: %s", mapName));
+        }
+
+        Set<Vector> teamSpawnPoints = spawnPoints.get(team);
+
+        if(teamSpawnPoints.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Map does not have any spawnpoints for team %s: %s", team, mapName));
+        }
+
+        Map<Vector, Vector> spawnPointDirections = gameMapDataMap.get(mapName).getSpawnPointDirections();
+
+        if(spawnPointDirections.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Map does not have any spawnpoint directions: %s", mapName));
+        }
+
+
+        if (map.getWorld() == null) {
+            throw new IllegalArgumentException(String.format("Map world is null: %s", mapName));
+        }
+
+        Vector spawnPoint = teamSpawnPoints.stream().findAny().orElse(null);
+
+        if(spawnPoint == null) {
+            throw new IllegalArgumentException(String.format("Map does not have any spawnpoints for team %s: %s", team, mapName));
+        }
+
+        Vector spawnPointDirection = spawnPointDirections.get(spawnPoint);
+
+        Location loc = new Location(map.getWorld(), spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
+        loc.setDirection(spawnPointDirection);
         player.teleport(loc);
     }
 
     public void unloadMap() {
-        if(map == null)
+        if (map == null)
             return;
 
         GameMapData data = getGameMapData(map.getName());
 
-        if(data == null)
+        if (data == null)
             return;
 
         map.unload();
-        data.unloadMapData();
+        data.unload();
         map = null;
     }
 
     private void loadAllMapsFromConfig() {
         CustomConfig config = dc.getCustomConfigManager().getConfig("map_config");
-        if(config == null)
+        if (config == null)
             return;
 
-        if(config.getFile() == null)
+        if (config.getFile() == null)
             return;
 
         config.reloadFile();
 
         String defaultPath = "maps";
 
-        for(String path : config.getFile().getConfigurationSection(defaultPath).getKeys(false)) {
+        for (String path : config.getFile().getConfigurationSection(defaultPath).getKeys(false)) {
             path = defaultPath + "." + path;
             String name = config.getFile().getString(path + ".name");
             Map<String, Vector> capturePoints = new HashMap<>();
             Map<TeamColor, Set<Vector>> spawnPoints = new HashMap<>();
             Map<Vector, Vector> spawnPointDirection = new HashMap<>();
 
-            for(String capturePoint : config.getFile().getConfigurationSection(path + ".capturePoints").getKeys(false)) {
+            for (String capturePoint : config.getFile().getConfigurationSection(path + ".capturePoints").getKeys(false)) {
                 String capturePointPath = path + ".capturePoints." + capturePoint;
 
                 String capturePointVectorAsString = config.getFile().getString(capturePointPath);
-                if(capturePointVectorAsString == null)
+                if (capturePointVectorAsString == null)
                     continue;
                 capturePoints.put(capturePoint, SerializationUtil.stringToVector(capturePointVectorAsString));
             }
 
-            for(String spawnpointTeam : config.getFile().getConfigurationSection(path + ".spawnPoints").getKeys(false)) {
+            for (String spawnpointTeam : config.getFile().getConfigurationSection(path + ".spawnPoints").getKeys(false)) {
                 String spawnpointTeamPath = path + ".spawnPoints." + spawnpointTeam;
                 TeamColor teamColor = TeamColor.valueOf(spawnpointTeam.toUpperCase());
                 Set<Vector> spawnpointVectors = new HashSet<>();
 
-                for(String spawnpoint : config.getFile().getConfigurationSection(spawnpointTeamPath).getKeys(false)) {
+                for (String spawnpoint : config.getFile().getConfigurationSection(spawnpointTeamPath).getKeys(false)) {
                     String spawnpointPath = spawnpointTeamPath + "." + spawnpoint;
                     String spawnpointVectorAsString = config.getFile().getString(spawnpointPath);
-                    if(spawnpointVectorAsString == null)
+                    if (spawnpointVectorAsString == null)
                         continue;
 
                     Vector spawnPoint = SerializationUtil.stringToVector(spawnpoint);

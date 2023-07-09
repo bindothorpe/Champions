@@ -6,7 +6,6 @@ import com.bindothorpe.champions.domain.game.capturePoint.CapturePoint;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.SerializationUtil;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -21,6 +20,7 @@ public class GameMapData {
     private final Map<String, Vector> capturePoints;
     private final Map<TeamColor, Set<Vector>> spawnPoints;
     private final Map<Vector, Vector> spawnPointDirections;
+    private boolean isLoaded = false;
 
     public GameMapData(DomainController dc, String name) {
         this.dc = dc;
@@ -81,16 +81,26 @@ public class GameMapData {
         return spawnPoints;
     }
 
-    public void loadMapData(World world) {
+    public void load(World world) {
+        if(isLoaded) return;
+
         for(String capturePointName : capturePoints.keySet()) {
             Vector location = capturePoints.get(capturePointName);
             dc.getGameManager().addCapturePoint(new CapturePoint(dc.getGameManager(), capturePointName, location, world));
         }
+        isLoaded = true;
     }
 
-    public void unloadMapData() {
+    public void unload() {
+        if(!isLoaded) return;
+
         for(String capturePointName : capturePoints.keySet()) {
             dc.getGameManager().removeCapturePoint(capturePointName);
         }
+        isLoaded = false;
+    }
+
+    public Map<Vector, Vector> getSpawnPointDirections() {
+        return spawnPointDirections;
     }
 }

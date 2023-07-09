@@ -95,7 +95,7 @@ public class InitDataConfig {
         pm.registerEvents(new GameListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
         pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());
-        pm.registerEvents(CapturePointManager.getInstance(GameManager.getInstance(dc)), dc.getPlugin());
+        pm.registerEvents(CapturePointManager.getInstance(), dc.getPlugin());
         pm.registerEvents(new CapturePointListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());

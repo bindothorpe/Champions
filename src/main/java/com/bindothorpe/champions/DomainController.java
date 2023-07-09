@@ -382,4 +382,8 @@ public class DomainController {
     public GameManager getGameManager() {
         return gameManager;
     }
+
+    public GuiManager getGuiManager() {
+        return guiManager;
+    }
 }
