@@ -1,7 +1,7 @@
 package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.game.map.LocalGameMap;
+import com.bindothorpe.champions.domain.game.map.GameMap;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,10 +11,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class MapCommand implements CommandExecutor {
 
     private final DomainController dc;
-    private final Map<String, LocalGameMap> maps = new HashMap<>();
+    private final Map<String, GameMap> maps = new HashMap<>();
 
     public MapCommand(DomainController dc) {
         this.dc = dc;
@@ -60,7 +61,7 @@ public class MapCommand implements CommandExecutor {
             return;
         }
 
-        maps.put(mapName, new LocalGameMap(dc.getGameMapManager().getGameMapsFolder(), mapName, true));
+        maps.put(mapName, new GameMap(dc.getGameMapManager().getGameMapsFolder(), mapName, true));
     }
 
     private void tpToMap(Player player, String mapName) {
