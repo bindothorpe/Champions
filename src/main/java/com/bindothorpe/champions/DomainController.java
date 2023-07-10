@@ -84,6 +84,7 @@ public class DomainController {
         return gameMapManager;
     }
 
+
     public CustomConfigManager getCustomConfigManager() {
         return customConfigManager;
     }

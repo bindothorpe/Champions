@@ -47,8 +47,6 @@ public class DatabaseController {
 
         this.connection = connection;
 
-        System.out.println("Connected to database.");
-
         return connection;
     }
 
@@ -64,8 +62,6 @@ public class DatabaseController {
         statement.execute(sql);
 
         statement.close();
-
-        System.out.println("Database initialized.");
     }
 
     public void createPlayerSelectedBuild(UUID uuid, String buildId) {

@@ -267,7 +267,6 @@ public class GameMapManager {
 
             GameMapData gameMapData = new GameMapData(dc, name, capturePoints, spawnPoints, spawnPointDirection);
             gameMapDataMap.put(name, gameMapData);
-            System.out.println("Loaded map " + name + " from config");
         }
     }
 

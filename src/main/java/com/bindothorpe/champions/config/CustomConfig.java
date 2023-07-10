@@ -31,8 +31,7 @@ public abstract class CustomConfig {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                System.out.println("Couldn't create file");
-                e.printStackTrace();
+                Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "Couldn't create file");
             }
         }
         customFile = YamlConfiguration.loadConfiguration(file);
@@ -50,7 +49,7 @@ public abstract class CustomConfig {
         try {
             customFile.save(file);
         } catch (IOException e) {
-            System.out.println("Couldn't save file");
+            Bukkit.getLogger().log(java.util.logging.Level.SEVERE, "Couldn't save file");
         }
     }
 
