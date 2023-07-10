@@ -1,5 +1,4 @@
 package com.bindothorpe.champions.util;
-
 public class TextUtil {
 
     public static String camelCasing(String enumText) {

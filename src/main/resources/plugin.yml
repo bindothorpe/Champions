@@ -7,11 +7,11 @@ commands:
     usage: /build
   team:
     usage: /team <team color>
-  skills:
-    usage: /skills
   game:
     usage: /game
   shop:
     usage: /shop
   cp:
     usage: /cp
+  map:
+    usage: /map

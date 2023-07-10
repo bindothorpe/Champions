@@ -1,5 +1,6 @@
 package com.bindothorpe.champions;
 
+import com.bindothorpe.champions.config.CustomConfigManager;
 import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.domain.block.TemporaryBlockManager;
 import com.bindothorpe.champions.domain.build.Build;
@@ -16,6 +17,7 @@ import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.game.GameManager;
 import com.bindothorpe.champions.domain.game.GameState;
+import com.bindothorpe.champions.domain.game.map.GameMapManager;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
@@ -39,6 +41,7 @@ import org.bukkit.util.Vector;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
 
 public class DomainController {
 
@@ -58,6 +61,8 @@ public class DomainController {
     private final CustomItemManager customItemManager = CustomItemManager.getInstance(this);
     private final ScoreboardManager scoreboardManager = ScoreboardManager.getInstance(this);
     private final CooldownManager cooldownManager = CooldownManager.getInstance(this);
+    private final GameMapManager gameMapManager = GameMapManager.getInstance(this);
+    private final CustomConfigManager customConfigManager = CustomConfigManager.getInstance(this);
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -72,9 +77,16 @@ public class DomainController {
         return plugin;
     }
 
-
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+    public GameMapManager getGameMapManager() {
+        return gameMapManager;
+    }
+
+
+    public CustomConfigManager getCustomConfigManager() {
+        return customConfigManager;
     }
 
     public CooldownManager getCooldownManager() {
@@ -370,5 +382,9 @@ public class DomainController {
 
     public GameManager getGameManager() {
         return gameManager;
+    }
+
+    public GuiManager getGuiManager() {
+        return guiManager;
     }
 }

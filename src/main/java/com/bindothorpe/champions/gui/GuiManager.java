@@ -7,8 +7,10 @@ import com.bindothorpe.champions.domain.customItem.CustomItemType;
 import com.bindothorpe.champions.gui.build.BuildsOverviewGui;
 import com.bindothorpe.champions.gui.build.ClassOverviewGui;
 import com.bindothorpe.champions.gui.build.EditBuildGui;
+import com.bindothorpe.champions.gui.map.MapMainGui;
 import com.bindothorpe.champions.gui.shop.ShopGui;
 import com.bindothorpe.champions.gui.shop.ShopHomeGui;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
@@ -47,5 +49,9 @@ public class GuiManager {
 
     public void openShopHomeGui(UUID uuid, CustomItemType type) {
         new ShopHomeGui(uuid, dc, type).open();
+    }
+
+    public void openMapMainGui(UUID uuid) {
+        new MapMainGui(uuid, dc).open();
     }
 }

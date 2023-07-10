@@ -4,9 +4,11 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
 
 public class Database {
 
@@ -37,7 +39,7 @@ public class Database {
 
         this.connection = connection;
 
-        System.out.println("Connected to database.");
+        Bukkit.getLogger().log(Level.INFO, "Connected to database.");
 
         return connection;
     }
@@ -54,8 +56,6 @@ public class Database {
         statement.execute(sql);
 
         statement.close();
-
-        System.out.println("Database initialized.");
 
     }
 

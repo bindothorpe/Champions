@@ -1,6 +1,5 @@
 package com.bindothorpe.champions.domain.game.capturePoint;
 
-import com.bindothorpe.champions.domain.game.GameManager;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import org.bukkit.event.EventHandler;
@@ -13,27 +12,30 @@ public class CapturePointManager implements Listener {
 
     private static CapturePointManager instance;
 
-    private final GameManager gameManager;
-
     private final Map<String, CapturePoint> capturePointMap = new HashMap<>();
 
-    private CapturePointManager(GameManager gameManager) {
-        this.gameManager = gameManager;
-    }
+    private CapturePointManager() {}
 
-    public static CapturePointManager getInstance(GameManager gameManager) {
+    public static CapturePointManager getInstance() {
         if(instance == null) {
-            instance = new CapturePointManager(gameManager);
+            instance = new CapturePointManager();
         }
         return instance;
     }
 
     public boolean addCapturePoint(CapturePoint capturePoint) {
-        if(capturePointMap.keySet().contains(capturePoint.getName()))
+        if(capturePointMap.containsKey(capturePoint.getName()))
             return false;
 
         capturePointMap.put(capturePoint.getName(), capturePoint);
         return true;
+    }
+
+    public void removeCapturePoint(String capturePointName) {
+        if(!capturePointMap.containsKey(capturePointName))
+            return;
+
+        capturePointMap.remove(capturePointName);
     }
 
     @EventHandler

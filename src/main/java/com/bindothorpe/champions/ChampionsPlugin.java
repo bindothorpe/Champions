@@ -1,36 +1,33 @@
 package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.*;
-import com.bindothorpe.champions.database.Database;
-import com.bindothorpe.champions.domain.customItem.CustomItem;
-import com.bindothorpe.champions.domain.customItem.CustomItemId;
-import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.events.update.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.SQLException;
+import java.util.Objects;
 
 public final class ChampionsPlugin extends JavaPlugin {
 
+    private DomainController dc;
+
     @Override
     public void onEnable() {
-        DomainController dc = new DomainController(this);
+        dc = new DomainController(this);
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
 
-        getCommand("build").setExecutor(new BuildCommand(dc));
-        getCommand("team").setExecutor(new TeamCommand(dc));
-        getCommand("skills").setExecutor(new SkillsCommand(dc));
-        getCommand("game").setExecutor(new GameCommand(dc));
-        getCommand("shop").setExecutor(new ShopCommand(dc));
-        getCommand("cp").setExecutor(new CapturePointCommand(dc));
+        Objects.requireNonNull(getCommand("build")).setExecutor(new BuildCommand(dc));
+        Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand(dc));
+        Objects.requireNonNull(getCommand("game")).setExecutor(new GameCommand(dc));
+        Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand(dc));
+        Objects.requireNonNull(getCommand("cp")).setExecutor(new CapturePointCommand(dc));
+        Objects.requireNonNull(getCommand("map")).setExecutor(new GameMapCommand(dc));
         Updater.getInstance(dc).start();
-
-
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        dc.getGameMapManager().unloadMap();
     }
 }

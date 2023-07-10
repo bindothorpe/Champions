@@ -5,14 +5,7 @@ import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.combat.CombatListener;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
-import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
-import com.bindothorpe.champions.domain.customItem.items.DuskBlade;
-import com.bindothorpe.champions.domain.customItem.items.LongSword;
-import com.bindothorpe.champions.domain.customItem.items.Phage;
-import com.bindothorpe.champions.domain.customItem.items.SerratedDirk;
-import com.bindothorpe.champions.domain.game.GameListener;
-import com.bindothorpe.champions.domain.game.GameManager;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
@@ -92,10 +85,9 @@ public class InitDataConfig {
         pm.registerEvents(new CombatListener(dc), dc.getPlugin());
         pm.registerEvents(new InteractListener(), dc.getPlugin());
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
-        pm.registerEvents(new GameListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
         pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());
-        pm.registerEvents(CapturePointManager.getInstance(GameManager.getInstance(dc)), dc.getPlugin());
+        pm.registerEvents(CapturePointManager.getInstance(), dc.getPlugin());
         pm.registerEvents(new CapturePointListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
