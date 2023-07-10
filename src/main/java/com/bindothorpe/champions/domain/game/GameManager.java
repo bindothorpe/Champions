@@ -36,7 +36,8 @@ public class GameManager {
 
     public void setGameState(GameState state) throws IllegalArgumentException {
         //Send broadcast message
-        ChatUtil.sendGameBroadcast(Component.text(gameState.name()).color(NamedTextColor.GRAY)
+        ChatUtil.sendGameBroadcast(ChatUtil.Prefix.PLUGIN,
+                Component.text(gameState.name()).color(NamedTextColor.GRAY)
                 .append(Component.text(" -> ").color(NamedTextColor.GRAY))
                 .append(Component.text(state.name()).color(NamedTextColor.YELLOW)));
 

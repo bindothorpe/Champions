@@ -13,6 +13,7 @@ import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.BlockUtil;
+import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -121,14 +122,15 @@ public class HeadButt extends Skill {
             hitBy.put(hit.getUniqueId(), player.getUniqueId());
             hitStartingLocations.put(hit.getUniqueId(), hit.getLocation());
 
-            player.sendMessage(Component.text("You hit ").color(NamedTextColor.GRAY)
+            player.setVelocity(new Vector(0, 0, 0));
+
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.SKILL, Component.text("You hit ").color(NamedTextColor.GRAY)
                     .append(Component.text(hit.getName()).color(NamedTextColor.YELLOW))
                     .append(Component.text(" with ").color(NamedTextColor.GRAY))
                     .append(Component.text(getName()).color(NamedTextColor.YELLOW))
                     .append(Component.text(" level ").color(NamedTextColor.GRAY))
                     .append(Component.text(getSkillLevel(uuid)).color(NamedTextColor.YELLOW)));
 
-            player.setVelocity(new Vector(0, 0, 0));
         }
 
         active.removeIf(uuid -> {

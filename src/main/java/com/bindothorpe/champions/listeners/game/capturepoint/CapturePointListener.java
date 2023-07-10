@@ -49,7 +49,7 @@ public class CapturePointListener implements Listener {
             if(playerTeam.equals(team))
                 continue;
 
-            ChatUtil.sendGameMessage(player,
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
                     Component.text(TextUtil.camelCasing(event.getCapturePoint().getName())).color(NamedTextColor.YELLOW)
                     .append(Component.text(" is being captured by team ").color(NamedTextColor.GRAY))
                     .append(Component.text(TextUtil.camelCasing(team.name())).color(team.getTextColor())));
@@ -62,7 +62,7 @@ public class CapturePointListener implements Listener {
     public void onCapturePointCaptured(CapturePointCaptureEvent event) {
         TeamColor team = event.getTeam();
 
-        ChatUtil.sendGameBroadcast(
+        ChatUtil.sendGameBroadcast(ChatUtil.Prefix.GAME,
                 Component.text(TextUtil.camelCasing(event.getCapturePoint().getName())).color(NamedTextColor.YELLOW)
                 .append(Component.text(" has been captured by team ").color(NamedTextColor.GRAY))
                 .append(Component.text(TextUtil.camelCasing(team.name())).color(team.getTextColor())));

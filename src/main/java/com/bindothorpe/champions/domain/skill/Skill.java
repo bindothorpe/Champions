@@ -5,6 +5,7 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.cooldown.CooldownEndEvent;
 import com.bindothorpe.champions.events.skill.SkillUseEvent;
+import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -108,10 +109,11 @@ public abstract class Skill implements Listener {
         if(skillUseEvent.isCancelled())
             return false;
 
-        player.sendMessage(Component.text("You used ").color(NamedTextColor.GRAY)
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.SKILL, Component.text("You used ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
                 .append(Component.text(" level ").color(NamedTextColor.GRAY))
                 .append(Component.text(this.users.get(uuid)).color(NamedTextColor.YELLOW)));
+
         startCooldown(uuid);
         return true;
     }
@@ -125,7 +127,11 @@ public abstract class Skill implements Listener {
         if (isOnCooldown(uuid)) {
             double cooldownRemaining = getCooldownRemaining(uuid);
             Player player = Bukkit.getPlayer(uuid);
-            player.sendMessage(Component.text("You cannot use this skill for another ").color(NamedTextColor.GRAY)
+
+            if(player == null)
+                return false;
+
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use this skill for another ").color(NamedTextColor.GRAY)
                     .append(Component.text(cooldownRemaining).color(NamedTextColor.YELLOW))
                     .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
             return false;
@@ -177,7 +183,7 @@ public abstract class Skill implements Listener {
         if(player == null)
             return;
 
-        player.sendMessage(Component.text("You can use ").color(NamedTextColor.GRAY)
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You can use ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
                 .append(Component.text(" again").color(NamedTextColor.GRAY)));
     }

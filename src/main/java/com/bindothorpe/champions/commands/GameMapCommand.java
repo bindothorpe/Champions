@@ -3,6 +3,7 @@ package com.bindothorpe.champions.commands;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.game.map.GameMapData;
 import com.bindothorpe.champions.domain.team.TeamColor;
+import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,12 +18,12 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class GameMapCommand implements CommandExecutor {
 
     private final DomainController dc;
     private GameMapData gameMapData;
+
     public GameMapCommand(DomainController dc) {
         this.dc = dc;
     }
@@ -50,7 +51,7 @@ public class GameMapCommand implements CommandExecutor {
             handleCreate(player, mapName);
 
         } else if (action.equalsIgnoreCase("delete")) {
-            player.sendMessage("Deleting map: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Deleting map.").color(NamedTextColor.GRAY));
 
         } else if (action.equalsIgnoreCase("edit")) {
             handleEdit(player, mapName);
@@ -63,7 +64,7 @@ public class GameMapCommand implements CommandExecutor {
 
         } else if (action.equalsIgnoreCase("add-cp")) {
             if (gameMapData == null) {
-                player.sendMessage("No map selected");
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("No map selected.").color(NamedTextColor.GRAY));
                 return true;
             }
 
@@ -71,7 +72,7 @@ public class GameMapCommand implements CommandExecutor {
 
         } else if (action.equalsIgnoreCase("add-sp")) {
             if (gameMapData == null) {
-                player.sendMessage("No map selected");
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("No map selected.").color(NamedTextColor.GRAY));
                 return true;
             }
 
@@ -80,7 +81,7 @@ public class GameMapCommand implements CommandExecutor {
             try {
                 team = TeamColor.valueOf(strings[1].toUpperCase());
             } catch (IllegalArgumentException e) {
-                player.sendMessage("Invalid team: " + strings[1]);
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Invalid team: " + strings[1]).color(NamedTextColor.GRAY));
                 return true;
             }
 
@@ -93,7 +94,7 @@ public class GameMapCommand implements CommandExecutor {
         } else if (action.equalsIgnoreCase("unload")) {
             handleUnload(player);
         } else {
-            player.sendMessage("Unknown action: " + action);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Unknown action.").color(NamedTextColor.GRAY));
         }
 
 
@@ -103,17 +104,18 @@ public class GameMapCommand implements CommandExecutor {
     private void handleLoad(Player player, String mapName) {
         boolean success = dc.getGameMapManager().loadMap(mapName);
         if (!success) {
-            player.sendMessage("Failed to load map: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Failed to load map.").color(NamedTextColor.GRAY));
+            return;
         }
 
-        player.sendMessage("Loaded map: " + mapName);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Loaded map: " + mapName).color(NamedTextColor.GRAY));
     }
 
     private void handleUnload(Player player) {
         World world = Bukkit.getWorld("world");
 
         if (world == null) {
-            player.sendMessage("World not found");
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Failed to unload map.").color(NamedTextColor.GRAY));
             return;
         }
 
@@ -131,44 +133,44 @@ public class GameMapCommand implements CommandExecutor {
     private void handleAddSpawnPoint(Player player, TeamColor team) {
         Vector v = player.getLocation().toVector();
         gameMapData.addSpawnPoint(team, new Vector(v.getBlockX() + 0.5, v.getBlockY(), v.getBlockZ() + 0.5), player.getLocation().getDirection());
-        player.sendMessage("Added spawn point for team: " + team);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Added spawn point for team: " + team.name()).color(NamedTextColor.GRAY));
     }
 
     private void handleAddCapturePoint(Player player, String capturePointName) {
         Vector v = player.getLocation().toVector();
         gameMapData.addCapturePoint(capturePointName, new Vector(v.getBlockX() + 0.5, v.getBlockY(), v.getBlockZ() + 0.5));
-        player.sendMessage("Added capture point: " + capturePointName);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Added spawn capture point.").color(NamedTextColor.GRAY));
 
     }
 
     private void handleCreate(Player player, String mapName) {
         if (dc.getGameMapManager().createGameMap(mapName)) {
-            player.sendMessage("Created map: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Created map: " + mapName).color(NamedTextColor.GRAY));
         } else {
-            player.sendMessage("Map already exists: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Map already exists: " + mapName).color(NamedTextColor.GRAY));
         }
     }
 
     private void handleEdit(Player player, String mapName) {
         if (gameMapData != null) {
-            player.sendMessage("Stopped editing map: " + gameMapData.getName());
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Stopped editing map: " + mapName).color(NamedTextColor.GRAY));
             this.gameMapData = null;
             return;
         }
 
         GameMapData mapData = dc.getGameMapManager().getGameMapData(mapName);
         if (mapData != null) {
-            player.sendMessage("Editing map: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Editing map: " + mapName).color(NamedTextColor.GRAY));
             this.gameMapData = mapData;
         } else {
-            player.sendMessage("Map does not exist: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Map does not exist: " + mapName).color(NamedTextColor.GRAY));
         }
     }
 
     private void handleInfo(Player player, String mapName) {
         GameMapData mapData = dc.getGameMapManager().getGameMapData(mapName);
         if (mapData == null) {
-            player.sendMessage("Map does not exist: " + mapName);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Map does not exist: " + mapName).color(NamedTextColor.GRAY));
             return;
         }
 

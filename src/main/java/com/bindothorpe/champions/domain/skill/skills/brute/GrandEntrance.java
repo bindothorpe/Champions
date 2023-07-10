@@ -103,7 +103,6 @@ public class GrandEntrance extends Skill {
                 continue;
 
             active.remove(uuid);
-            player.sendMessage("Cannot use skill anymore");
         }
     }
 

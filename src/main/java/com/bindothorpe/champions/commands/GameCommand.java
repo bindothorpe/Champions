@@ -19,16 +19,7 @@ public class GameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-
-        GameState currentState = dc.getGameState();
         dc.setNextGameState();
-        GameState nextState = dc.getGameState();
-
-        commandSender.sendMessage(Component.text("[Champions] ").color(NamedTextColor.GOLD)
-                .append(Component.text(currentState.toString()).color(NamedTextColor.GRAY))
-                .append(Component.text(" -> ").color(NamedTextColor.GRAY))
-                .append(Component.text(nextState.toString()).color(NamedTextColor.YELLOW)));
-
         return true;
     }
 }
