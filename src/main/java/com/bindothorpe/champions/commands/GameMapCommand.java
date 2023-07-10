@@ -16,6 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 public class GameMapCommand implements CommandExecutor {
 
     private final DomainController dc;
@@ -54,6 +57,9 @@ public class GameMapCommand implements CommandExecutor {
 
         } else if (action.equalsIgnoreCase("tp")) {
             handleTeleport(player, mapName);
+
+        } else if (action.equalsIgnoreCase("tp-all")) {
+            handleTpAll(mapName);
 
         } else if (action.equalsIgnoreCase("add-cp")) {
             if (gameMapData == null) {
@@ -112,6 +118,10 @@ public class GameMapCommand implements CommandExecutor {
         }
 
         dc.getGameMapManager().unloadMap();
+    }
+
+    private void handleTpAll(String mapName) {
+        dc.getGameMapManager().teleportAllToMap(new ArrayList<>(Bukkit.getOnlinePlayers()), mapName);
     }
 
     private void handleTeleport(Player player, String mapName) {

@@ -70,7 +70,7 @@ public class GameMapManager {
     }
 
     public List<String> getGameMapNames() {
-        if(gameMapDataMap.isEmpty())
+        if (gameMapDataMap.isEmpty())
             loadAllMapsFromConfig();
         return gameMapDataMap.keySet().stream().sorted().collect(Collectors.toList());
     }
@@ -101,12 +101,57 @@ public class GameMapManager {
         return true;
     }
 
+    public void teleportAllToMap(Collection<Player> players) {
+        teleportAllToMap(players, map.getName());
+    }
+
+
+    public void teleportAllToMap(Collection<Player> players, String mapName) {
+        Objects.requireNonNull(players, "Players passed cannot be null");
+        Objects.requireNonNull(mapName, "Map name cannot be null");
+
+        if (mapName.isEmpty()) {
+            throw new IllegalArgumentException("Map name cannot be empty");
+        }
+
+        Objects.requireNonNull(map, String.format("Map is not loaded: %s", mapName));
+
+        GameMapData gameMapData = gameMapDataMap.get(mapName);
+        Map<TeamColor, Set<Vector>> spawnPointsSet = gameMapData.getSpawnPoints();
+        Map<Vector, Vector> spawnPointDirections = gameMapData.getSpawnPointDirections();
+
+        if (spawnPointsSet.isEmpty() || spawnPointDirections.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Map does not have any spawnpoints: %s", mapName));
+        }
+
+        Map<TeamColor, List<Vector>> spawnPointsList = new HashMap<>();
+        Map<TeamColor, Integer> teamCounter = new HashMap<>();
+
+        for (TeamColor team : spawnPointsSet.keySet()) {
+            spawnPointsList.put(team, new ArrayList<>(spawnPointsSet.get(team)));
+            teamCounter.put(team, 0);
+        }
+
+        for (Player player : players) {
+            TeamColor team = Objects.requireNonNull(dc.getTeamFromEntity(player), String.format("Player is not on a team: %s", player.getName()));
+            int counter = teamCounter.get(team);
+
+            Vector spawnPoint = spawnPointsList.get(team).get(counter % spawnPointsList.get(team).size());
+            Location location = new Location(map.getWorld(), spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
+            location.setDirection(spawnPointDirections.get(spawnPoint));
+
+            player.teleport(location);
+            teamCounter.put(team, counter + 1);
+        }
+    }
+
+
     public void teleportToMap(Player player, String mapName) throws IllegalArgumentException {
-        if(player == null) {
+        if (player == null) {
             throw new IllegalArgumentException("Player is null");
         }
 
-        if(dc.getTeamFromEntity(player) == null) {
+        if (dc.getTeamFromEntity(player) == null) {
             throw new IllegalArgumentException("Player is not on a team");
         }
 
@@ -118,19 +163,19 @@ public class GameMapManager {
 
         Map<TeamColor, Set<Vector>> spawnPoints = gameMapDataMap.get(mapName).getSpawnPoints();
 
-        if(spawnPoints.isEmpty()) {
+        if (spawnPoints.isEmpty()) {
             throw new IllegalArgumentException(String.format("Map does not have any spawnpoints: %s", mapName));
         }
 
         Set<Vector> teamSpawnPoints = spawnPoints.get(team);
 
-        if(teamSpawnPoints.isEmpty()) {
+        if (teamSpawnPoints.isEmpty()) {
             throw new IllegalArgumentException(String.format("Map does not have any spawnpoints for team %s: %s", team, mapName));
         }
 
         Map<Vector, Vector> spawnPointDirections = gameMapDataMap.get(mapName).getSpawnPointDirections();
 
-        if(spawnPointDirections.isEmpty()) {
+        if (spawnPointDirections.isEmpty()) {
             throw new IllegalArgumentException(String.format("Map does not have any spawnpoint directions: %s", mapName));
         }
 
@@ -141,7 +186,7 @@ public class GameMapManager {
 
         Vector spawnPoint = teamSpawnPoints.stream().findAny().orElse(null);
 
-        if(spawnPoint == null) {
+        if (spawnPoint == null) {
             throw new IllegalArgumentException(String.format("Map does not have any spawnpoints for team %s: %s", team, mapName));
         }
 
@@ -161,8 +206,8 @@ public class GameMapManager {
         if (data == null)
             return;
 
-        for(Player player : Bukkit.getOnlinePlayers()) {
-            if(player.getWorld().equals(map.getWorld())) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getWorld().equals(map.getWorld())) {
                 player.teleport(Bukkit.getWorld("world").getSpawnLocation());
             }
         }
@@ -224,5 +269,10 @@ public class GameMapManager {
             gameMapDataMap.put(name, gameMapData);
             System.out.println("Loaded map " + name + " from config");
         }
+    }
+
+
+    public boolean isLoaded() {
+        return map != null && map.isLoaded();
     }
 }
