@@ -79,12 +79,9 @@ public class ExplosiveItem extends GameItem {
                 return;
 
 
-            if(!customDamageEvent.getDamager().equals(getOwner())) {
-                customDamageCommand.damage(0);
-            }
-
             if(e.equals(getOwner())) {
                 customDamageCommand.direction(customDamageEvent.getDamagee().getLocation().toVector().subtract(getLocation().toVector()).normalize());
+                customDamageCommand.damage(0);
             }
 
             customDamageCommand.execute();

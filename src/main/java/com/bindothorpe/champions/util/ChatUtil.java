@@ -10,24 +10,21 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Collection;
 
 public class ChatUtil {
-
-    private static final Component GAME_PREFIX = Component.text("Game> ").color(NamedTextColor.BLUE);
-
-    public static void sendGameMessage(Player player, Component message) {
-        player.sendMessage(GAME_PREFIX.append(message));
+    public static void sendMessage(Player player, Prefix prefix, Component message) {
+        player.sendMessage(prefix.component().append(message));
     }
 
-    public static void sendGameBroadcast(Component message) {
-        Bukkit.broadcast(GAME_PREFIX.append(message));
+    public static void sendGameBroadcast(Prefix prefix, Component message) {
+        Bukkit.broadcast(prefix.component().append(message));
     }
 
 
     public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, String message, Runnable onFinish) {
-        sendCountdown(dc, players, seconds, message, NamedTextColor.GRAY, NamedTextColor.YELLOW, NamedTextColor.GOLD, 3, onFinish);
+        sendCountdown(dc, players, seconds, Prefix.GAME, message, NamedTextColor.GRAY, NamedTextColor.YELLOW, NamedTextColor.GOLD, 3, onFinish);
 
     }
 
-    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, String message, NamedTextColor textColor, NamedTextColor highlightColor, NamedTextColor highlightColor2, int highlightTwo, Runnable onFinish) {
+    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, Prefix prefix, String message, NamedTextColor textColor, NamedTextColor highlightColor, NamedTextColor highlightColor2, int highlightTwo, Runnable onFinish) {
         new BukkitRunnable() {
             int countdownTime = seconds;
 
@@ -67,10 +64,30 @@ public class ChatUtil {
                 }
 
                 for (Player player : players) {
-                    sendGameMessage(player, formattedMessage);
+                    sendMessage(player, prefix, formattedMessage);
                 }
                 countdownTime--;
             }
         }.runTaskTimer(dc.getPlugin(), 0L, 20L);
+    }
+
+    public enum Prefix {
+        GAME(Component.text("Game> ").color(NamedTextColor.BLUE)),
+        SKILL(Component.text("Skill> ").color(NamedTextColor.BLUE)),
+        COOLDOWN(Component.text("Cooldown> ").color(NamedTextColor.BLUE)),
+        ERROR(Component.text("Error> ").color(NamedTextColor.RED)),
+        PLUGIN(Component.text("Champions> ").color(NamedTextColor.GOLD)),
+        DEBUG(Component.text("Debug> ").color(NamedTextColor.GREEN)),
+        MAP(Component.text("Map> ").color(NamedTextColor.LIGHT_PURPLE));
+
+        private final Component prefix;
+
+        Prefix(Component prefix) {
+            this.prefix = prefix;
+        }
+
+        public Component component() {
+            return prefix;
+        }
     }
 }
