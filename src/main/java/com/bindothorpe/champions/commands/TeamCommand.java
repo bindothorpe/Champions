@@ -31,7 +31,7 @@ public class TeamCommand implements CommandExecutor {
 
         if(strings.length == 0) {
 
-            TeamColor color = dc.getTeamFromEntity(player);
+            TeamColor color = dc.getTeamManager().getTeamFromEntity(player);
             ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
                     Component.text("You are on the ").color(NamedTextColor.GRAY)
                     .append(Component.text(color.toString()).color(color.getTextColor()))
@@ -47,7 +47,7 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            dc.addEntityToTeam(player, color);
+            dc.getTeamManager().addEntityToTeam(player, color);
             ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
                     Component.text("You are now on the ").color(NamedTextColor.GRAY)
                             .append(Component.text(color.toString()).color(color.getTextColor()))

@@ -19,7 +19,7 @@ public class GameCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-        dc.setNextGameState();
+        dc.getGameManager().setNextGameState();
         return true;
     }
 }

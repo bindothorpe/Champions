@@ -112,7 +112,7 @@ public class GameManager {
 
         //Add root status effect to all players
         for (Player player : Bukkit.getOnlinePlayers()) {
-            dc.addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 10);
+            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 10);
         }
 
         //Start the countdown

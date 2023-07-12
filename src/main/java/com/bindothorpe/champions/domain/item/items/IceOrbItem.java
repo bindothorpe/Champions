@@ -31,7 +31,7 @@ public class IceOrbItem extends GameItem {
     public void onCollide(Entity entity) {
         collisionFlag = true;
         collidedEntity = entity;
-        dc.despawnItem(getId());
+        dc.getGameItemManager().despawnItem(getId());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class IceOrbItem extends GameItem {
 
         for(int i = 0; i < vectors.size(); i++) {
             Vector v = vectors.get(i);
-            dc.spawnTemporaryBlock(loc.clone().add(v), Material.ICE, icePrisonDuration + (i / 200D));
+            dc.getTemporaryBlockManager().spawnTemporaryBlock(loc.clone().add(v), Material.ICE, icePrisonDuration + (i / 200D));
         }
     }
 }

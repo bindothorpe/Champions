@@ -34,7 +34,7 @@ public class HuntersHeart extends Skill {
             return;
 
         for (UUID uuid : getUsers()) {
-            if(dc.hasTakenDamageWithinDuration(uuid, DURATION))
+            if(dc.getCombatLogger().hasTakenDamageWithinDuration(uuid, DURATION))
                 continue;
 
             Player player = Bukkit.getPlayer(uuid);

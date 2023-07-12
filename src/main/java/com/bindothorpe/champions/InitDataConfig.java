@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
+import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
 import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
 import com.bindothorpe.champions.domain.skill.skills.brute.GrandEntrance;
@@ -21,6 +22,7 @@ import com.bindothorpe.champions.domain.skill.skills.ranger.HuntersHeart;
 import com.bindothorpe.champions.domain.skill.skills.ranger.KitingArrow;
 import com.bindothorpe.champions.domain.skill.skills.mage.IcePrison;
 import com.bindothorpe.champions.domain.skill.skills.ranger.SonarArrow;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
 import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
 import com.bindothorpe.champions.domain.team.TeamColor;
@@ -48,27 +50,28 @@ public class InitDataConfig {
 
     public void initialize() {
         PluginManager pm = Bukkit.getPluginManager();
-        dc.registerSkill(new IcePrison(dc));
-        dc.registerSkill(new TestSkill(dc));
-//        dc.registerSkill(new TestSkill2(dc));
-        dc.registerSkill(new KitingArrow(dc));
-        dc.registerSkill(new BouncingArrow(dc));
-        dc.registerSkill(new Explosion(dc));
-        dc.registerSkill(new AssassinPassive(dc));
-        dc.registerSkill(new MagePassive(dc));
-        dc.registerSkill(new HuntersHeart(dc));
-        dc.registerSkill(new ExplosiveBomb(dc));
-        dc.registerSkill(new HeadButt(dc));
-        dc.registerSkill(new Rally(dc));
-        dc.registerSkill(new SonarArrow(dc));
-        dc.registerSkill(new GrandEntrance(dc));
-
-        dc.registerStatusEffect(new RootStatusEffect(dc));
-        dc.registerStatusEffect(new StunStatusEffect(dc));
 
         CustomItemManager cim = CustomItemManager.getInstance(dc);
 
         String packageName = getClass().getPackage().getName();
+
+        for(Class<?> clazz : new Reflections(packageName + ".domain.skill.skills").getSubTypesOf(Skill.class)) {
+            try {
+                Skill skill = (Skill) clazz.getConstructor(DomainController.class).newInstance(dc);
+                dc.getSkillManager().registerSkill(skill);
+            } catch (Exception e) {
+                System.out.println("Failed to register skill: " + clazz.getName());
+            }
+        }
+
+        for(Class<?> clazz : new Reflections(packageName + ".domain.statusEffect.effects").getSubTypesOf(Skill.class)) {
+            try {
+                StatusEffect statusEffect = (StatusEffect) clazz.getConstructor(DomainController.class).newInstance(dc);
+                dc.getStatusEffectManager().registerStatusEffect(statusEffect);
+            } catch (Exception e) {
+                System.out.println("Failed to register status effect: " + clazz.getName());
+            }
+        }
 
         for(Class<?> clazz : new Reflections(packageName + ".domain.customItem.items").getSubTypesOf(CustomItem.class)) {
             try {
@@ -96,25 +99,25 @@ public class InitDataConfig {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
 
-            dc.addEntityToTeam(player, TeamColor.BLUE);
+            dc.getTeamManager().addEntityToTeam(player, TeamColor.BLUE);
 
             dc.getScoreboardManager().setScoreboard(player.getUniqueId());
 
-            dc.addGold(player.getUniqueId(), 10000);
+            dc.getPlayerManager().addGold(player.getUniqueId(), 10000);
             dbc.getBuildsByPlayerUUID(player.getUniqueId(), new DatabaseResponse<List<Build>>() {
                 @Override
                 public void onResult(List<Build> result) {
                     for (Build build : result) {
-                        dc.addBuildIdToPlayer(player.getUniqueId(), build.getClassType(), build.getId());
-                        dc.addBuild(build);
+                        dc.getPlayerManager().addBuildIdToPlayer(player.getUniqueId(), build.getClassType(), build.getId());
+                        dc.getBuildManager().addBuild(build);
                     }
 
                     dbc.getPlayerSelectedBuildByUUID(player.getUniqueId(), new DatabaseResponse<String>() {
                         @Override
                         public void onResult(String result) {
-                            dc.setSelectedBuildIdForPlayer(player.getUniqueId(), result);
+                            dc.getPlayerManager().setSelectedBuildIdForPlayer(player.getUniqueId(), result);
                             if (result != null)
-                                dc.equipBuildForPlayer(player.getUniqueId(), result);
+                                dc.getBuildManager().equipBuildForPlayer(player.getUniqueId(), result);
                         }
                     });
                 }

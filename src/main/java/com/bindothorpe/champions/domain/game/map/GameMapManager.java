@@ -133,7 +133,7 @@ public class GameMapManager {
         }
 
         for (Player player : players) {
-            TeamColor team = Objects.requireNonNull(dc.getTeamFromEntity(player), String.format("Player is not on a team: %s", player.getName()));
+            TeamColor team = Objects.requireNonNull(dc.getTeamManager().getTeamFromEntity(player), String.format("Player is not on a team: %s", player.getName()));
             int counter = teamCounter.get(team);
 
             Vector spawnPoint = spawnPointsList.get(team).get(counter % spawnPointsList.get(team).size());
@@ -151,11 +151,11 @@ public class GameMapManager {
             throw new IllegalArgumentException("Player is null");
         }
 
-        if (dc.getTeamFromEntity(player) == null) {
+        if (dc.getTeamManager().getTeamFromEntity(player) == null) {
             throw new IllegalArgumentException("Player is not on a team");
         }
 
-        TeamColor team = dc.getTeamFromEntity(player);
+        TeamColor team = dc.getTeamManager().getTeamFromEntity(player);
 
         if (map == null) {
             throw new IllegalArgumentException(String.format("Map is not loaded: %s", mapName));

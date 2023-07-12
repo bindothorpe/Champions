@@ -13,7 +13,7 @@ public class ShopItem extends GuiItem {
     public ShopItem(@NotNull CustomItem item, DomainController dc, CustomItemType originType){
         super(item.getItem());
         setAction(event -> {
-            dc.openShopGui(event.getWhoClicked().getUniqueId(), item.getId(), originType);
+            dc.getGuiManager().openShopGui(event.getWhoClicked().getUniqueId(), item.getId(), originType);
         });
     }
 }

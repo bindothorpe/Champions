@@ -41,7 +41,7 @@ public class ShopGui extends PlayerGui {
             }
         }
 
-        root.addItem(new BackItem(e -> dc.openShopHomeGui(uuid, typeOrigin)), 0, 0);
+        root.addItem(new BackItem(e -> dc.getGuiManager().openShopHomeGui(uuid, typeOrigin)), 0, 0);
 
         CustomItem customItem = dc.getCustomItemManager().getCustomItem(customItemId);
         if (customItem != null) {

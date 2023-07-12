@@ -88,7 +88,7 @@ public abstract class Skill implements Listener {
         if(duration == 0)
             return;
 
-        double cooldownMultiplier = dc.getMultiplicationEntityStatusValue(uuid, EntityStatusType.COOLDOWN_REDUCTION) - 1;
+        double cooldownMultiplier = dc.getEntityStatusManager().getMultiplicationValue(uuid, EntityStatusType.COOLDOWN_REDUCTION) - 1;
         double cooldownReduction = duration * cooldownMultiplier;
 
         dc.getCooldownManager().startCooldown(uuid, this, duration - cooldownReduction);

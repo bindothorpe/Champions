@@ -109,7 +109,7 @@ public class GrandEntrance extends Skill {
     private void performStomp(Player player) {
         Set<Entity> nearby = player.getLocation().getNearbyEntities(3, 1, 3)
                 .stream()
-                .filter(entity -> !dc.getTeamFromEntity(player).equals(dc.getTeamFromEntity(entity)))
+                .filter(entity -> !dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(entity)))
                 .filter(entity -> entity instanceof LivingEntity)
                 .map(entity -> (LivingEntity) entity)
                 .filter(Entity::isOnGround)

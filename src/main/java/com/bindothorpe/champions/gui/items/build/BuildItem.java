@@ -29,7 +29,7 @@ public class BuildItem extends GuiItem {
         super(new ItemStack(Material.ARMOR_STAND));
         this.uuid = uuid;
         this.buildId = buildId;
-        this.classType = dc.getClassTypeFromBuild(buildId);
+        this.classType = dc.getBuildManager().getClassTypeFromBuild(buildId);
         this.buildNumber = buildNumber;
         this.dc = dc;
         initialize();
@@ -38,21 +38,21 @@ public class BuildItem extends GuiItem {
 
     private void handleClick(InventoryClickEvent inventoryClickEvent) {
         if (inventoryClickEvent.getClick().isLeftClick()) {
-            if(buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid))) {
-                dc.unequipBuildForPlayer(uuid);
+            if(buildId.equals(dc.getPlayerManager().getSelectedBuildIdFromPlayer(uuid))) {
+                dc.getBuildManager().unequipBuildForPlayer(uuid);
             } else {
-                dc.equipBuildForPlayer(uuid, buildId);
+                dc.getBuildManager().equipBuildForPlayer(uuid, buildId);
             }
-            dc.openBuildsOverviewGui(uuid, classType);
+            dc.getGuiManager().openBuildsOverviewGui(uuid, classType);
         } else if (inventoryClickEvent.getClick().isRightClick()) {
-            dc.openEditBuildGui(uuid, buildId, buildNumber);
+            dc.getGuiManager().openEditBuildGui(uuid, buildId, buildNumber);
         }
     }
 
     private void initialize() {
         ItemMeta meta = getItem().getItemMeta();
 
-        boolean isSelected = buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid));
+        boolean isSelected = buildId.equals(dc.getPlayerManager().getSelectedBuildIdFromPlayer(uuid));
 
         meta.displayName(Component.text("Build ").color(NamedTextColor.WHITE)
                 .append(Component.text(buildNumber))
@@ -66,9 +66,9 @@ public class BuildItem extends GuiItem {
                 continue;
             }
 
-            SkillId skillId = dc.getSkillFromBuild(buildId, skillType);
-            String skillName = skillId == null ? "None" : dc.getSkillName(skillId);
-            String skillLevelString = skillId == null ? "" : String.valueOf(dc.getSkillLevelFromBuild(buildId, skillType));
+            SkillId skillId = dc.getBuildManager().getSkillFromBuild(buildId, skillType);
+            String skillName = skillId == null ? "None" : dc.getSkillManager().getSkillName(skillId);
+            String skillLevelString = skillId == null ? "" : String.valueOf(dc.getBuildManager().getSkillLevelFromBuild(buildId, skillType));
 
             lore.add(Component.text(TextUtil.camelCasing(skillType.toString())).color(NamedTextColor.GRAY)
                     .append(Component.text(": "))

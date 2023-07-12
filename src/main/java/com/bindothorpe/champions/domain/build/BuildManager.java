@@ -89,9 +89,9 @@ public class BuildManager {
             throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
         }
 
-        int maxLevel = dc.getSkillMaxLevel(skillId);
-        int cost = dc.getSkillLevelUpCost(skillId);
-        SkillType skillType = dc.getSkillType(skillId);
+        int maxLevel = dc.getSkillManager().getSkillMaxLevel(skillId);
+        int cost = dc.getSkillManager().getSkillLevelUpCost(skillId);
+        SkillType skillType = dc.getSkillManager().getSkillType(skillId);
 
         return build.levelUpSkill(skillType, skillId, maxLevel, cost);
     }
@@ -103,8 +103,8 @@ public class BuildManager {
             throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
         }
 
-        int cost = dc.getSkillLevelUpCost(skillId);
-        SkillType skillType = dc.getSkillType(skillId);
+        int cost = dc.getSkillManager().getSkillLevelUpCost(skillId);
+        SkillType skillType = dc.getSkillManager().getSkillType(skillId);
         return build.levelDownSkill(skillType, skillId, cost);
     }
 
@@ -122,12 +122,12 @@ public class BuildManager {
                 continue;
             }
 
-            dc.equipSkillForUser(uuid, entry.getValue(), skillLevels.get(entry.getKey()));
+            dc.getSkillManager().equipSkillForUser(uuid, entry.getValue(), skillLevels.get(entry.getKey()));
         }
 
         equipItems(uuid, build.getClassType());
 
-        dc.setSelectedBuildIdForPlayer(uuid, buildId);
+        dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, buildId);
 
         Bukkit.getPluginManager().callEvent(new EquipBuildEvent(build, uuid));
     }
@@ -147,7 +147,7 @@ public class BuildManager {
     }
 
     public void unequipBuildForPlayer(UUID uuid) {
-        String buildId = dc.getSelectedBuildIdFromPlayer(uuid);
+        String buildId = dc.getPlayerManager().getSelectedBuildIdFromPlayer(uuid);
         if (buildId == null) {
             return;
         }
@@ -158,10 +158,10 @@ public class BuildManager {
         }
 
         for (SkillId skillId : build.getSkills().values()) {
-            dc.unequipSkillForPlayer(uuid, skillId);
+            dc.getSkillManager().unequipSkillForPlayer(uuid, skillId);
         }
 
-        dc.setSelectedBuildIdForPlayer(uuid, null);
+        dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, null);
         Bukkit.getPluginManager().callEvent(new UnequipBuildEvent(build, uuid));
     }
 

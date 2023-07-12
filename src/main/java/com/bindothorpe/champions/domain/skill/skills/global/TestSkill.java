@@ -30,7 +30,7 @@ public class TestSkill extends Skill {
             return;
         }
 
-        dc.addStatusEffectToEntity(StatusEffectType.STUN, event.getPlayer().getUniqueId(), 1.5D);
+        dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.STUN, event.getPlayer().getUniqueId(), 1.5D);
     }
 
     @Override

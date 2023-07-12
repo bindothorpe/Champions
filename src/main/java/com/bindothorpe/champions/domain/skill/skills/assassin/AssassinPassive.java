@@ -23,17 +23,17 @@ public class AssassinPassive extends Skill {
     @Override
     public void addUser(UUID uuid, int skillLevel) {
         super.addUser(uuid, skillLevel);
-        dc.addStatusToEntity(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, 0.2, -1.0, false, false, this));
-        dc.addStatusToEntity(uuid, new EntityStatus(EntityStatusType.KNOCKBACK_DONE, 0.0, -1.0, true, true, this));
-        dc.updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
+        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, 0.2, -1.0, false, false, this));
+        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.KNOCKBACK_DONE, 0.0, -1.0, true, true, this));
+        dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override
     public void removeUser(UUID uuid) {
         super.removeUser(uuid);
-        dc.removeStatusFromEntity(uuid, EntityStatusType.MOVEMENT_SPEED, this);
-        dc.removeStatusFromEntity(uuid, EntityStatusType.KNOCKBACK_DONE, this);
-        dc.updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.KNOCKBACK_DONE, this);
+        dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override

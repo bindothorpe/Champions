@@ -29,13 +29,13 @@ public class ShopCommand implements CommandExecutor {
         Player player = (Player) commandSender;
 
         if(strings.length == 0) {
-            dc.openShopHomeGui(player.getUniqueId(), CustomItemType.ATTACK);
+            dc.getGuiManager().openShopHomeGui(player.getUniqueId(), CustomItemType.ATTACK);
             return true;
         }
 
         try {
             CustomItemId id = CustomItemId.valueOf(strings[0].toUpperCase());
-            dc.openShopGui(player.getUniqueId(), id, new ArrayList<>(dc.getCustomItemManager().getCustomItem(id).getTypes()).get(0));
+            dc.getGuiManager().openShopGui(player.getUniqueId(), id, new ArrayList<>(dc.getCustomItemManager().getCustomItem(id).getTypes()).get(0));
         } catch (IllegalArgumentException e) {
             player.sendMessage("Invalid custom item id");
         }

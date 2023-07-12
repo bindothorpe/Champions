@@ -55,7 +55,7 @@ public class EntityDamageByEntityListener implements Listener {
 
         Bukkit.getPluginManager().callEvent(customDamageEvent);
 
-        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(damagee))) {
+        if(dc.getTeamManager().getTeamFromEntity(damager).equals(dc.getTeamManager().getTeamFromEntity(damagee))) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }
@@ -98,7 +98,7 @@ public class EntityDamageByEntityListener implements Listener {
 
         Bukkit.getPluginManager().callEvent(customDamageEvent);
 
-        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(damagee))) {
+        if(dc.getTeamManager().getTeamFromEntity(damager).equals(dc.getTeamManager().getTeamFromEntity(damagee))) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }

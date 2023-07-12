@@ -40,7 +40,7 @@ public class CapturePointListener implements Listener {
             return;
 
         for(Player player : Bukkit.getOnlinePlayers()) {
-            TeamColor playerTeam = dc.getTeamFromEntity(player);
+            TeamColor playerTeam = dc.getTeamManager().getTeamFromEntity(player);
             lastStartCaptureMessage.put(event.getCapturePoint().getId(), System.currentTimeMillis());
 
             if(playerTeam == null)

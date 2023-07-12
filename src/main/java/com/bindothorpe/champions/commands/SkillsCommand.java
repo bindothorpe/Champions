@@ -30,7 +30,8 @@ public class SkillsCommand implements CommandExecutor {
         }
 
         Player player = (Player) commandSender;
-        String buildId = dc.getSelectedBuildIdFromPlayer(player.getUniqueId());
+
+        String buildId = dc.getPlayerManager().getSelectedBuildIdFromPlayer(player.getUniqueId());
 
         if(buildId == null)
             return true;
@@ -41,7 +42,7 @@ public class SkillsCommand implements CommandExecutor {
             }
             player.sendMessage(Component.text(TextUtil.camelCasing(skillType.toString())).color(NamedTextColor.GRAY)
                     .append(Component.text(": "))
-                    .append(Component.text(dc.getSkillLevelFromBuild(buildId, skillType)).color(NamedTextColor.YELLOW)));
+                    .append(Component.text(dc.getBuildManager().getSkillLevelFromBuild(buildId, skillType)).color(NamedTextColor.YELLOW)));
         });
 
         return true;

@@ -64,7 +64,7 @@ public class PlayerManager {
 
         boolean success = playerDataMap.get(uuid).removeBuildId(buildId);
         if(success) {
-            dc.unequipBuildForPlayer(uuid);
+            dc.getBuildManager().unequipBuildForPlayer(uuid);
         }
         return success;
     }

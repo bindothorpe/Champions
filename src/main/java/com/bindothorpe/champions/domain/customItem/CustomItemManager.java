@@ -44,7 +44,7 @@ public class CustomItemManager {
             removeItemFromUser(uuid, itemToRemove);
         }
 
-        dc.reduceGold(uuid, remainingCost);
+        dc.getPlayerManager().reduceGold(uuid, remainingCost);
 
         playerItems.get(uuid).add(customItemId);
         customItems.get(customItemId).addUser(uuid);
@@ -52,15 +52,15 @@ public class CustomItemManager {
         int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
 
         for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
-            dc.addStatusToEntity(uuid, status.multiplyValue(itemCount));
-            dc.updateEntityStatus(uuid, status.getType());
+            dc.getEntityStatusManager().addEntityStatus(uuid, status.multiplyValue(itemCount));
+            dc.getEntityStatusManager().updateEntityStatus(uuid, status.getType());
         }
 
         updatePlayerInventory(uuid);
     }
 
     private boolean doesUserHaveEnoughGold(UUID uuid, CustomItemId customItemId) {
-        return getRemainingCost(uuid, customItemId) <= dc.getGold(uuid);
+        return getRemainingCost(uuid, customItemId) <= dc.getPlayerManager().getGold(uuid);
     }
 
     public void removeItemFromUser(UUID uuid, CustomItemId customItemId, boolean updateInventory) {
@@ -71,13 +71,13 @@ public class CustomItemManager {
         int itemCount = Collections.frequency(playerItems.get(uuid), customItemId);
 
         for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
-            dc.removeStatusFromEntity(uuid, status.getType(), status.getSource());
-            dc.updateEntityStatus(uuid, status.getType());
+            dc.getEntityStatusManager().removeEntityStatus(uuid, status.getType(), status.getSource());
+            dc.getEntityStatusManager().updateEntityStatus(uuid, status.getType());
         }
 
         for (EntityStatus status : customItems.get(customItemId).getStatuses()) {
-            dc.addStatusToEntity(uuid, status.multiplyValue(itemCount));
-            dc.updateEntityStatus(uuid, status.getType());
+            dc.getEntityStatusManager().addEntityStatus(uuid, status.multiplyValue(itemCount));
+            dc.getEntityStatusManager().updateEntityStatus(uuid, status.getType());
         }
 
         if (updateInventory)
@@ -275,7 +275,7 @@ public class CustomItemManager {
 
         int sellPrice = getCustomItem(id).getSellPrice();
 
-        dc.addGold(uuid, sellPrice);
+        dc.getPlayerManager().addGold(uuid, sellPrice);
         removeItemFromUser(uuid, id, true);
     }
 }

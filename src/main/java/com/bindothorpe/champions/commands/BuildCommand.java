@@ -24,7 +24,7 @@ public class BuildCommand implements CommandExecutor {
         }
 
         Player player = (Player) commandSender;
-        dc.openClassOverviewGui(player.getUniqueId());
+        dc.getGuiManager().openClassOverviewGui(player.getUniqueId());
 
         return true;
     }

@@ -32,17 +32,17 @@ public class GameItemListener implements Listener {
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
 
-        if (!dc.isGameItem(event.getItem()))
+        if (!dc.getGameItemManager().isGameItem(event.getItem()))
             return;
 
-        GameItem item = dc.getGameItem(event.getItem());
+        GameItem item = dc.getGameItemManager().getGameItem(event.getItem());
         event.setCancelled(true);
 
         if(event.getEntity().equals(item.getOwner()))
             return;
 
         Bukkit.getPluginManager().callEvent(new GameItemPickupEvent(dc, item, event.getEntity()));
-        dc.despawnItem(item.getId());
+        dc.getGameItemManager().despawnItem(item.getId());
     }
 
     @EventHandler
@@ -50,8 +50,8 @@ public class GameItemListener implements Listener {
         if (!event.getUpdateType().equals(UpdateType.TICK))
             return;
 
-        dc.getGameItems().forEach(GameItem::onUpdate);
-        dc.getGameItems().forEach(gameItem -> {
+        dc.getGameItemManager().getGameItems().forEach(GameItem::onUpdate);
+        dc.getGameItemManager().getGameItems().forEach(gameItem -> {
             double entityCollisionRadius = gameItem.getEntityCollisionRadius();
             double blockCollisionRadius = gameItem.getBlockCollisionRadius();
 

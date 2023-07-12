@@ -33,17 +33,17 @@ public class Rally extends Skill {
         List<Entity> nearby = event.getPlayer().getNearbyEntities(5, 5, 5);
 
         for (Entity entity : nearby) {
-            if(dc.getTeamFromEntity(entity) != null)
+            if(dc.getTeamManager().getTeamFromEntity(entity) != null)
                 continue;
 
-            dc.addEntityToTeam(entity, dc.getTeamFromEntity(event.getPlayer()));
+            dc.getTeamManager().addEntityToTeam(entity, dc.getTeamManager().getTeamFromEntity(event.getPlayer()));
             entity.setGlowing(true);
 
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     entity.setGlowing(false);
-                    dc.removeEntityFromTeam(entity);
+                    dc.getTeamManager().removeEntityFromTeam(entity);
                 }
             }.runTaskLater(dc.getPlugin(), 20 * 5);
         }
@@ -56,7 +56,7 @@ public class Rally extends Skill {
 
         PlayerRightClickEvent e = (PlayerRightClickEvent) event;
 
-        if(dc.getTeamFromEntity(e.getPlayer()) == null) {
+        if(dc.getTeamManager().getTeamFromEntity(e.getPlayer()) == null) {
             return false;
         }
 

@@ -38,14 +38,14 @@ public class BuildsOverviewGui extends PlayerGui {
 
         }
 
-        Set<String> buildIds = dc.getBuildIdsFromPlayer(uuid).get(classType);
+        Set<String> buildIds = dc.getPlayerManager().getBuildIdsFromPlayer(uuid).get(classType);
 
         for(int i = 0; i < buildIds.size(); i++) {
             String buildId = (String) buildIds.toArray()[i];
             buildsPane.addItem(new BuildItem(uuid, buildId, i + 1, dc));
         }
 
-        root.addItem(new BackItem(event -> dc.openClassOverviewGui(event.getWhoClicked().getUniqueId())), 0, 0);
+        root.addItem(new BackItem(event -> dc.getGuiManager().openClassOverviewGui(event.getWhoClicked().getUniqueId())), 0, 0);
         root.addItem(new ClassIconItem(uuid, classType, dc, true, false, true, false), 4, 0);
         gui.addPane(root);
         gui.addPane(buildsPane);

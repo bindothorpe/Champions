@@ -27,7 +27,7 @@ public class DeleteBuildItem extends GuiItem {
         super(new ItemStack(Material.TNT));
         this.dc = dc;
         this.buildId = buildId;
-        this.classType = dc.getClassTypeFromBuild(buildId);
+        this.classType = dc.getBuildManager().getClassTypeFromBuild(buildId);
 
         initialize();
         setAction(this::handleClick);
@@ -38,13 +38,13 @@ public class DeleteBuildItem extends GuiItem {
             return;
         }
 
-        if(dc.removeBuildIdFromPlayer(event.getWhoClicked().getUniqueId(), buildId)) {
+        if(dc.getPlayerManager().removeBuildIdFromPlayer(event.getWhoClicked().getUniqueId(), buildId)) {
 
-            Build build = dc.deleteBuild(buildId);
+            Build build = dc.getBuildManager().deleteBuild(buildId);
             if(build != null)
                 Bukkit.getPluginManager().callEvent(new DeleteBuildEvent(build, event.getWhoClicked().getUniqueId()));
 
-            dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType);
+            dc.getGuiManager().openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType);
         }
 
     }
