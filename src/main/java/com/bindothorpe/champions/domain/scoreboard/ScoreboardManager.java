@@ -73,7 +73,7 @@ public class ScoreboardManager {
         if(board == null)
             return;
 
-        TeamColor playerTeam = dc.getTeamFromEntity(player);
+        TeamColor playerTeam = dc.getTeamManager().getTeamFromEntity(player);
 
         List<Component> lines = new ArrayList<>();
 
@@ -98,16 +98,16 @@ public class ScoreboardManager {
         }
 
         lines.add(Component.text("KDA: ").color(NamedTextColor.WHITE));
-        lines.add(Component.text(dc.getKills(uuid)).color(NamedTextColor.YELLOW)
+        lines.add(Component.text(dc.getPlayerManager().getKills(uuid)).color(NamedTextColor.YELLOW)
                 .append(Component.text("/").color(NamedTextColor.WHITE))
-                .append(Component.text(dc.getDeaths(uuid))).color(NamedTextColor.YELLOW)
+                .append(Component.text(dc.getPlayerManager().getDeaths(uuid))).color(NamedTextColor.YELLOW)
                 .append(Component.text("/").color(NamedTextColor.WHITE))
-                .append(Component.text(dc.getAssists(uuid))).color(NamedTextColor.YELLOW));
+                .append(Component.text(dc.getPlayerManager().getAssists(uuid))).color(NamedTextColor.YELLOW));
 
         lines.add(Component.empty());
 
         lines.add(Component.text("Gold: ").color(NamedTextColor.WHITE));
-        String formattedNumber = String.format(Locale.ENGLISH, "%,d", dc.getGold(uuid));
+        String formattedNumber = String.format(Locale.ENGLISH, "%,d", dc.getPlayerManager().getGold(uuid));
         lines.add(Component.text(formattedNumber).color(NamedTextColor.YELLOW));
 
         lines.add(Component.empty());

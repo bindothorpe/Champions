@@ -25,7 +25,7 @@ public class CombatListener implements Listener {
 
         event.getCause();
 
-        dc.logDamageTaken(event.getEntity().getUniqueId());
+        dc.getCombatLogger().logDamageTaken(event.getEntity().getUniqueId());
     }
 
     @EventHandler
@@ -36,6 +36,6 @@ public class CombatListener implements Listener {
         if (!(event.getDamager() instanceof Player))
             return;
 
-        dc.logDamageDealt(event.getDamager().getUniqueId());
+        dc.getCombatLogger().logDamageDealt(event.getDamager().getUniqueId());
     }
 }

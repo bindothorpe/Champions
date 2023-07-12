@@ -106,11 +106,11 @@ public class CustomDamageCommand implements Command {
 
         double finalDone, finalReceived = 0;
 
-        double doneMod = dc.getModificationEntityStatusValue(damager.getUniqueId(), done);
-        double doneMult = dc.getMultiplicationEntityStatusValue(damager.getUniqueId(), done);
+        double doneMod = dc.getEntityStatusManager().getModifcationValue(damager.getUniqueId(), done);
+        double doneMult = dc.getEntityStatusManager().getMultiplicationValue(damager.getUniqueId(), done);
 
-        double receivedMod = dc.getModificationEntityStatusValue(damagee.getUniqueId(), received);
-        double receivedMult = dc.getMultiplicationEntityStatusValue(damagee.getUniqueId(), received);
+        double receivedMod = dc.getEntityStatusManager().getModifcationValue(damagee.getUniqueId(), received);
+        double receivedMult = dc.getEntityStatusManager().getMultiplicationValue(damagee.getUniqueId(), received);
 
         if (doneMult == 0 || receivedMult == 0) {
             return 0;

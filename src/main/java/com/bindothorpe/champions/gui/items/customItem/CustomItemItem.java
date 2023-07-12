@@ -22,7 +22,7 @@ public class CustomItemItem extends GuiItem {
                 dc.getCustomItemManager().addItemToUser(event.getWhoClicked().getUniqueId(), customItem.getId());
             else if (event.getClick().equals(ClickType.RIGHT))
                 dc.getCustomItemManager().removeItemFromUser(event.getWhoClicked().getUniqueId(), customItem.getId(), true);
-            dc.openShopGui(event.getWhoClicked().getUniqueId(), currentGuiItemId, originType);
+            dc.getGuiManager().openShopGui(event.getWhoClicked().getUniqueId(), currentGuiItemId, originType);
         });
     }
 }

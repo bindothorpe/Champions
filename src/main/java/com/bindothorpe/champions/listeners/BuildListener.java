@@ -59,15 +59,15 @@ public class BuildListener implements Listener {
             @Override
             public void onResult(List<Build> result) {
                 for (Build build : result) {
-                    dc.addBuildIdToPlayer(event.getPlayer().getUniqueId(), build.getClassType(), build.getId());
-                    dc.addBuild(build);
+                    dc.getPlayerManager().addBuildIdToPlayer(event.getPlayer().getUniqueId(), build.getClassType(), build.getId());
+                    dc.getBuildManager().addBuild(build);
                 }
                 dbc.getPlayerSelectedBuildByUUID(event.getPlayer().getUniqueId(), new DatabaseResponse<String>() {
                     @Override
                     public void onResult(String result) {
-                        dc.setSelectedBuildIdForPlayer(event.getPlayer().getUniqueId(), result);
+                        dc.getPlayerManager().setSelectedBuildIdForPlayer(event.getPlayer().getUniqueId(), result);
                         if (result != null)
-                            dc.equipBuildForPlayer(event.getPlayer().getUniqueId(), result);
+                            dc.getBuildManager().equipBuildForPlayer(event.getPlayer().getUniqueId(), result);
                     }
                 });
             }
@@ -84,7 +84,7 @@ public class BuildListener implements Listener {
         if(!(event.getClickedInventory().getType().equals(InventoryType.PLAYER) && isBlacklist(event.getSlot())))
             return;
 
-        if(dc.getGameState().equals(GameState.LOBBY) || dc.getGameState().equals(GameState.LOBBY_COUNTDOWN))
+        if(dc.getGameManager().getGameState().equals(GameState.LOBBY) || dc.getGameManager().getGameState().equals(GameState.LOBBY_COUNTDOWN))
             return;
         event.setCancelled(true);
     }
@@ -98,11 +98,11 @@ public class BuildListener implements Listener {
     //TODO: Im not sure why there is no eventhandler here
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        for(Set<String> ids : dc.getBuildIdsFromPlayer(event.getPlayer().getUniqueId()).values()) {
+        for(Set<String> ids : dc.getPlayerManager().getBuildIdsFromPlayer(event.getPlayer().getUniqueId()).values()) {
             for(String id : ids) {
-                dc.deleteBuild(id);
+                dc.getBuildManager().deleteBuild(id);
             }
         }
-        dc.deletePlayer(event.getPlayer().getUniqueId());
+        dc.getPlayerManager().deletePlayer(event.getPlayer().getUniqueId());
     }
 }

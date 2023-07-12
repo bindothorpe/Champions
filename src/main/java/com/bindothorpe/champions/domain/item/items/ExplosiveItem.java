@@ -62,7 +62,7 @@ public class ExplosiveItem extends GameItem {
             return;
 
         EntityStatus status = new EntityStatus(EntityStatusType.KNOCKBACK_DONE, EXPLOSION_KNOCKBACK, -1, false, false, this);
-        dc.addStatusToEntity(getOwner().getUniqueId(), status);
+        dc.getEntityStatusManager().addEntityStatus(getOwner().getUniqueId(), status);
 
         for(Entity e : nearby) {
 
@@ -72,7 +72,7 @@ public class ExplosiveItem extends GameItem {
 
             Bukkit.getPluginManager().callEvent(customDamageEvent);
 
-            if(dc.getTeamFromEntity(e) != null && dc.getTeamFromEntity(e).equals(dc.getTeamFromEntity(getOwner())) && (!e.equals(getOwner())))
+            if(dc.getTeamManager().getTeamFromEntity(e) != null && dc.getTeamManager().getTeamFromEntity(e).equals(dc.getTeamManager().getTeamFromEntity(getOwner())) && (!e.equals(getOwner())))
                 continue;
 
             if(customDamageEvent.isCancelled())
@@ -86,6 +86,6 @@ public class ExplosiveItem extends GameItem {
 
             customDamageCommand.execute();
         }
-        dc.removeStatusFromEntity(getOwner().getUniqueId(), EntityStatusType.KNOCKBACK_DONE, this);
+        dc.getEntityStatusManager().removeEntityStatus(getOwner().getUniqueId(), EntityStatusType.KNOCKBACK_DONE, this);
     }
 }

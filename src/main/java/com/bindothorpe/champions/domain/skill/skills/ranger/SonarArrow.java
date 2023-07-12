@@ -165,7 +165,7 @@ public class SonarArrow extends Skill {
 
                         // Spawn particles
                         for (Vector point : points) {
-                            Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamFromEntity(player).getColor(), 1);
+                            Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity(player).getColor(), 1);
                             loc.getWorld().spawnParticle(Particle.REDSTONE, loc.clone().add(point), 1, 0, 0, 0, 0, dustOptions, true);
                         }
 
@@ -183,7 +183,7 @@ public class SonarArrow extends Skill {
                             LivingEntity livingEntity = (LivingEntity) entity;
 
                             // Skip if on same team
-                            if (dc.getTeamFromEntity(player).equals(dc.getTeamFromEntity(livingEntity)))
+                            if (dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(livingEntity)))
                                 continue;
 
                             livingEntity.setGlowing(true);
@@ -215,7 +215,7 @@ public class SonarArrow extends Skill {
 
         for (Arrow arrow : particleTrail) {
             Location loc = arrow.getLocation();
-            Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamFromEntity((Player) arrow.getShooter()).getColor(), 1);
+            Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity((Player) arrow.getShooter()).getColor(), 1);
             loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, 0, 0, 0, 0, dustOptions, true);
         }
     }
@@ -228,7 +228,7 @@ public class SonarArrow extends Skill {
         PlayerLeftClickEvent e = (PlayerLeftClickEvent) event;
 
 
-        if (dc.getTeamFromEntity(e.getPlayer()) == null) {
+        if (dc.getTeamManager().getTeamFromEntity(e.getPlayer()) == null) {
             return false;
         }
 

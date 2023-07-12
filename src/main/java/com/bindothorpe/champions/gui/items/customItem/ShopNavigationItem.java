@@ -31,7 +31,7 @@ public class ShopNavigationItem extends GuiItem {
         setItem(item);
 
         setAction(event -> {
-            dc.openShopHomeGui(event.getWhoClicked().getUniqueId(), type);
+            dc.getGuiManager().openShopHomeGui(event.getWhoClicked().getUniqueId(), type);
         });
     }
 }

@@ -32,15 +32,15 @@ public class EditBuildGui extends PlayerGui {
     public EditBuildGui(UUID uuid, String buildId, int buildNumber, DomainController dc) {
         super(uuid, dc);
         this.buildId = buildId;
-        this.classType = dc.getClassTypeFromBuild(buildId);
+        this.classType = dc.getBuildManager().getClassTypeFromBuild(buildId);
         this.buildNumber = buildNumber;
         initialize();
         gui.setOnClose(this::handleClose);
     }
 
     private void handleClose(InventoryCloseEvent event) {
-        if(buildId.equals(dc.getSelectedBuildIdFromPlayer(uuid))) {
-            dc.equipBuildForPlayer(uuid, buildId);
+        if(buildId.equals(dc.getPlayerManager().getSelectedBuildIdFromPlayer(uuid))) {
+            dc.getBuildManager().equipBuildForPlayer(uuid, buildId);
         }
     }
 
@@ -55,7 +55,7 @@ public class EditBuildGui extends PlayerGui {
             if(x == 0 || x == 8)
                 root.addItem(new BorderItem(), x, y);
         }
-        root.addItem(new BackItem(event -> dc.openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType)), 0, 0);
+        root.addItem(new BackItem(event -> dc.getGuiManager().openBuildsOverviewGui(event.getWhoClicked().getUniqueId(), classType)), 0, 0);
         root.addItem(new SkillPointsItem(buildId, dc), 0, 1);
         root.addItem(new DeleteBuildItem(buildId, dc), 0, 5);
 
@@ -67,7 +67,7 @@ public class EditBuildGui extends PlayerGui {
             root.addItem(new SkillTypeItem(skillType), 1, skillType.ordinal());
             OutlinePane skillTypePane = new OutlinePane(2, skillType.ordinal(), 6, 1);
 
-            for(SkillId skillId : dc.getClassSkillsForSkillType(classType, skillType).stream().sorted(Comparator.comparing(Enum::toString)).collect(Collectors.toList())) {
+            for(SkillId skillId : dc.getSkillManager().getClassSkillsForSkillType(classType, skillType).stream().sorted(Comparator.comparing(Enum::toString)).collect(Collectors.toList())) {
                 skillTypePane.addItem(new SkillItem(buildId, buildNumber, skillId, dc));
             }
             gui.addPane(skillTypePane);

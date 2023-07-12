@@ -34,7 +34,7 @@ public class ExplosiveBomb extends Skill {
 
         if (explosiveBombs.containsKey(player.getUniqueId()) && (!explosiveBombs.get(player.getUniqueId()).getItem().isDead())) {
             GameItem bomb = explosiveBombs.get(player.getUniqueId());
-            dc.despawnItem(bomb.getId());
+            dc.getGameItemManager().despawnItem(bomb.getId());
             explosiveBombs.remove(player.getUniqueId());
             return;
         }
@@ -43,7 +43,7 @@ public class ExplosiveBomb extends Skill {
             return;
 
         GameItem bomb = new ExplosiveItem(dc, player, damage.get(getSkillLevel(player.getUniqueId()) - 1));
-        dc.spawnGameItem(bomb, player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
+        dc.getGameItemManager().spawnGameItem(bomb, player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
         explosiveBombs.put(player.getUniqueId(), bomb);
     }
 

@@ -62,9 +62,9 @@ public class ClassIconItem extends GuiItem {
             List<Component> lore = meta.lore();
             lore.add(Component.text(" "));
             lore.add(Component.text("Builds: ").color(NamedTextColor.GRAY)
-                    .append(Component.text(dc.getBuildCountByClassTypeForPlayer(classType, uuid)).color(NamedTextColor.YELLOW))
+                    .append(Component.text(dc.getPlayerManager().getBuildCountByClassTypeForPlayer(classType, uuid)).color(NamedTextColor.YELLOW))
                     .append(Component.text("/"))
-                    .append(Component.text(dc.getMaxBuildsForPlayer(uuid))));
+                    .append(Component.text(dc.getPlayerManager().getMaxBuildsForPlayer(uuid))));
             meta.lore(lore);
         }
 
@@ -91,22 +91,22 @@ public class ClassIconItem extends GuiItem {
     private void handleClick(InventoryClickEvent event) {
 
         if (event.getClick().equals(ClickType.LEFT) && showLeftclickAction) {
-            dc.openBuildsOverviewGui(uuid, classType);
+            dc.getGuiManager().openBuildsOverviewGui(uuid, classType);
         }
 
-        int buildCount = dc.getBuildCountByClassTypeForPlayer(classType, uuid);
-        int maxBuildCount = dc.getMaxBuildsForPlayer(uuid);
+        int buildCount = dc.getPlayerManager().getBuildCountByClassTypeForPlayer(classType, uuid);
+        int maxBuildCount = dc.getPlayerManager().getMaxBuildsForPlayer(uuid);
 
         if (event.getClick().equals(ClickType.RIGHT)
                 && showRightclickAction
                 && buildCount < maxBuildCount) {
 
 
-            String buildId = dc.createEmptyBuild(classType);
-            dc.addBuildIdToPlayer(uuid, classType, buildId);
-            dc.openBuildsOverviewGui(uuid, classType);
+            String buildId = dc.getBuildManager().createEmptyBuild(classType);
+            dc.getPlayerManager().addBuildIdToPlayer(uuid, classType, buildId);
+            dc.getGuiManager().openBuildsOverviewGui(uuid, classType);
 
-            Bukkit.getPluginManager().callEvent(new CreateBuildEvent(dc.getBuild(buildId), uuid));
+            Bukkit.getPluginManager().callEvent(new CreateBuildEvent(dc.getBuildManager().getBuild(buildId), uuid));
         }
 
 

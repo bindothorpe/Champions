@@ -36,8 +36,8 @@ public class SkillItem extends GuiItem {
         this.buildId = buildId;
         this.buildNumber = buildNumber;
         this.skillId = skillId;
-        if(dc.getSkillFromBuild(buildId, dc.getSkillType(skillId)) == skillId) {
-            this.skillLevel = dc.getSkillLevelFromBuild(buildId, dc.getSkillType(skillId));
+        if(dc.getBuildManager().getSkillFromBuild(buildId, dc.getSkillManager().getSkillType(skillId)) == skillId) {
+            this.skillLevel = dc.getBuildManager().getSkillLevelFromBuild(buildId, dc.getSkillManager().getSkillType(skillId));
         } else {
             this.skillLevel = 0;
         }
@@ -50,15 +50,15 @@ public class SkillItem extends GuiItem {
     private void handleClick(InventoryClickEvent event) {
         boolean success = false;
         if(event.isLeftClick()) {
-            success = dc.levelUpSkillForBuild(buildId, skillId);
+            success = dc.getBuildManager().levelUpSkillForBuild(buildId, skillId);
         } else if (event.isRightClick()) {
-            success = dc.levelDownSkillForBuild(buildId, skillId);
+            success = dc.getBuildManager().levelDownSkillForBuild(buildId, skillId);
 
-            Build build = dc.getBuild(buildId);
+            Build build = dc.getBuildManager().getBuild(buildId);
             int level = build.getSkillLevel(skillId.getSkillType());
 
             if(success && level == 0) {
-                dc.unequipSkillForPlayer(event.getWhoClicked().getUniqueId(), skillId);
+                dc.getSkillManager().unequipSkillForPlayer(event.getWhoClicked().getUniqueId(), skillId);
             }
 
 
@@ -66,8 +66,8 @@ public class SkillItem extends GuiItem {
 
         if(success) {
             //TODO: play sound effect
-            dc.openEditBuildGui(event.getWhoClicked().getUniqueId(), buildId, buildNumber);
-            Bukkit.getPluginManager().callEvent(new UpdateBuildEvent(dc.getBuild(buildId), event.getWhoClicked().getUniqueId()));
+            dc.getGuiManager().openEditBuildGui(event.getWhoClicked().getUniqueId(), buildId, buildNumber);
+            Bukkit.getPluginManager().callEvent(new UpdateBuildEvent(dc.getBuildManager().getBuild(buildId), event.getWhoClicked().getUniqueId()));
         } else {
             //TODO: play error effect
         }
@@ -77,7 +77,7 @@ public class SkillItem extends GuiItem {
         ItemStack item = getItem();
         ItemMeta meta = item.getItemMeta();
 
-        int levelUpCost = dc.getSkillLevelUpCost(skillId);
+        int levelUpCost = dc.getSkillManager().getSkillLevelUpCost(skillId);
 
         if(skillLevel > 0) {
             item.setAmount(skillLevel);
@@ -85,7 +85,7 @@ public class SkillItem extends GuiItem {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
-        meta.displayName(Component.text(dc.getSkillName(skillId)).color(NamedTextColor.GREEN));
+        meta.displayName(Component.text(dc.getSkillManager().getSkillName(skillId)).color(NamedTextColor.GREEN));
 
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text(" "));
@@ -95,18 +95,18 @@ public class SkillItem extends GuiItem {
         lore.add(Component.text("Level: ").color(NamedTextColor.GRAY)
                 .append(Component.text(skillLevel).color(NamedTextColor.YELLOW))
                 .append(Component.text("/").color(NamedTextColor.GRAY))
-                .append(Component.text(dc.getSkillMaxLevel(skillId)).color(NamedTextColor.GRAY)));
+                .append(Component.text(dc.getSkillManager().getSkillMaxLevel(skillId)).color(NamedTextColor.GRAY)));
 
-        if(dc.getSkillCooldownDuration(skillId) != null) {
+        if(dc.getSkillManager().getSkillCooldownDuration(skillId) != null) {
             lore.add(Component.text(" "));
 
             lore.add(Component.text("Cooldown: ").color(NamedTextColor.GRAY)
-                    .append(ComponentUtil.skillLevelValues(skillLevel, dc.getSkillCooldownDuration(skillId), NamedTextColor.YELLOW)));
+                    .append(ComponentUtil.skillLevelValues(skillLevel, dc.getSkillManager().getSkillCooldownDuration(skillId), NamedTextColor.YELLOW)));
         }
 
         lore.add(Component.text(" "));
 
-        lore.addAll(dc.getSkillDescription(skillId, skillLevel));
+        lore.addAll(dc.getSkillManager().getSkillDescription(skillId, skillLevel));
 
         lore.add(Component.text(" "));
         lore.add(Component.text("Left-click").color(NamedTextColor.YELLOW)

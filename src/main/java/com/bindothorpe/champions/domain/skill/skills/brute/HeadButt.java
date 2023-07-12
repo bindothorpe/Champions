@@ -169,7 +169,7 @@ public class HeadButt extends Skill {
 
             damageCommand.execute();
 
-            dc.addStatusEffectToEntity(StatusEffectType.STUN, uuid, 0.5);
+            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.STUN, uuid, 0.5);
             hitActive.remove(uuid);
             hitBy.remove(uuid);
             hitStartingLocations.remove(uuid);

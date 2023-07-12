@@ -22,7 +22,7 @@ public class SkillPointsItem extends GuiItem {
         super(new ItemStack(Material.AMETHYST_SHARD));
         this.dc = dc;
         this.buildId = buildId;
-        this.skillPoints = dc.getSkillPointsFromBuild(buildId);
+        this.skillPoints = dc.getBuildManager().getSkillPointsFromBuild(buildId);
 
         initialize();
     }

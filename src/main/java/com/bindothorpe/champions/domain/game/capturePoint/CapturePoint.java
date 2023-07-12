@@ -69,7 +69,7 @@ public class CapturePoint {
         Map<TeamColor, Integer> teamColorIntegerMap = getEntitiesInRange().stream()
                 .filter(entity -> entity instanceof Player)
                 .map(entity -> (Player) entity)
-                .collect(Collectors.groupingBy(player -> gameManager.getDc().getTeamFromEntity(player), Collectors.summingInt(player -> 1)));
+                .collect(Collectors.groupingBy(player -> gameManager.getDc().getTeamManager().getTeamFromEntity(player), Collectors.summingInt(player -> 1)));
 
         TeamColor teamColor = teamColorIntegerMap.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
