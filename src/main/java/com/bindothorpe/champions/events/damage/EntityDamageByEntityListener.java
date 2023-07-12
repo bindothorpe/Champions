@@ -3,8 +3,10 @@ package com.bindothorpe.champions.events.damage;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -67,5 +69,47 @@ public class EntityDamageByEntityListener implements Listener {
         customDamageCommand.execute();
 
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
+    }
+
+    @EventHandler
+    public void onDamageByProjectile(EntityDamageByEntityEvent event) {
+
+        if(!(event.getDamager() instanceof Projectile))
+            return;
+
+        if (!(event.getEntity() instanceof LivingEntity))
+            return;
+
+        Projectile projectile = (Projectile) event.getDamager();
+
+        if(!(projectile.getShooter() instanceof Player))
+            return;
+
+        if (event.isCancelled())
+            return;
+
+        Player damager = (Player) projectile.getShooter();
+        LivingEntity damagee = (LivingEntity) event.getEntity();
+
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK);
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
+
+        customDamageEvent.setCommand(customDamageCommand);
+
+        Bukkit.getPluginManager().callEvent(customDamageEvent);
+
+        if(dc.getTeamFromEntity(damager).equals(dc.getTeamFromEntity(damagee))) {
+            customDamageEvent.setCancelled(true);
+            event.setCancelled(true);
+        }
+
+        if (customDamageEvent.isCancelled())
+            return;
+
+
+        event.setCancelled(true);
+        projectile.remove();
+        customDamageCommand.execute();
+
     }
 }

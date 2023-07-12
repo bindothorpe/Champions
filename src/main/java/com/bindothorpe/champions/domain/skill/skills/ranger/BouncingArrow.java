@@ -103,6 +103,7 @@ public class BouncingArrow extends Skill {
         Vector direction = closest.getLocation().add(0, closest.getHeight(), 0).subtract(startingLocation).toVector().normalize();
         Projectile newArrow = event.getEntity().getWorld().spawnArrow(startingLocation.add(direction), direction, (float) arrow.getVelocity().length(), 1);
 
+        newArrow.setShooter(arrow.getShooter());
         newArrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), bounce - 1));
         newArrow.setMetadata("blacklist", new FixedMetadataValue(dc.getPlugin(), blacklist));
         newArrow.setMetadata("distance", new FixedMetadataValue(dc.getPlugin(), distance));
