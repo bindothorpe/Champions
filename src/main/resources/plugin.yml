@@ -2,6 +2,7 @@ name: Champions
 version: '${project.version}'
 main: com.bindothorpe.champions.ChampionsPlugin
 api-version: 1.19
+depend: [ProtocolLib]
 commands:
   build:
     usage: /build

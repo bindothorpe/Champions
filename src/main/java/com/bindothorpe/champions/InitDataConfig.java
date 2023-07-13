@@ -9,22 +9,7 @@ import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.skills.assassin.AssassinPassive;
-import com.bindothorpe.champions.domain.skill.skills.brute.ExplosiveBomb;
-import com.bindothorpe.champions.domain.skill.skills.brute.GrandEntrance;
-import com.bindothorpe.champions.domain.skill.skills.brute.HeadButt;
-import com.bindothorpe.champions.domain.skill.skills.global.Rally;
-import com.bindothorpe.champions.domain.skill.skills.global.TestSkill;
-import com.bindothorpe.champions.domain.skill.skills.mage.Explosion;
-import com.bindothorpe.champions.domain.skill.skills.mage.MagePassive;
-import com.bindothorpe.champions.domain.skill.skills.ranger.BouncingArrow;
-import com.bindothorpe.champions.domain.skill.skills.ranger.HuntersHeart;
-import com.bindothorpe.champions.domain.skill.skills.ranger.KitingArrow;
-import com.bindothorpe.champions.domain.skill.skills.mage.IcePrison;
-import com.bindothorpe.champions.domain.skill.skills.ranger.SonarArrow;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
-import com.bindothorpe.champions.domain.statusEffect.effects.RootStatusEffect;
-import com.bindothorpe.champions.domain.statusEffect.effects.StunStatusEffect;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
@@ -34,7 +19,9 @@ import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import com.bindothorpe.champions.listeners.damage.CustomDamageListener;
 import com.bindothorpe.champions.listeners.game.capturepoint.CapturePointListener;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.reflections.Reflections;
 
@@ -100,6 +87,7 @@ public class InitDataConfig {
         for(Player player : Bukkit.getOnlinePlayers()) {
 
             dc.getTeamManager().addEntityToTeam(player, TeamColor.BLUE);
+            player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
 
             dc.getScoreboardManager().setScoreboard(player.getUniqueId());
 

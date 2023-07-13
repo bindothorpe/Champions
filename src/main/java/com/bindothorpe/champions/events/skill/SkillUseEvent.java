@@ -7,29 +7,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class SkillUseEvent extends Event implements Cancellable {
+public class SkillUseEvent extends SkillEvent implements Cancellable {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
     private boolean cancelled;
-    private final Player player;
-    private final SkillId skillId;
-    private final int skillLevel;
 
     public SkillUseEvent(Player player, SkillId skillId, int skillLevel) {
-        this.player = player;
-        this.skillId = skillId;
-        this.skillLevel = skillLevel;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public SkillId getSkillId() {
-        return skillId;
-    }
-
-    public int getSkillLevel() {
-        return skillLevel;
+        super(player, skillId, skillLevel);
     }
 
     @Override
@@ -42,12 +25,4 @@ public class SkillUseEvent extends Event implements Cancellable {
         cancelled = cancel;
     }
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS_LIST;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLERS_LIST;
-    }
 }

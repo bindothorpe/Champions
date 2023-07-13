@@ -18,7 +18,7 @@ import java.util.*;
 
 public class ExplosiveBomb extends Skill {
 
-    private Map<UUID, GameItem> explosiveBombs = new HashMap<>();
+    private final Map<UUID, GameItem> explosiveBombs = new HashMap<>();
     private final List<Double> damage = Arrays.asList(2.0, 3.0, 4.0);
 
     public ExplosiveBomb(DomainController dc) {
