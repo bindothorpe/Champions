@@ -5,8 +5,10 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.build.EquipBuildEvent;
 import com.bindothorpe.champions.events.build.UnequipBuildEvent;
+import com.bindothorpe.champions.util.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -140,6 +142,10 @@ public class BuildManager {
         player.getInventory().clear();
         player.getInventory().setArmorContents(armorContentsMap.get(classType));
         player.getInventory().setItem(0, new ItemStack(Material.IRON_SWORD));
+
+        if(ItemUtil.isSword(player.getInventory().getItemInMainHand().getType()))
+            player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
+
         player.getInventory().setItem(1, new ItemStack(Material.IRON_AXE));
         if (classType == ClassType.RANGER || classType == ClassType.ASSASSIN)
             player.getInventory().setItem(2, new ItemStack(Material.BOW));
