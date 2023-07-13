@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.item.items;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.util.ShapeUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,8 +24,12 @@ public class IceOrbItem extends GameItem {
     }
 
     @Override
-    public void onUpdate() {
+    public void onTickUpdate() {
         getLocation().getWorld().spawnParticle(Particle.SNOWFLAKE, getLocation(), 1, 0, 0, 0, 0, null, true);
+    }
+    @Override
+    public void onRapidUpdate() {
+        dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_ICE_PRISON_ORB_AMBIENT);
     }
 
     @Override
@@ -47,6 +52,7 @@ public class IceOrbItem extends GameItem {
 
         for(int i = 0; i < vectors.size(); i++) {
             Vector v = vectors.get(i);
+            dc.getSoundManager().playSound(loc.clone().add(v), CustomSound.SKILL_ICE_PRISON_ACTIVATE);
             dc.getTemporaryBlockManager().spawnTemporaryBlock(loc.clone().add(v), Material.ICE, icePrisonDuration + (i / 200D));
         }
     }

@@ -5,9 +5,11 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
@@ -31,6 +33,8 @@ public class SonarArrow extends Skill {
 
     private final Set<UUID> primed = new HashSet<>();
     private final Set<Arrow> particleTrail = new HashSet<>();
+    private final Set<Arrow> bouncingArrows = new HashSet<>();
+
 
     private final double range = 10;
 
@@ -66,8 +70,9 @@ public class SonarArrow extends Skill {
 
 
         arrow.setMetadata("sonar", new FixedMetadataValue(dc.getPlugin(), true));
-        if(player.isSneaking())
-            arrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), true));
+        if (player.isSneaking()) {
+            bouncingArrows.add(arrow);
+        }
         primed.remove(player.getUniqueId());
 
         particleTrail.add(arrow);
@@ -90,18 +95,15 @@ public class SonarArrow extends Skill {
 
         particleTrail.remove(arrow);
 
-        if(block != null && arrow.hasMetadata("bounce")) {
-
+        if(block != null && bouncingArrows.contains(arrow)) {
             event.setCancelled(true);
-
+            bouncingArrows.remove(arrow);
             performBounce(arrow, event, player);
 
             return;
         }
 
         performSonar(player, arrow, event.getHitEntity());
-
-
     }
 
     private void performBounce(Arrow arrow, ProjectileHitEvent event, Player player) {
@@ -127,6 +129,8 @@ public class SonarArrow extends Skill {
         bouncingArrow.setMetadata("sonar", new FixedMetadataValue(dc.getPlugin(), true));
 
         particleTrail.add(bouncingArrow);
+        Location soundLocation = event.getHitBlock().getLocation();
+        dc.getSoundManager().playSound(soundLocation, CustomSound.SKILL_RANGER_SONAR_ARROW_BOUNCE);
     }
 
     private void performSonar(Player player, Arrow arrow, Entity hit) {
@@ -144,9 +148,12 @@ public class SonarArrow extends Skill {
                     return;
                 }
 
+                dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_SCAN);
 
                 new BukkitRunnable() {
                     int y = 3;
+                    DomainController dc = SonarArrow.super.dc;
+                    boolean hitFlag = false;
 
                     @Override
                     public void run() {
@@ -189,6 +196,8 @@ public class SonarArrow extends Skill {
                             livingEntity.setGlowing(true);
                             entities.add(livingEntity);
 
+                            hitFlag = true;
+
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
@@ -197,6 +206,10 @@ public class SonarArrow extends Skill {
                             }.runTaskLater(dc.getPlugin(), 2 * 20L);
                         }
 
+                        if(hitFlag) {
+                            dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_DETECT);
+                            hitFlag = false;
+                        }
                         y -= 1;
                     }
                 }.runTaskTimer(dc.getPlugin(), 0, 10L / 3);
