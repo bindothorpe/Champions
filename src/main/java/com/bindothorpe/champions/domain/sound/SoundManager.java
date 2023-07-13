@@ -45,7 +45,7 @@ public class SoundManager {
         }
     }
 
-    public void playSound(Player player, Location location, CustomSound sound) {
+    public void playSound(Player player, Location location, CustomSound sound, double pitchMultiplier) {
         if (player == null) {
             return;
         }
@@ -57,7 +57,8 @@ public class SoundManager {
 
         for (int i = 0; i < sounds.size(); i++) {
             if (delays == null || delays.isEmpty()) {
-                player.playSound(location, sounds.get(i), volumes.get(i), pitches.get(i));
+                float pitch = pitches.get(i);
+                player.playSound(location, sounds.get(i), volumes.get(i), (float) (pitch + (pitch * pitchMultiplier)));
             } else {
                 int finalI = i;
                 new BukkitRunnable() {
@@ -71,7 +72,11 @@ public class SoundManager {
     }
 
     public void playSound(Player player, CustomSound sound) {
-        playSound(player, player.getLocation(), sound);
+        playSound(player, player.getLocation(), sound, 0);
+    }
+
+    public void playSound(Player player, CustomSound sound, double pitchMultiplier) {
+        playSound(player, player.getLocation(), sound, pitchMultiplier);
     }
 
 }

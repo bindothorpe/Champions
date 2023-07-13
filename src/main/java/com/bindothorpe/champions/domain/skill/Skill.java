@@ -75,7 +75,7 @@ public abstract class Skill implements Listener {
         return levelUpCost;
     }
 
-    private void startCooldown(UUID uuid) {
+    protected void startCooldown(UUID uuid) {
         double duration = 0;
         if (cooldownDuration == null || cooldownDuration.isEmpty())
             return;
@@ -115,7 +115,7 @@ public abstract class Skill implements Listener {
         return true;
     }
 
-    private boolean canUse(UUID uuid, Event event) {
+    protected boolean canUse(UUID uuid, Event event) {
 
         if (!users.containsKey(uuid))
             return false;
