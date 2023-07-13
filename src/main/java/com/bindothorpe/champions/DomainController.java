@@ -14,6 +14,7 @@ import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.scoreboard.ScoreboardManager;
 import com.bindothorpe.champions.domain.skill.SkillManager;
+import com.bindothorpe.champions.domain.sound.SoundManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
@@ -40,6 +41,7 @@ public class DomainController {
     private final CooldownManager cooldownManager;
     private final GameMapManager gameMapManager;
     private final CustomConfigManager customConfigManager;
+    private final SoundManager soundManager;
 
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
@@ -60,6 +62,7 @@ public class DomainController {
         cooldownManager = CooldownManager.getInstance(this);
         gameMapManager = GameMapManager.getInstance(this);
         customConfigManager = CustomConfigManager.getInstance(this);
+        soundManager = SoundManager.getInstance(this);
         try {
             databaseController.initializeDatabase();
         } catch (SQLException e) {
@@ -139,4 +142,7 @@ public class DomainController {
         return customConfigManager;
     }
 
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
 }

@@ -1,0 +1,77 @@
+package com.bindothorpe.champions.domain.sound;
+
+import com.bindothorpe.champions.DomainController;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.List;
+
+public class SoundManager {
+
+    private static SoundManager instance;
+    private final DomainController dc;
+
+    private SoundManager(DomainController dc) {
+        this.dc = dc;
+    }
+
+    public static SoundManager getInstance(DomainController dc) {
+        if (instance == null) {
+            instance = new SoundManager(dc);
+        }
+        return instance;
+    }
+
+    public void playSound(Location location, CustomSound sound) {
+        List<Sound> sounds = sound.getSounds();
+        List<Float> volumes = sound.getVolumes();
+        List<Float> pitches = sound.getPitches();
+        List<Double> delays = sound.getDelays();
+
+        for (int i = 0; i < sounds.size(); i++) {
+            if (delays == null || delays.isEmpty()) {
+                location.getWorld().playSound(location, sounds.get(i), volumes.get(i), pitches.get(i));
+            } else {
+                int finalI = i;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        location.getWorld().playSound(location, sounds.get(finalI), volumes.get(finalI), pitches.get(finalI));
+                    }
+                }.runTaskLater(dc.getPlugin(), (long) (delays.get(i) * 20L));
+            }
+        }
+    }
+
+    public void playSound(Player player, Location location, CustomSound sound) {
+        if (player == null) {
+            return;
+        }
+
+        List<Sound> sounds = sound.getSounds();
+        List<Float> volumes = sound.getVolumes();
+        List<Float> pitches = sound.getPitches();
+        List<Double> delays = sound.getDelays();
+
+        for (int i = 0; i < sounds.size(); i++) {
+            if (delays == null || delays.isEmpty()) {
+                player.playSound(location, sounds.get(i), volumes.get(i), pitches.get(i));
+            } else {
+                int finalI = i;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.playSound(location, sounds.get(finalI), volumes.get(finalI), pitches.get(finalI));
+                    }
+                }.runTaskLater(dc.getPlugin(), (long) (delays.get(i) * 20L));
+            }
+        }
+    }
+
+    public void playSound(Player player, CustomSound sound) {
+        playSound(player, player.getLocation(), sound);
+    }
+
+}

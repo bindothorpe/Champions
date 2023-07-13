@@ -15,3 +15,5 @@ commands:
     usage: /cp
   map:
     usage: /map
+  sound:
+    usage: /sound <sound> <volume> <pitch>

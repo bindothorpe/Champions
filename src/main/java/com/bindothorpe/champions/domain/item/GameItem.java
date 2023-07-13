@@ -59,7 +59,8 @@ public abstract class GameItem {
         return item.getLocation();
     }
 
-    public abstract void onUpdate();
+    public abstract void onTickUpdate();
+    public abstract void onRapidUpdate();
 
     public abstract void onCollide(Entity entity);
     public abstract void onCollideWithBlock(Block block);
@@ -89,4 +90,5 @@ public abstract class GameItem {
     public void setBlockCollisionRadius(double blockCollisionRadius) {
         this.blockCollisionRadius = blockCollisionRadius;
     }
+
 }

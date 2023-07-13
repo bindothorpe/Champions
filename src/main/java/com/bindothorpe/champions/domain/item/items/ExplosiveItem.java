@@ -5,11 +5,13 @@ import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -32,9 +34,19 @@ public class ExplosiveItem extends GameItem {
     }
 
     @Override
-    public void onUpdate() {
-        if (!sticky)
+    public void onTickUpdate() {
+        if (!sticky) {
             getLocation().getWorld().spawnParticle(Particle.SMALL_FLAME, getLocation().clone().add(0, 0.4, 0), 1, 0, 0, 0, 0, null, true);
+
+        }
+
+    }
+
+    @Override
+    public void onRapidUpdate() {
+        if (!sticky) {
+            dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_EXPLOSION_BOMB_ORB_AMBIENT);
+        }
     }
 
     @Override
@@ -49,6 +61,7 @@ public class ExplosiveItem extends GameItem {
         setBlockCollisionRadius(-1);
         getItem().setGravity(false);
         getItem().setVelocity(new Vector(0, 0, 0));
+        dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_EXPLOSION_BOMB_ORB_STICK);
     }
 
     @Override
@@ -57,6 +70,7 @@ public class ExplosiveItem extends GameItem {
         Set<Entity> nearby = new HashSet<>(getLocation().getWorld().getNearbyEntities(getLocation(), EXPLOSION_RADIUS, EXPLOSION_RADIUS, EXPLOSION_RADIUS).stream().filter(e -> e instanceof LivingEntity).collect(Collectors.toSet()));
 
         sticky = true;
+        dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_EXPLOSION_BOMB_EXPLODE);
 
         if(nearby.isEmpty())
             return;

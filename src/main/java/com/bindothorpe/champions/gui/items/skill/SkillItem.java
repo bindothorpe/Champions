@@ -3,6 +3,7 @@ package com.bindothorpe.champions.gui.items.skill;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.build.UpdateBuildEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
@@ -12,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -49,8 +51,10 @@ public class SkillItem extends GuiItem {
 
     private void handleClick(InventoryClickEvent event) {
         boolean success = false;
+        boolean levelUpFlag = false;
         if(event.isLeftClick()) {
             success = dc.getBuildManager().levelUpSkillForBuild(buildId, skillId);
+            levelUpFlag = true;
         } else if (event.isRightClick()) {
             success = dc.getBuildManager().levelDownSkillForBuild(buildId, skillId);
 
@@ -64,12 +68,21 @@ public class SkillItem extends GuiItem {
 
         }
 
+        Player player = (Player) event.getWhoClicked();
+
         if(success) {
-            //TODO: play sound effect
+
+            if(levelUpFlag) {
+                dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_SKILL_LEVEL_UP);
+            } else {
+                dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_SKILL_LEVEL_DOWN);
+            }
+
             dc.getGuiManager().openEditBuildGui(event.getWhoClicked().getUniqueId(), buildId, buildNumber);
             Bukkit.getPluginManager().callEvent(new UpdateBuildEvent(dc.getBuildManager().getBuild(buildId), event.getWhoClicked().getUniqueId()));
         } else {
-            //TODO: play error effect
+
+            dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_ERROR);
         }
     }
 

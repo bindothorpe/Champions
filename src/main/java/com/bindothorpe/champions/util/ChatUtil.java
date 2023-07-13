@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.util;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.skill.Skill;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -8,37 +9,36 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 public class ChatUtil {
     public static void sendMessage(Player player, Prefix prefix, Component message) {
         player.sendMessage(prefix.component().append(message));
     }
 
-    public static void sendGameBroadcast(Prefix prefix, Component message) {
+    public static void sendBroadcast(Prefix prefix, Component message) {
         Bukkit.broadcast(prefix.component().append(message));
     }
 
+    public static void sendSkillMessage(Player player, String skillName, int level) {
+        sendMessage(player, Prefix.SKILL, Component.text("You used ").color(NamedTextColor.GRAY)
+                .append(Component.text(skillName).color(NamedTextColor.YELLOW))
+                .append(Component.text(" level ").color(NamedTextColor.GRAY))
+                .append(Component.text(level).color(NamedTextColor.YELLOW)));
+    }
 
-    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, String message, Runnable onFinish) {
-        sendCountdown(dc, players, seconds, Prefix.GAME, message, NamedTextColor.GRAY, NamedTextColor.YELLOW, NamedTextColor.GOLD, 3, onFinish);
+
+    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, String message, Runnable onFinish, Function<Integer, Void> onTick) {
+        sendCountdown(dc, players, seconds, Prefix.GAME, message, NamedTextColor.GRAY, NamedTextColor.YELLOW, NamedTextColor.GOLD, 3, onFinish, onTick);
 
     }
 
-    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, Prefix prefix, String message, NamedTextColor textColor, NamedTextColor highlightColor, NamedTextColor highlightColor2, int highlightTwo, Runnable onFinish) {
+    public static void sendCountdown(DomainController dc, Collection<Player> players, int seconds, Prefix prefix, String message, NamedTextColor textColor, NamedTextColor highlightColor, NamedTextColor highlightColor2, int highlightTwo, Runnable onFinish, Function<Integer, Void> onTick) {
         new BukkitRunnable() {
             int countdownTime = seconds;
 
             @Override
             public void run() {
-                if (countdownTime < 1) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            onFinish.run();
-                        }
-                    }.runTask(dc.getPlugin());
-                    this.cancel();
-                }
 
                 String[] splitMessage = message.split("%s");
                 Component formattedMessage;
@@ -66,6 +66,19 @@ public class ChatUtil {
                 for (Player player : players) {
                     sendMessage(player, prefix, formattedMessage);
                 }
+                onTick.apply(countdownTime);
+
+                if (countdownTime <= 1) {
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            onFinish.run();
+                        }
+                    }.runTask(dc.getPlugin());
+                    this.cancel();
+                    return;
+                }
+
                 countdownTime--;
             }
         }.runTaskTimer(dc.getPlugin(), 0L, 20L);
