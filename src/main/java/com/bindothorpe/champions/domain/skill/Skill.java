@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.cooldown.CooldownEndEvent;
 import com.bindothorpe.champions.events.skill.SkillUseEvent;
 import com.bindothorpe.champions.util.ChatUtil;
@@ -18,21 +19,20 @@ import java.util.*;
 
 public abstract class Skill implements Listener {
 
-    private Map<UUID, Integer> users;
-//    private Map<UUID, Long> cooldownMap;
+    private final Map<UUID, Integer> users;
 
     protected DomainController dc;
-    private SkillId id;
-    private SkillType skillType;
-    private ClassType classType;
-    private String name;
-    private List<Double> cooldownDuration;
-    private int maxLevel;
-    private int levelUpCost;
+    private final SkillId id;
+    private final SkillType skillType;
+    private final ClassType classType;
+    private final String name;
+    private final List<Double> cooldownDuration;
+    private final int maxLevel;
+    private final int levelUpCost;
 
 
     public Skill(DomainController dc, SkillId id, SkillType skillType, ClassType classType, String name, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
-        this.dc =dc;
+        this.dc = dc;
         this.id = id;
         this.skillType = skillType;
         this.classType = classType;
@@ -77,7 +77,7 @@ public abstract class Skill implements Listener {
 
     private void startCooldown(UUID uuid) {
         double duration = 0;
-        if(cooldownDuration == null || cooldownDuration.isEmpty())
+        if (cooldownDuration == null || cooldownDuration.isEmpty())
             return;
         try {
             duration = cooldownDuration.get(users.get(uuid) - 1);
@@ -85,7 +85,7 @@ public abstract class Skill implements Listener {
             duration = cooldownDuration.get(0);
         }
 
-        if(duration == 0)
+        if (duration == 0)
             return;
 
         double cooldownMultiplier = dc.getEntityStatusManager().getMultiplicationValue(uuid, EntityStatusType.COOLDOWN_REDUCTION) - 1;
@@ -106,19 +106,16 @@ public abstract class Skill implements Listener {
         SkillUseEvent skillUseEvent = new SkillUseEvent(player, getId(), users.get(uuid));
         Bukkit.getPluginManager().callEvent(skillUseEvent);
 
-        if(skillUseEvent.isCancelled())
+        if (skillUseEvent.isCancelled())
             return false;
 
-        ChatUtil.sendMessage(player, ChatUtil.Prefix.SKILL, Component.text("You used ").color(NamedTextColor.GRAY)
-                .append(Component.text(this.name).color(NamedTextColor.YELLOW))
-                .append(Component.text(" level ").color(NamedTextColor.GRAY))
-                .append(Component.text(this.users.get(uuid)).color(NamedTextColor.YELLOW)));
+        ChatUtil.sendSkillMessage(player, getName(), users.get(uuid));
 
         startCooldown(uuid);
         return true;
     }
 
-    private final boolean canUse(UUID uuid, Event event) {
+    private boolean canUse(UUID uuid, Event event) {
 
         if (!users.containsKey(uuid))
             return false;
@@ -128,12 +125,15 @@ public abstract class Skill implements Listener {
             double cooldownRemaining = getCooldownRemaining(uuid);
             Player player = Bukkit.getPlayer(uuid);
 
-            if(player == null)
+            if (player == null)
                 return false;
 
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use this skill for another ").color(NamedTextColor.GRAY)
-                    .append(Component.text(cooldownRemaining).color(NamedTextColor.YELLOW))
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use ").color(NamedTextColor.GRAY)
+                    .append(Component.text(this.name).color(NamedTextColor.YELLOW))
+                    .append(Component.text(" for ").color(NamedTextColor.GRAY))
+                    .append(Component.text(String.format(Locale.US, "%.1f", cooldownRemaining)).color(NamedTextColor.YELLOW))
                     .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
+
             return false;
         }
 
@@ -174,17 +174,23 @@ public abstract class Skill implements Listener {
     }
 
     @EventHandler
-    public void onCooldownEnd(CooldownEndEvent event) {
-        if(!equals(event.getSource()))
+    public final void onCooldownEnd(CooldownEndEvent event) {
+        if (!equals(event.getSource()))
             return;
 
         Player player = Bukkit.getPlayer(event.getUuid());
 
-        if(player == null)
+        if (player == null)
             return;
 
         ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You can use ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
                 .append(Component.text(" again").color(NamedTextColor.GRAY)));
+        dc.getSoundManager().playSound(player, CustomSound.SKILL_COOLDOWN_END);
+
+        onCooldownEnd(event.getUuid(), event.getSource());
+    }
+
+    public void onCooldownEnd(UUID uuid, Object source) {
     }
 }

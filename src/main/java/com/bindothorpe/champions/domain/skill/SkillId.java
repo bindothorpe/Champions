@@ -14,7 +14,8 @@ public enum SkillId {
     RALLY(SkillType.SWORD),
     SONAR_ARROW(SkillType.BOW),
     GRAND_ENTRANCE(SkillType.AXE),
-    MAGE_PASSIVE(SkillType.CLASS_PASSIVE);
+    MAGE_PASSIVE(SkillType.CLASS_PASSIVE),
+    LEAP(SkillType.AXE);
 
     private final SkillType skillType;
 
