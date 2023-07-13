@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.game;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePoint;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.game.GameStateChangeEvent;
 import com.bindothorpe.champions.util.ChatUtil;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GameManager {
 
@@ -36,10 +38,10 @@ public class GameManager {
 
     public void setGameState(GameState state) throws IllegalArgumentException {
         //Send broadcast message
-        ChatUtil.sendGameBroadcast(ChatUtil.Prefix.PLUGIN,
+        ChatUtil.sendBroadcast(ChatUtil.Prefix.PLUGIN,
                 Component.text(gameState.name()).color(NamedTextColor.GRAY)
-                .append(Component.text(" -> ").color(NamedTextColor.GRAY))
-                .append(Component.text(state.name()).color(NamedTextColor.YELLOW)));
+                        .append(Component.text(" -> ").color(NamedTextColor.GRAY))
+                        .append(Component.text(state.name()).color(NamedTextColor.YELLOW)));
 
         //Handle state change
         switch (state) {
@@ -55,7 +57,6 @@ public class GameManager {
         //Set new state
         gameState = state;
     }
-
 
 
     public boolean addCapturePoint(CapturePoint capturePoint) {
@@ -83,6 +84,7 @@ public class GameManager {
         if (gameState != GameState.GAME_END_COUNTDOWN)
             throw new IllegalArgumentException("Cannot go back to lobby if you are not in game end countdown.");
     }
+
     private void handleLobbyCountdownCase() {
         //Check if the previous state is Lobby
         if (gameState != GameState.LOBBY)
@@ -92,10 +94,18 @@ public class GameManager {
         if (!getDc().getGameMapManager().isLoaded())
             throw new IllegalArgumentException("No map selected, please select a map first.");
 
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
         //Set the game state to Lobby Countdown
-        ChatUtil.sendCountdown(dc, new ArrayList<>(Bukkit.getOnlinePlayers()), 10, "Teleporting in %s seconds", () -> {
-            setGameState(GameState.GAME_START_COUNTDOWN);
-        });
+        ChatUtil.sendCountdown(dc, players, 10, "Teleporting in %s seconds", () -> {
+                    setGameState(GameState.GAME_START_COUNTDOWN);
+                },
+                (seconds) -> {
+                    for (Player player : players) {
+                        dc.getSoundManager().playSound(player, CustomSound.COUNTDOWN);
+                    }
+                    return null;
+                });
     }
 
     private void handleGameStartCountdownCase() {
@@ -110,15 +120,25 @@ public class GameManager {
         //Teleport all players to the map
         dc.getGameMapManager().teleportAllToMap(new ArrayList<>(Bukkit.getOnlinePlayers()));
 
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
         //Add root status effect to all players
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : players) {
             dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 10);
+            dc.getSoundManager().playSound(player, CustomSound.GAME_START);
         }
 
         //Start the countdown
-        ChatUtil.sendCountdown(dc, new ArrayList<>(Bukkit.getOnlinePlayers()), 10, "Starting in %s seconds",
+        ChatUtil.sendCountdown(dc, players, 10, "Starting in %s seconds",
                 () -> {
                     setGameState(GameState.IN_PROGRESS);
+                },
+                (seconds) -> {
+                    CustomSound customSound = seconds == 1 ? CustomSound.COUNTDOWN_END : CustomSound.COUNTDOWN;
+                    for (Player player : players) {
+                        dc.getSoundManager().playSound(player, customSound);
+                    }
+                    return null;
                 });
     }
 
