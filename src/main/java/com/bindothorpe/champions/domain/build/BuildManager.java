@@ -21,7 +21,6 @@ public class BuildManager {
 
     private BuildManager(DomainController dc) {
         this.dc = dc;
-        //TODO: Load data from database
         this.buildMap = new HashMap<>();
         this.armorContentsMap = new HashMap<>();
         armorContentsMap.put(ClassType.ASSASSIN, new ItemStack[]{new ItemStack(Material.LEATHER_BOOTS), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_HELMET)});
