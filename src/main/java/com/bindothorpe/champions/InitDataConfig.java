@@ -64,7 +64,7 @@ public class InitDataConfig {
             }
         }
 
-        for(Class<?> clazz : new Reflections(packageName + ".domain.statusEffect.effects").getSubTypesOf(Skill.class)) {
+        for(Class<?> clazz : new Reflections(packageName + ".domain.statusEffect.effects").getSubTypesOf(StatusEffect.class)) {
             try {
                 StatusEffect statusEffect = (StatusEffect) clazz.getConstructor(DomainController.class).newInstance(dc);
                 dc.getStatusEffectManager().registerStatusEffect(statusEffect);
