@@ -18,7 +18,6 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GameItemListener implements Listener {
@@ -46,11 +45,18 @@ public class GameItemListener implements Listener {
     }
 
     @EventHandler
+    public void onSlowUpdate(UpdateEvent event) {
+        if (!event.getUpdateType().equals(UpdateType.RAPID))
+            return;
+
+        dc.getGameItemManager().getGameItems().forEach(GameItem::onRapidUpdate);
+    }
+    @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (!event.getUpdateType().equals(UpdateType.TICK))
             return;
 
-        dc.getGameItemManager().getGameItems().forEach(GameItem::onUpdate);
+        dc.getGameItemManager().getGameItems().forEach(GameItem::onTickUpdate);
         dc.getGameItemManager().getGameItems().forEach(gameItem -> {
             double entityCollisionRadius = gameItem.getEntityCollisionRadius();
             double blockCollisionRadius = gameItem.getBlockCollisionRadius();
