@@ -4,11 +4,13 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.util.TextUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,6 +44,7 @@ public class BuildItem extends GuiItem {
                 dc.getBuildManager().unequipBuildForPlayer(uuid);
             } else {
                 dc.getBuildManager().equipBuildForPlayer(uuid, buildId);
+                dc.getSoundManager().playSound((Player) inventoryClickEvent.getWhoClicked(), CustomSound.GUI_CLICK_SUCCESS);
             }
             dc.getGuiManager().openBuildsOverviewGui(uuid, classType);
         } else if (inventoryClickEvent.getClick().isRightClick()) {
