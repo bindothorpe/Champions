@@ -38,6 +38,9 @@ public class Leap extends Skill {
     public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();
 
+        if(!event.isAxe())
+            return;
+
         if (canPerformWallKick(player)) {
             performWallKick(player);
         } else {
