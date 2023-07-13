@@ -22,6 +22,7 @@ public final class ChampionsPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand(dc));
         Objects.requireNonNull(getCommand("cp")).setExecutor(new CapturePointCommand(dc));
         Objects.requireNonNull(getCommand("map")).setExecutor(new GameMapCommand(dc));
+        Objects.requireNonNull(getCommand("sound")).setExecutor(new SoundCommand());
         Updater.getInstance(dc).start();
     }
 
