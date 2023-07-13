@@ -16,6 +16,9 @@ public class ChatUtil {
         player.sendMessage(prefix.component().append(message));
     }
 
+    public static void sendActionBarMessage(Player player, Component message) {
+        player.sendActionBar(message);
+    }
     public static void sendBroadcast(Prefix prefix, Component message) {
         Bukkit.broadcast(prefix.component().append(message));
     }
