@@ -45,6 +45,7 @@ public abstract class ChargeSkill extends Skill {
     protected abstract void onChargeStart(UUID uuid);
 
     protected abstract void onChargeEnd(UUID uuid, int charge);
+    protected abstract void onUpdate(UUID uuid);
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
@@ -57,6 +58,7 @@ public abstract class ChargeSkill extends Skill {
             if (player == null)
                 continue;
 
+            onUpdate(uuid);
 
             //Check if the player is blocking
             if (player.isBlocking()) {

@@ -5,6 +5,16 @@ import org.bukkit.util.Vector;
 
 public class MobilityUtil {
 
+    public static void stopVelocity(final Entity entity) {
+        stopVelocity(entity, true);
+    }
+    public static void stopVelocity(final Entity entity, boolean resetFallDistance) {
+        if (resetFallDistance)
+            entity.setFallDistance(0.0f);
+
+        entity.setVelocity(new Vector(0, 0, 0));
+    }
+
     public static void launch(final Entity entity, final double strength, final double yAdd, final double yMax, final boolean groundBoost) {
         launch(entity, entity.getLocation().getDirection(), strength, false, 0.0, yAdd, yMax, groundBoost);
     }

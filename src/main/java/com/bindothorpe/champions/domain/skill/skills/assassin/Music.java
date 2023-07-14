@@ -62,6 +62,11 @@ public class Music extends ChargeSkill {
     }
 
     @Override
+    protected void onUpdate(UUID uuid) {
+
+    }
+
+    @Override
     public List<Component> getDescription(int skillLevel) {
         List<Component> lore = new ArrayList<>();
         return lore;
