@@ -1,6 +1,8 @@
 package com.bindothorpe.champions.domain.scoreboard;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.game.GameScore;
+import com.bindothorpe.champions.domain.game.GameState;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.TextUtil;
 import fr.mrmicky.fastboard.adventure.FastBoard;
@@ -111,6 +113,33 @@ public class ScoreboardManager {
         lines.add(Component.text(formattedNumber).color(NamedTextColor.YELLOW));
 
         lines.add(Component.empty());
+
+
+        if(dc.getGameManager().getGameState().equals(GameState.IN_PROGRESS)) {
+
+            lines.add(Component.text("Score: ").color(NamedTextColor.WHITE));
+
+            GameScore gameScore = dc.getGameManager().getGameScore();
+
+            int teamLength = TeamColor.values().length;
+
+            Component scoreComponent = Component.empty();
+
+            for(int i = 0; i < teamLength; i++) {
+                TeamColor team = TeamColor.values()[i];
+                Component newScore = gameScore == null ? Component.text("0") : Component.text(gameScore.getScore(team));
+                scoreComponent = scoreComponent.append(newScore.color(team.getTextColor()));
+
+                if(i != teamLength - 1) {
+                    scoreComponent = scoreComponent.append(Component.text(" - ").color(NamedTextColor.WHITE));
+                }
+            }
+
+            lines.add(scoreComponent);
+
+            lines.add(Component.empty());
+        }
+
 
         if(!getCapturePointComponents().isEmpty()) {
             for(Component component : getCapturePointComponents()) {

@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.listeners.game.capturepoint;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.game.GameScore;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.game.capturepoint.CapturePointCaptureEvent;
 import com.bindothorpe.champions.events.game.capturepoint.CapturePointStartCaptureEvent;
@@ -66,6 +67,13 @@ public class CapturePointListener implements Listener {
                 Component.text(TextUtil.camelCasing(event.getCapturePoint().getName())).color(NamedTextColor.YELLOW)
                 .append(Component.text(" has been captured by team ").color(NamedTextColor.GRAY))
                 .append(Component.text(TextUtil.camelCasing(team.name())).color(team.getTextColor())));
+
+        GameScore gameScore = dc.getGameManager().getGameScore();
+
+        if(gameScore == null)
+            return;
+
+        gameScore.addScore(team, 500);
     }
 
 }

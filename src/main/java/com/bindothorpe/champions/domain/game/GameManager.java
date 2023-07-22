@@ -21,6 +21,7 @@ public class GameManager {
     private static GameManager instance;
     private final DomainController dc;
     private final CapturePointManager capturePointManager = CapturePointManager.getInstance();
+    private GameScore gameScore;
     private GameState gameState = GameState.LOBBY;
 
     private GameManager(DomainController dc) {
@@ -83,6 +84,8 @@ public class GameManager {
         //Check if the previous state is Lobby Countdown
         if (gameState != GameState.GAME_END_COUNTDOWN)
             throw new IllegalArgumentException("Cannot go back to lobby if you are not in game end countdown.");
+
+        dc.getScoreboardManager().updateScoreboard();
     }
 
     private void handleLobbyCountdownCase() {
@@ -140,6 +143,9 @@ public class GameManager {
                     }
                     return null;
                 });
+
+        //Create a new game score object
+        gameScore = new GameScore();
     }
 
     private void handleInProgressCase() {
@@ -163,4 +169,13 @@ public class GameManager {
             }
         }.runTaskLater(dc.getPlugin(), 20 * 10);
     }
+
+    public GameScore getGameScore() {
+        return gameScore;
+    }
+
+    public CapturePointManager getCapturePointManager() {
+        return capturePointManager;
+    }
+
 }

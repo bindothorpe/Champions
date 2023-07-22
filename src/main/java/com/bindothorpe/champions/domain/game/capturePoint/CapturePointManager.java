@@ -1,5 +1,6 @@
 package com.bindothorpe.champions.domain.game.capturePoint;
 
+import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import org.bukkit.event.EventHandler;
@@ -44,5 +45,9 @@ public class CapturePointManager implements Listener {
             return;
 
         capturePointMap.values().forEach(CapturePoint::update);
+    }
+
+    public int getCapturePointsCapturedByTeam(TeamColor teamColor) {
+        return (int) capturePointMap.values().stream().filter(capturePoint -> teamColor.equals(capturePoint.getTeam())).count();
     }
 }

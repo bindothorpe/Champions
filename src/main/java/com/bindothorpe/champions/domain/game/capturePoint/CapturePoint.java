@@ -268,4 +268,8 @@ public class CapturePoint {
         }
         return boundingBox;
     }
+
+    public TeamColor getTeam() {
+        return team;
+    }
 }

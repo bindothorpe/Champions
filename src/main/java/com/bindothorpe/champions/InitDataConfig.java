@@ -32,6 +32,8 @@ import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
 import com.bindothorpe.champions.listeners.damage.CustomDamageListener;
+import com.bindothorpe.champions.listeners.game.GameListener;
+import com.bindothorpe.champions.listeners.game.GameScoreListener;
 import com.bindothorpe.champions.listeners.game.capturepoint.CapturePointListener;
 import com.bindothorpe.champions.listeners.game.equipment.EquipmentListener;
 import org.bukkit.Bukkit;
@@ -94,6 +96,8 @@ public class InitDataConfig {
         pm.registerEvents(CapturePointManager.getInstance(), dc.getPlugin());
         pm.registerEvents(new CapturePointListener(dc), dc.getPlugin());
         pm.registerEvents(new EquipmentListener(dc), dc.getPlugin());
+        pm.registerEvents(new GameScoreListener(dc), dc.getPlugin());
+        pm.registerEvents(new GameListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 
