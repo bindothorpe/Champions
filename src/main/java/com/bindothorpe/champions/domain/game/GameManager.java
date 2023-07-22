@@ -127,7 +127,7 @@ public class GameManager {
 
         //Add root status effect to all players
         for (Player player : players) {
-            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 10);
+            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 9);
             dc.getSoundManager().playSound(player, CustomSound.GAME_START);
         }
 
