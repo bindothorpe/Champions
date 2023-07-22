@@ -16,4 +16,8 @@ public class ItemUtil {
     public static boolean isBow(Material material) {
         return material.toString().contains("BOW");
     }
+
+    public static boolean isWeapon(ItemStack item) {
+        return isSword(item.getType()) || isAxe(item.getType()) || isBow(item.getType());
+    }
 }

@@ -4,12 +4,14 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 public class BuildRepository {
 
@@ -94,26 +96,30 @@ public class BuildRepository {
         List<Build> builds = new ArrayList<>();
         while (resultSet.next()) {
 
-            Map<SkillType, SkillId> skills = new HashMap<>();
-            skills.put(SkillType.SWORD, resultSet.getString("sword_skill") != null ? SkillId.valueOf(resultSet.getString("sword_skill")) : null);
-            skills.put(SkillType.AXE, resultSet.getString("axe_skill") != null ? SkillId.valueOf(resultSet.getString("axe_skill")) : null);
-            skills.put(SkillType.BOW, resultSet.getString("bow_skill") != null ? SkillId.valueOf(resultSet.getString("bow_skill")) : null);
-            skills.put(SkillType.PASSIVE_A, resultSet.getString("passive_a_skill") != null ? SkillId.valueOf(resultSet.getString("passive_a_skill")) : null);
-            skills.put(SkillType.PASSIVE_B, resultSet.getString("passive_b_skill") != null ? SkillId.valueOf(resultSet.getString("passive_b_skill")) : null);
-            skills.put(SkillType.PASSIVE_C, resultSet.getString("passive_c_skill") != null ? SkillId.valueOf(resultSet.getString("passive_c_skill")) : null);
-            skills.put(SkillType.CLASS_PASSIVE, resultSet.getString("class_passive") != null ? SkillId.valueOf(resultSet.getString("class_passive")) : null);
+            try {
+                Map<SkillType, SkillId> skills = new HashMap<>();
+                skills.put(SkillType.SWORD, resultSet.getString("sword_skill") != null ? SkillId.valueOf(resultSet.getString("sword_skill")) : null);
+                skills.put(SkillType.AXE, resultSet.getString("axe_skill") != null ? SkillId.valueOf(resultSet.getString("axe_skill")) : null);
+                skills.put(SkillType.BOW, resultSet.getString("bow_skill") != null ? SkillId.valueOf(resultSet.getString("bow_skill")) : null);
+                skills.put(SkillType.PASSIVE_A, resultSet.getString("passive_a_skill") != null ? SkillId.valueOf(resultSet.getString("passive_a_skill")) : null);
+                skills.put(SkillType.PASSIVE_B, resultSet.getString("passive_b_skill") != null ? SkillId.valueOf(resultSet.getString("passive_b_skill")) : null);
+                skills.put(SkillType.PASSIVE_C, resultSet.getString("passive_c_skill") != null ? SkillId.valueOf(resultSet.getString("passive_c_skill")) : null);
+                skills.put(SkillType.CLASS_PASSIVE, resultSet.getString("class_passive") != null ? SkillId.valueOf(resultSet.getString("class_passive")) : null);
 
-            Map<SkillType, Integer> skillLevels = new HashMap<>();
-            skillLevels.put(SkillType.SWORD, resultSet.getInt("sword_level"));
-            skillLevels.put(SkillType.AXE, resultSet.getInt("axe_level"));
-            skillLevels.put(SkillType.BOW, resultSet.getInt("bow_level"));
-            skillLevels.put(SkillType.PASSIVE_A, resultSet.getInt("passive_a_level"));
-            skillLevels.put(SkillType.PASSIVE_B, resultSet.getInt("passive_b_level"));
-            skillLevels.put(SkillType.PASSIVE_C, resultSet.getInt("passive_c_level"));
-            skillLevels.put(SkillType.CLASS_PASSIVE, 1);
+                Map<SkillType, Integer> skillLevels = new HashMap<>();
+                skillLevels.put(SkillType.SWORD, resultSet.getInt("sword_level"));
+                skillLevels.put(SkillType.AXE, resultSet.getInt("axe_level"));
+                skillLevels.put(SkillType.BOW, resultSet.getInt("bow_level"));
+                skillLevels.put(SkillType.PASSIVE_A, resultSet.getInt("passive_a_level"));
+                skillLevels.put(SkillType.PASSIVE_B, resultSet.getInt("passive_b_level"));
+                skillLevels.put(SkillType.PASSIVE_C, resultSet.getInt("passive_c_level"));
+                skillLevels.put(SkillType.CLASS_PASSIVE, 1);
 
-            Build build = new Build(resultSet.getString("id"), ClassType.valueOf(resultSet.getString("class_type")), skills, skillLevels, resultSet.getInt("skill_points"));
-            builds.add(build);
+                Build build = new Build(resultSet.getString("id"), ClassType.valueOf(resultSet.getString("class_type")), skills, skillLevels, resultSet.getInt("skill_points"));
+                builds.add(build);
+            } catch (IllegalArgumentException e) {
+                Bukkit.getLogger().log(Level.WARNING, "Failed to load build " + resultSet.getString("id") + " for player " + uuid + " due to invalid skill id");
+            }
         }
 
         statement.close();
