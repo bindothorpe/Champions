@@ -94,6 +94,13 @@ public class PlayerManager {
         playerDataMap.remove(uuid);
     }
 
+    public boolean hasBuildSelected(UUID uuid) {
+        if(!playerDataMap.containsKey(uuid))
+            return false;
+
+        return playerDataMap.get(uuid).getSelectedBuildId() != null;
+    }
+
     public int getGold(UUID uuid) {
         if(!playerDataMap.containsKey(uuid))
             createPlayerDataForPlayer(uuid);

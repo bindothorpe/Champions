@@ -87,7 +87,7 @@ public class InitDataConfig {
         pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());
         pm.registerEvents(new CombatListener(dc), dc.getPlugin());
-        pm.registerEvents(new InteractListener(), dc.getPlugin());
+        pm.registerEvents(new InteractListener(dc), dc.getPlugin());
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
         pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());

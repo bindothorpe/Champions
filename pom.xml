@@ -30,44 +30,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
-                <configuration>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.github.stefvanschie.inventoryframework</pattern>
-                            <shadedPattern>com.bindothorpe.champions.inventoryframework</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
                 <version>3.3.0</version>
                 <executions>
                     <execution>
@@ -78,10 +40,15 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <relocations>
                         <relocation>
+                            <pattern>com.github.stefvanschie.inventoryframework</pattern>
+                            <shadedPattern>com.bindothorpe.champions.inventoryframework</shadedPattern>
+                        </relocation>
+                        <relocation>
                             <pattern>fr.mrmicky.fastboard</pattern>
-                            <!-- Replace 'com.yourpackage' with the package of your plugin ! -->
                             <shadedPattern>com.bindothorpe.fastboard</shadedPattern>
                         </relocation>
                     </relocations>
@@ -109,7 +76,6 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
-
     </repositories>
 
     <dependencies>

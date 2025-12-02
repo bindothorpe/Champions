@@ -15,7 +15,13 @@ public enum SkillId {
     SONAR_ARROW(SkillType.BOW),
     GRAND_ENTRANCE(SkillType.AXE),
     MAGE_PASSIVE(SkillType.CLASS_PASSIVE),
-    LEAP(SkillType.AXE), MUSIC(SkillType.SWORD), WOLFS_POUNCE(SkillType.SWORD), MAGNETIC_PULL(SkillType.PASSIVE_A);
+    LEAP(SkillType.AXE),
+    MUSIC(SkillType.SWORD),
+    WOLFS_POUNCE(SkillType.SWORD),
+    MAGNETIC_PULL(SkillType.PASSIVE_A),
+    TRAMPLE(SkillType.PASSIVE_A),
+    HEAVY_SWING(SkillType.SWORD);
+
 
     private final SkillType skillType;
 
