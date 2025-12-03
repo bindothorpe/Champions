@@ -173,7 +173,7 @@ public class SonarArrow extends Skill {
                         // Spawn particles
                         for (Vector point : points) {
                             Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity(player).getColor(), 1);
-                            loc.getWorld().spawnParticle(Particle.REDSTONE, loc.clone().add(point), 1, 0, 0, 0, 0, dustOptions, true);
+                            loc.getWorld().spawnParticle(Particle.DUST, loc.clone().add(point), 1, 0, 0, 0, 0, dustOptions, true);
                         }
 
                         // Find entities
@@ -229,7 +229,7 @@ public class SonarArrow extends Skill {
         for (Arrow arrow : particleTrail) {
             Location loc = arrow.getLocation();
             Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity((Player) arrow.getShooter()).getColor(), 1);
-            loc.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, 0, 0, 0, 0, dustOptions, true);
+            loc.getWorld().spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, dustOptions, true);
         }
     }
 

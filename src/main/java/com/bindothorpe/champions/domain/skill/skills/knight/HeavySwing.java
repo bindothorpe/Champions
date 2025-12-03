@@ -169,7 +169,7 @@ public class HeavySwing extends ChargeSkill {
 
             // Spawn particles at each location
             player.getWorld().spawnParticle(
-                    Particle.BLOCK_CRACK,
+                    Particle.BLOCK_CRUMBLE,
                     targetLocation,
                     1,
                     0, 0, 0,

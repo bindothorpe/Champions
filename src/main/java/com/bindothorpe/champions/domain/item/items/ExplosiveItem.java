@@ -66,7 +66,7 @@ public class ExplosiveItem extends GameItem {
 
     @Override
     public void onDespawn() {
-        getLocation().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, getLocation(), 1, 0, 0, 0, 0, null, true);
+        getLocation().getWorld().spawnParticle(Particle.EXPLOSION, getLocation(), 1, 0, 0, 0, 0, null, true);
         Set<Entity> nearby = new HashSet<>(getLocation().getWorld().getNearbyEntities(getLocation(), EXPLOSION_RADIUS, EXPLOSION_RADIUS, EXPLOSION_RADIUS).stream().filter(e -> e instanceof LivingEntity).collect(Collectors.toSet()));
 
         sticky = true;

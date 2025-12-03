@@ -20,7 +20,7 @@ public enum SkillId {
     WOLFS_POUNCE(SkillType.SWORD),
     MAGNETIC_PULL(SkillType.PASSIVE_A),
     TRAMPLE(SkillType.PASSIVE_A),
-    HEAVY_SWING(SkillType.SWORD);
+    HEAVY_SWING(SkillType.SWORD), SILK_ARROW(SkillType.BOW);
 
 
     private final SkillType skillType;

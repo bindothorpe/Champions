@@ -5,6 +5,8 @@ import com.bindothorpe.champions.command.Command;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -62,7 +64,12 @@ public class CustomDamageCommand implements Command {
         damagee.setVelocity(newVelocity);
 
         // Play the damage animation
-        damagee.playEffect(EntityEffect.HURT);
+        damagee.playHurtAnimation(0);
+
+        // Play the hurt sound
+        if(damagee.getHurtSound() != null) damagee.getWorld().playSound(Sound.sound().type(damagee.getHurtSound()).build(), damagee);
+
+
         hasExecuted = true;
     }
 

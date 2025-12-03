@@ -109,7 +109,7 @@ public class Trample extends Skill {
 
             // Spawn block crack particles (using DIRT as the block - you can change this)
             player.getWorld().spawnParticle(
-                    Particle.BLOCK_CRACK,
+                    Particle.BLOCK_CRUMBLE,
                     particleLoc,
                     5, // Amount per point
                     0.1, 0, 0.1, // Spread

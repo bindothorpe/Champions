@@ -38,16 +38,21 @@ public class DatabaseController {
             return connection;
         }
 
-        //Try to connect to my MySQL database running locally
-        String url = "jdbc:mysql://localhost/Champions";
-        String user = "root";
-        String password = "";
+        try {
+            //Try to connect to my MySQL database running locally
+            String url = "jdbc:mysql://customer_1199832_champions:Y.Rk!tImPfOFp%40Bvw9%40%2BIaYe@uk02-sql.pebblehost.com:3306/customer_1199832_champions";
+            String user = "customer_1199832_champions";
+            String password = "Y.Rk!tImPfOFp@Bvw9@+IaYe";
 
-        Connection connection = DriverManager.getConnection(url, user, password);
+            Connection connection = DriverManager.getConnection(url, user, password);
 
-        this.connection = connection;
+            this.connection = connection;
 
-        return connection;
+            return connection;
+        } catch (SQLException e) {
+            System.err.println("Could not connect to database: " + e.getMessage());
+            throw new SQLException(e);
+        }
     }
 
     public void initializeDatabase() throws SQLException {

@@ -23,8 +23,6 @@ public class CombatListener implements Listener {
         if (!(event.getEntity() instanceof Player))
             return;
 
-        event.getCause();
-
         dc.getCombatLogger().logDamageTaken(event.getEntity().getUniqueId());
     }
 

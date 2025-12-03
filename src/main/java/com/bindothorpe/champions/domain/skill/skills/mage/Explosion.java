@@ -84,7 +84,7 @@ public class Explosion extends Skill {
 
             explosionOrb.teleport(explosionOrb.getLocation().add(add));
             explosionOrb.getWorld().spawnParticle(Particle.FLAME, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
-            explosionOrb.getWorld().spawnParticle(Particle.SMOKE_LARGE, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
+            explosionOrb.getWorld().spawnParticle(Particle.LARGE_SMOKE, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
 
             Block block = explosionOrb.getEyeLocation().getBlock();
 
@@ -141,7 +141,7 @@ public class Explosion extends Skill {
             entity.damage(damage.get(getSkillLevel(uuid) - 1));
         }
 
-        location.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, location, 1, 0, 0, 0, 0, null, true);
+        location.getWorld().spawnParticle(Particle.EXPLOSION, location, 1, 0, 0, 0, 0, null, true);
     }
 
     @Override

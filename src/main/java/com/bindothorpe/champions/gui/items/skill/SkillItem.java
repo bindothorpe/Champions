@@ -94,7 +94,7 @@ public class SkillItem extends GuiItem {
 
         if(skillLevel > 0) {
             item.setAmount(skillLevel);
-            meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
+            meta.addEnchant(Enchantment.PROTECTION, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
