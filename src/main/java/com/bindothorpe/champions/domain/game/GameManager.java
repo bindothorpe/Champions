@@ -10,6 +10,7 @@ import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -124,7 +125,7 @@ public class GameManager {
 
         //Add root status effect to all players
         for (Player player : players) {
-            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), 10);
+            dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.ROOT, player.getUniqueId(), new NamespacedKey(dc.getPlugin(), "game-start"), 1, 10);
             dc.getSoundManager().playSound(player, CustomSound.GAME_START);
         }
 

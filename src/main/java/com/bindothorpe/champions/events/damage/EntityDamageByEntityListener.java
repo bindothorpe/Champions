@@ -2,6 +2,7 @@ package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
+import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
 import org.bukkit.entity.Arrow;
@@ -43,7 +44,6 @@ public class EntityDamageByEntityListener implements Listener {
             event.setCancelled(true);
             return;
         }
-
 
         if (event.isCancelled())
             return;

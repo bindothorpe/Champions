@@ -23,20 +23,33 @@ public class RootStatusEffect extends StatusEffect {
         super(dc, "Root", StatusEffectType.ROOT);
     }
 
-    @Override
-    public void addEntity(UUID uuid, double duration) {
-        super.addEntity(uuid, duration);
-        Entity entity = Bukkit.getEntity(uuid);
-        if (entity == null)
-            throw new IllegalArgumentException("Entity with UUID " + uuid + " does not exist");
-        locationMap.put(uuid, entity.getLocation().toVector());
-    }
 
     @Override
-    public void removeEntity(UUID uuid) {
-        super.removeEntity(uuid);
-        locationMap.remove(uuid);
+    public void handleEntityValueChanged(UUID uuid) {
+        Entity entity = Bukkit.getEntity(uuid);
+        if (entity == null) return;
+
+        if(isActive(uuid)) {
+            locationMap.put(uuid, entity.getLocation().toVector());
+        } else {
+            locationMap.remove(uuid);
+        }
     }
+
+//    @Override
+//    public void addEntity(UUID uuid, double duration) {
+//        super.addEntity(uuid, duration);
+//        Entity entity = Bukkit.getEntity(uuid);
+//        if (entity == null)
+//            throw new IllegalArgumentException("Entity with UUID " + uuid + " does not exist");
+//        locationMap.put(uuid, entity.getLocation().toVector());
+//    }
+//
+//    @Override
+//    public void removeEntity(UUID uuid) {
+//        super.removeEntity(uuid);
+//        locationMap.remove(uuid);
+//    }
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {
@@ -62,4 +75,5 @@ public class RootStatusEffect extends StatusEffect {
 
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.domain.statusEffect;
 
 import com.bindothorpe.champions.DomainController;
+import org.bukkit.NamespacedKey;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
@@ -31,26 +32,25 @@ public class StatusEffectManager {
         dc.getPlugin().getServer().getPluginManager().registerEvents(statusEffect, dc.getPlugin());
     }
 
-    public void addStatusEffectToEntity(StatusEffectType type, UUID uuid, double duration) {
+    public void addStatusEffectToEntity(StatusEffectType type, UUID uuid, NamespacedKey sourceKey, int amplifier, double duration) {
         StatusEffect effect = statusEffectMap.get(type);
         if(effect == null)
             throw new IllegalArgumentException("Status effect " + type + " has not been registered yet");
-        statusEffectMap.get(type).addEntity(uuid, duration);
-
-        if(duration != -1) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    removeStatusEffectFromPlayer(type, uuid);
-                }
-            }.runTaskLater(dc.getPlugin(), (long) (duration * 20));
-        }
+        statusEffectMap.get(type).addEntityWithSource(uuid, sourceKey, amplifier, duration);
     }
 
-    public void removeStatusEffectFromPlayer(StatusEffectType type, UUID uuid) {
+    public void addStatusEffectToEntity(StatusEffectType type, UUID uuid, NamespacedKey sourceKey, int amplifier) {
+        addStatusEffectToEntity(type, uuid, sourceKey, amplifier, -1);
+    }
+
+    public void addStatusEffectToEntity(StatusEffectType type, UUID uuid, NamespacedKey sourceKey) {
+        addStatusEffectToEntity(type, uuid, sourceKey, 1);
+    }
+
+    public void removeStatusEffectFromPlayer(StatusEffectType type, UUID uuid, NamespacedKey sourceKey) {
         StatusEffect effect = statusEffectMap.get(type);
         if(effect == null)
             throw new IllegalArgumentException("Status effect " + type + " has not been registered yet");
-        statusEffectMap.get(type).removeEntity(uuid);
+        statusEffectMap.get(type).removeEntityWithSource(uuid, sourceKey);
     }
 }

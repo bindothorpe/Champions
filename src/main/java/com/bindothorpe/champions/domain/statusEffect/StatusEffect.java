@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.statusEffect;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -14,18 +15,15 @@ import java.util.UUID;
 
 public abstract class StatusEffect implements Listener {
 
-    private final DomainController dc;
+    protected final DomainController dc;
     private final String name;
     private final StatusEffectType type;
-    private final Map<UUID, Long> activeEntities;
-    private final Map<UUID, BukkitTask> taskMap;
+    private final Map<UUID, StatusEffectData> activeEntitiesDataMap = new HashMap<>();
 
     public StatusEffect(DomainController dc, String name, StatusEffectType type) {
         this.dc = dc;
         this.name = name;
         this.type = type;
-        activeEntities = new HashMap<>();
-        taskMap = new HashMap<>();
     }
 
     public String getName() {
@@ -33,36 +31,28 @@ public abstract class StatusEffect implements Listener {
     }
 
     public boolean isActive(UUID uuid) {
-        return activeEntities.containsKey(uuid);
+        activeEntitiesDataMap.computeIfAbsent(uuid, k -> new StatusEffectData(dc, uuid, this::handleEntityValueChanged));
+        return activeEntitiesDataMap.get(uuid).hasAtLeastOnceInstance();
     }
 
-    public double getTimeLeft(UUID uuid) {
-        if (!isActive(uuid))
-            return -1;
-        return activeEntities.get(uuid) - System.currentTimeMillis();
+    public int getHighestAmplifier(UUID uuid) {
+        activeEntitiesDataMap.computeIfAbsent(uuid, k -> new StatusEffectData(dc, uuid, this::handleEntityValueChanged));
+        return activeEntitiesDataMap.get(uuid).getHighestAmplifier();
     }
 
-    public void addEntity(UUID uuid, double duration) {
-        activeEntities.put(uuid, System.currentTimeMillis() + ((long) duration * 1000L));
-        taskMap.put(uuid, new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (getTimeLeft(uuid) <= 0) {
-                    taskMap.remove(uuid);
-                    removeEntity(uuid);
-                }
-            }
-        }.runTaskLater(dc.getPlugin(), (long) (duration * 20L)));
+    public void addEntityWithSource(UUID uuid, NamespacedKey sourceKey, int amplifier, double duration) {
+        activeEntitiesDataMap.computeIfAbsent(uuid, k -> new StatusEffectData(dc, uuid, this::handleEntityValueChanged));
+        activeEntitiesDataMap.get(uuid).addEffectInstance(sourceKey, amplifier, duration);
+        handleEntityValueChanged(uuid);
     }
 
-    public void removeEntity(UUID uuid) {
-        activeEntities.remove(uuid);
-        if(taskMap.containsKey(uuid)) {
-            taskMap.get(uuid).cancel();
-            taskMap.remove(uuid);
-        }
-
+    public void removeEntityWithSource(UUID uuid, NamespacedKey sourceKey) {
+        activeEntitiesDataMap.computeIfAbsent(uuid, k -> new StatusEffectData(dc, uuid, this::handleEntityValueChanged));
+        activeEntitiesDataMap.get(uuid).removeEffectInstance(sourceKey);
+        handleEntityValueChanged(uuid);
     }
+
+    public abstract void handleEntityValueChanged(UUID uuid);
 
     public StatusEffectType getType() {
         return type;

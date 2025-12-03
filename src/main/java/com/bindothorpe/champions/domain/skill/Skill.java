@@ -10,10 +10,12 @@ import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -120,6 +122,9 @@ public abstract class Skill implements Listener {
         if (!users.containsKey(uuid))
             return false;
 
+        if(!canUseHook(uuid, event)) {
+            return false;
+        }
 
         if (isOnCooldown(uuid)) {
             double cooldownRemaining = getCooldownRemaining(uuid);
@@ -138,7 +143,7 @@ public abstract class Skill implements Listener {
         }
 
 
-        return canUseHook(uuid, event);
+        return true;
     }
 
     private boolean isOnCooldown(UUID uuid) {
@@ -185,12 +190,21 @@ public abstract class Skill implements Listener {
 
         ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You can use ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
-                .append(Component.text(" again").color(NamedTextColor.GRAY)));
+                .append(Component.text(" again.").color(NamedTextColor.GRAY)));
         dc.getSoundManager().playSound(player, CustomSound.SKILL_COOLDOWN_END);
 
         onCooldownEnd(event.getUuid(), event.getSource());
     }
 
     public void onCooldownEnd(UUID uuid, Object source) {
+    }
+
+    protected NamespacedKey getNamespacedKey(@NotNull Player player) {
+        return getNamespacedKey(player.getUniqueId());
+    }
+
+
+    protected NamespacedKey getNamespacedKey(@NotNull UUID playerUUID) {
+        return new NamespacedKey(dc.getPlugin(), String.format("%s_%s", playerUUID, getId()));
     }
 }

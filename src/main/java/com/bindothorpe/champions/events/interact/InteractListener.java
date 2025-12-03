@@ -24,9 +24,9 @@ public class InteractListener implements Listener {
         boolean hasBuild = domainController.getPlayerManager().hasBuildSelected(event.getPlayer().getUniqueId());
         if(!hasBuild) return;
 
-        if(event.getAction().isRightClick() && event.getHand().equals(EquipmentSlot.HAND)) {
+        if(event.getAction().isRightClick() && event.getHand() == EquipmentSlot.HAND) {
             pluginManager.callEvent(new PlayerRightClickEvent(event.getPlayer()));
-        } else if (event.getAction().isLeftClick() && event.getHand().equals(EquipmentSlot.HAND)) {
+        } else if (event.getAction().isLeftClick() && event.getHand() == EquipmentSlot.HAND) {
             pluginManager.callEvent(new PlayerLeftClickEvent(event.getPlayer()));
         }
     }

@@ -218,7 +218,7 @@ public class EntityStatusManager {
             if (getMultiplicationValue(uuid, EntityStatusType.MOVEMENT_SPEED) == 0)
                 player.setWalkSpeed(0);
             else
-                player.setWalkSpeed((float) getFinalValue(uuid, EntityStatusType.MOVEMENT_SPEED, defaultMovementSpeed));
+                player.setWalkSpeed((float) Math.clamp(getFinalValue(uuid, EntityStatusType.MOVEMENT_SPEED, defaultMovementSpeed), -1f, 1f));
             return null;
         });
     }

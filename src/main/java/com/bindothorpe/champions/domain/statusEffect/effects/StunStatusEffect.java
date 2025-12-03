@@ -26,18 +26,15 @@ public class StunStatusEffect extends StatusEffect {
 
 
     @Override
-    public void addEntity(UUID uuid, double duration) {
-        super.addEntity(uuid, duration);
+    public void handleEntityValueChanged(UUID uuid) {
         Entity entity = Bukkit.getEntity(uuid);
-        if (entity == null)
-            throw new IllegalArgumentException("Entity with UUID " + uuid + " does not exist");
-        locationMap.put(uuid, entity.getLocation());
-    }
+        if (entity == null) return;
 
-    @Override
-    public void removeEntity(UUID uuid) {
-        super.removeEntity(uuid);
-        locationMap.remove(uuid);
+        if(isActive(uuid)) {
+            locationMap.put(uuid, entity.getLocation());
+        } else {
+            locationMap.remove(uuid);
+        }
     }
 
     @EventHandler

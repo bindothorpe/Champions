@@ -27,7 +27,8 @@ public class ChatUtil {
         sendMessage(player, Prefix.SKILL, Component.text("You used ").color(NamedTextColor.GRAY)
                 .append(Component.text(skillName).color(NamedTextColor.YELLOW))
                 .append(Component.text(" level ").color(NamedTextColor.GRAY))
-                .append(Component.text(level).color(NamedTextColor.YELLOW)));
+                .append(Component.text(level).color(NamedTextColor.YELLOW))
+                .append(Component.text(".").color(NamedTextColor.GRAY)));
     }
 
 
