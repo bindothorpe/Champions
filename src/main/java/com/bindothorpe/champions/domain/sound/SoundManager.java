@@ -24,6 +24,11 @@ public class SoundManager {
         return instance;
     }
 
+    /**
+     * Plays a sound for everyone on the given location
+     * @param location The location where it should be played
+     * @param sound The sound that should be played
+     */
     public void playSound(Location location, CustomSound sound) {
         List<Sound> sounds = sound.getSounds();
         List<Float> volumes = sound.getVolumes();
@@ -71,6 +76,11 @@ public class SoundManager {
         }
     }
 
+    /**
+     * Plays a sound for the player
+     * @param player The player that should hear the sound
+     * @param sound The sound that should be played
+     */
     public void playSound(Player player, CustomSound sound) {
         playSound(player, player.getLocation(), sound, 0);
     }

@@ -5,12 +5,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class StatusEffectData {
 
@@ -32,6 +30,10 @@ public class StatusEffectData {
     }
 
     public void addEffectInstance(NamespacedKey sourceKey, int amplifier, double duration) {
+        if(endTimestampMap.containsKey(sourceKey)) {
+            removeEffectInstance(sourceKey);
+        }
+
         amplifierMap.put(sourceKey, amplifier);
 
         if(duration == INFINITE) {

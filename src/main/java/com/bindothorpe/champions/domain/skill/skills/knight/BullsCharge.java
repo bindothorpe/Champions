@@ -5,11 +5,13 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -58,6 +60,7 @@ public class BullsCharge extends Skill {
         );
 
         activeMap.put(player.getUniqueId(), taskId);
+        dc.getSoundManager().playSound(player.getLocation(), CustomSound.SKILL_BULLS_CHARGE_ACTIVATE);
     }
 
     @EventHandler
@@ -72,7 +75,8 @@ public class BullsCharge extends Skill {
         dc.getPlugin().getServer().getScheduler().cancelTask(activeMap.get(damager.getUniqueId()));
 
         StatusEffectManager.getInstance(dc).removeStatusEffectFromPlayer(StatusEffectType.SPEED, damager.getUniqueId(), getNamespacedKey(damager.getUniqueId()));
-        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.SPEED, damagee.getUniqueId(), getNamespacedKey(damager.getUniqueId()), 5, 2);
+        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.SLOW, damagee.getUniqueId(), getNamespacedKey(damager.getUniqueId()), 1, 2);
+        dc.getSoundManager().playSound(event.getDamagee().getLocation(), CustomSound.SKILL_BULLS_CHARGE_ACTIVATE);
     }
 
 
