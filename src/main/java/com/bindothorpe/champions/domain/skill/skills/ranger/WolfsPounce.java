@@ -127,7 +127,7 @@ public class WolfsPounce extends ChargeSkill {
             return;
         }
 
-        handleWolfsPounceCollide(player, nearby.get(0), chargePercentage);
+        handleWolfsPounceCollide(player, nearby.getFirst(), chargePercentage);
     }
 
 

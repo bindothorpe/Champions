@@ -22,7 +22,9 @@ public enum SkillId {
     TRAMPLE(SkillType.PASSIVE_A),
     HEAVY_SWING(SkillType.SWORD),
     SILK_ARROW(SkillType.BOW),
-    SMOKE_ARROW(SkillType.BOW), BULLS_CHARGE(SkillType.AXE);
+    SMOKE_ARROW(SkillType.BOW),
+    BULLS_CHARGE(SkillType.AXE),
+    FLESH_HOOK(SkillType.SWORD);
 
 
     private final SkillType skillType;

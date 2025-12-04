@@ -1,7 +1,9 @@
 package com.bindothorpe.champions.util;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 public class MobilityUtil {
 
@@ -47,5 +49,27 @@ public class MobilityUtil {
 
         //Set the velocity
         entity.setVelocity(direction);
+    }
+
+
+    /**
+     * Returns the direction from the first location, to the second location
+     * @param from The starting location
+     * @param to The location we want the direction to
+     * @return Vector
+     */
+    public static Vector directionTo(@NotNull Location from, @NotNull Location to) {
+        return directionTo(from.toVector(), to.toVector());
+    }
+
+
+    /**
+     * Returns the direction from the first vector, to the second vector
+     * @param from The starting vector
+     * @param to The vector we want the direction to
+     * @return Vector
+     */
+    public static Vector directionTo(@NotNull Vector from, @NotNull Vector to) {
+        return to.subtract(from).normalize();
     }
 }
