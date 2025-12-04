@@ -28,8 +28,7 @@ public class FleshHookItem extends GameItem {
 
     @Override
     public void onTickUpdate() {
-        //TODO: Add particles (placeholder)
-        getLocation().getWorld().spawnParticle(Particle.SMALL_FLAME, getLocation().clone().add(0, 0.4, 0), 1, 0, 0, 0, 0, null, true);
+        getLocation().getWorld().spawnParticle(Particle.CRIT, getLocation().clone().add(0, 0.4, 0), 1, 0, 0, 0, 0, null, true);
 
         //Play sound
         dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_FLESH_HOOK_AMBIENT);
