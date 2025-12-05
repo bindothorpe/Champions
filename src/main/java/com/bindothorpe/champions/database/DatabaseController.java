@@ -40,9 +40,9 @@ public class DatabaseController {
 
         try {
             //Try to connect to my MySQL database running locally
-            String url = "jdbc:mysql://customer_1199832_champions:Y.Rk!tImPfOFp%40Bvw9%40%2BIaYe@uk02-sql.pebblehost.com:3306/customer_1199832_champions";
-            String user = "customer_1199832_champions";
-            String password = "Y.Rk!tImPfOFp@Bvw9@+IaYe";
+            String url = dc.getPlugin().getConfig().getString("database.url");
+            String user = dc.getPlugin().getConfig().getString("database.user");
+            String password = dc.getPlugin().getConfig().getString("database.password");
 
             Connection connection = DriverManager.getConnection(url, user, password);
 

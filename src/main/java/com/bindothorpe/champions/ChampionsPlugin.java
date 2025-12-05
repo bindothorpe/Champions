@@ -12,6 +12,7 @@ public final class ChampionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         dc = new DomainController(this);
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
