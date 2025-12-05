@@ -14,10 +14,16 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class InteractListener implements Listener {
 
     private final PluginManager pluginManager;
     private final DomainController domainController;
+
+    private final Set<UUID> droppingPlayers = new HashSet<>();
 
     public InteractListener(DomainController domainController) {
         this.pluginManager = Bukkit.getPluginManager();
@@ -28,10 +34,21 @@ public class InteractListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if(!hasBuildEquipped(event.getPlayer())) return;
 
+
+        UUID playerId = event.getPlayer().getUniqueId();
+        Player player = event.getPlayer();
+
         if(event.getAction().isRightClick() && event.getHand() == EquipmentSlot.HAND) {
             pluginManager.callEvent(new PlayerRightClickEvent(event.getPlayer()));
         } else if (event.getAction().isLeftClick() && event.getHand() == EquipmentSlot.HAND) {
-            pluginManager.callEvent(new PlayerLeftClickEvent(event.getPlayer()));
+            Bukkit.getScheduler().runTask(domainController.getPlugin(), () -> {
+                // Only fire left-click event if player didn't drop an item
+                if (!droppingPlayers.contains(playerId)) {
+                    pluginManager.callEvent(new PlayerLeftClickEvent(player));
+                }
+                // Clean up flag
+                droppingPlayers.remove(playerId);
+            });
         }
     }
 
@@ -50,6 +67,7 @@ public class InteractListener implements Listener {
 
         event.setCancelled(true);
         pluginManager.callEvent(new PlayerDropItemWrapperEvent(event.getPlayer(), event.getItemDrop().getItemStack()));
+        droppingPlayers.add(event.getPlayer().getUniqueId());
     }
 
 

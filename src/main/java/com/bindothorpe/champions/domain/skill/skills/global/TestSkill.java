@@ -2,6 +2,9 @@ package com.bindothorpe.champions.domain.skill.skills.global;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -19,7 +22,7 @@ import java.util.UUID;
 
 public class TestSkill extends Skill {
     public TestSkill(DomainController dc) {
-        super(dc, SkillId.TEST_SKILL, SkillType.SWORD, ClassType.GLOBAL, "Stun your self", Arrays.asList(3.0), 1, 2);
+        super(dc, SkillId.TEST_SKILL, SkillType.SWORD, ClassType.GLOBAL, "Increase attack damage by 2 after right click", Arrays.asList(3.0), 1, 2);
     }
 
     @EventHandler
@@ -30,7 +33,16 @@ public class TestSkill extends Skill {
             return;
         }
 
-        dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.STUN, event.getPlayer().getUniqueId(), getNamespacedKey(event.getPlayer()), 1, 1.5D);
+        EntityStatusManager.getInstance(dc).addEntityStatus(event.getPlayer().getUniqueId(), new EntityStatus(
+            EntityStatusType.ATTACK_DAMAGE_DONE,
+            2.0D,
+            1.0D,
+            false,
+            false,
+            this
+        ));
+
+        event.getPlayer().sendMessage("Increase damage");
     }
 
     @Override
@@ -52,7 +64,7 @@ public class TestSkill extends Skill {
 
         lore.add(ComponentUtil.active()
                 .append(ComponentUtil.rightClick())
-                .append(Component.text("to stun your self")));
+                .append(Component.text("to increase damage dealt by 2 for 1 second.")));
 
         return lore;
     }

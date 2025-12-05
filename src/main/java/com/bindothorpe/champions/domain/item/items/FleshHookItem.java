@@ -46,7 +46,7 @@ public class FleshHookItem extends GameItem {
 
 
         //Damage the enemy
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL);
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE);
         CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
         customDamageEvent.setCommand(customDamageCommand);
 
