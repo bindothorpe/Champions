@@ -96,7 +96,7 @@ public class SmokeArrow extends Skill {
         if(hit == null) {
             return;
         }
-        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.BLIND, hit.getUniqueId(), getNamespacedKey(player), 1, -1);
+        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.BLIND, hit.getUniqueId(), getNamespacedKey(player), 1, 2);
     }
 
     @EventHandler

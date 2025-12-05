@@ -92,8 +92,8 @@ public class EntityDamageByEntityListener implements Listener {
         Player damager = (Player) projectile.getShooter();
         LivingEntity damagee = (LivingEntity) event.getEntity();
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK);
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK);
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK_PROJECTILE);
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK_PROJECTILE);
 
         customDamageEvent.setCommand(customDamageCommand);
 

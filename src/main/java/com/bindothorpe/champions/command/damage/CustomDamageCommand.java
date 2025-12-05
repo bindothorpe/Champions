@@ -11,6 +11,7 @@ import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,10 +103,28 @@ public class CustomDamageCommand implements Command {
                 originalDamage));
     }
 
-
     private double getFinalKnockback() {
-        return Math.max(0, calculateValue(source.equals(CustomDamageSource.ATTACK) ? EntityStatusType.ATTACK_KNOCKBACK_DONE : EntityStatusType.SKILL_KNOCKBACK_DONE,
-                source.equals(CustomDamageSource.ATTACK) ? EntityStatusType.ATTACK_KNOCKBACK_RECEIVED : EntityStatusType.SKILL_KNOCKBACK_RECEIVED,
+
+        EntityStatusType attackStatusTypeToCheck = EntityStatusType.ATTACK_KNOCKBACK_DONE;
+
+        if(source.equals(CustomDamageSource.SKILL)) {
+            attackStatusTypeToCheck = EntityStatusType.SKILL_KNOCKBACK_DONE;
+        }
+        if(source.equals(CustomDamageSource.ATTACK_PROJECTILE)) {
+            attackStatusTypeToCheck = EntityStatusType.PROJECTILE_KNOCKBACK_DONE;
+        }
+
+        EntityStatusType receiveStatusTypeToCheck = EntityStatusType.ATTACK_KNOCKBACK_RECEIVED;
+
+        if(source.equals(CustomDamageSource.SKILL)) {
+            receiveStatusTypeToCheck = EntityStatusType.SKILL_KNOCKBACK_RECEIVED;
+        }
+        if(source.equals(CustomDamageSource.ATTACK_PROJECTILE)) {
+            receiveStatusTypeToCheck = EntityStatusType.PROJECTILE_KNOCKBACK_RECEIVED;
+        }
+
+        return Math.max(0, calculateValue(attackStatusTypeToCheck,
+                receiveStatusTypeToCheck,
                 ORIGINAL_KNOCKBACK));
     }
 
