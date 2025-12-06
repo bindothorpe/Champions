@@ -77,6 +77,8 @@ public class BullsCharge extends Skill {
         StatusEffectManager.getInstance(dc).removeStatusEffectFromPlayer(StatusEffectType.SPEED, damager.getUniqueId(), getNamespacedKey(damager.getUniqueId()));
         StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.SLOW, damagee.getUniqueId(), getNamespacedKey(damager.getUniqueId()), 1, 2);
         dc.getSoundManager().playSound(event.getDamagee().getLocation(), CustomSound.SKILL_BULLS_CHARGE_ACTIVATE);
+
+        activeMap.remove(damager.getUniqueId());
     }
 
 
