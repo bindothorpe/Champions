@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.MobilityUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,6 +20,7 @@ public class FleshHookItem extends GameItem {
     private static final double COLLISION_RADIUS = 1.0;
     private final double collisionDamage;
     private final double collisionPullForce;
+    private boolean flaggedForRemoval = false;
 
     public FleshHookItem(DomainController dc, Entity owner, double collisionDamage, double collisionPullForce) {
         super(dc, Material.TRIPWIRE_HOOK, -1, owner, COLLISION_RADIUS, 0.15);
@@ -73,7 +75,6 @@ public class FleshHookItem extends GameItem {
                 true
                 );
 
-        //TODO: Play sound (placeholder)
         dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_FLESH_HOOK_THROW);
 
         remove();
@@ -81,7 +82,9 @@ public class FleshHookItem extends GameItem {
 
     @Override
     public void onCollideWithBlock(Block block) {
-        remove();
+        if (flaggedForRemoval) return;
+        flaggedForRemoval = true;
+        new Timer(dc.getPlugin(), 0.2, this::remove).start();
     }
 
     @Override
