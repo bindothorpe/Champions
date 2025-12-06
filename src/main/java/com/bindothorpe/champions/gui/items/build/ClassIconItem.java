@@ -24,16 +24,18 @@ public class ClassIconItem extends GuiItem {
     private final DomainController dc;
     private final UUID uuid;
     private final ClassType classType;
+    private final boolean showSelected;
     private final boolean showBuildCount;
     private final boolean showLeftclickAction;
     private final boolean showRightclickAction;
     private final boolean showDescription;
 
-    public ClassIconItem(UUID uuid, ClassType classType, DomainController dc, boolean showBuildCount, boolean showLeftclickAction, boolean showRightclickAction, boolean showDescription) {
+    public ClassIconItem(UUID uuid, ClassType classType, DomainController dc, boolean showSelected, boolean showBuildCount, boolean showLeftclickAction, boolean showRightclickAction, boolean showDescription) {
         super(new ItemStack(Material.LEATHER_HELMET));
         this.dc = dc;
         this.uuid = uuid;
         this.classType = classType;
+        this.showSelected = showSelected;
         this.showBuildCount = showBuildCount;
         this.showLeftclickAction = showLeftclickAction;
         this.showRightclickAction = showRightclickAction;
@@ -50,7 +52,9 @@ public class ClassIconItem extends GuiItem {
         item.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
         ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(TextUtil.camelCasing(classType.toString())));
+        Component name = Component.text(TextUtil.camelCasing(classType.toString())).color(NamedTextColor.WHITE);
+        if(showSelected) name = name.append(Component.text(" (Selected)").color(NamedTextColor.GREEN));
+        meta.displayName(name);
         meta.lore(new ArrayList<>());
 
         if (showDescription) {

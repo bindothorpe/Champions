@@ -8,6 +8,7 @@ import com.bindothorpe.champions.gui.items.build.ClassIconItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
+import org.bukkit.Bukkit;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -31,7 +32,8 @@ public class ClassOverviewGui extends PlayerGui {
         }
 
         Arrays.stream(ClassType.values()).filter(c -> c != ClassType.GLOBAL).forEach(c -> {
-            classes.addItem(new ClassIconItem(uuid, c, dc, false, true, false, true));
+            boolean shouldDisplaySelected = dc.getPlayerManager().hasBuildSelected(uuid) && dc.getBuildManager().getBuild(dc.getPlayerManager().getSelectedBuildIdFromPlayer(uuid)).getClassType() == c;
+            classes.addItem(new ClassIconItem(uuid, c, dc, shouldDisplaySelected,false, true, false, true));
         });
 
         gui.addPane(root);

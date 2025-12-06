@@ -46,7 +46,7 @@ public class BuildsOverviewGui extends PlayerGui {
         }
 
         root.addItem(new BackItem(event -> dc.getGuiManager().openClassOverviewGui(event.getWhoClicked().getUniqueId())), 0, 0);
-        root.addItem(new ClassIconItem(uuid, classType, dc, true, false, true, false), 4, 0);
+        root.addItem(new ClassIconItem(uuid, classType, dc, false,true, false, true, false), 4, 0);
         gui.addPane(root);
         gui.addPane(buildsPane);
     }

@@ -20,6 +20,7 @@ import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 public class DomainController {
 
@@ -66,7 +67,7 @@ public class DomainController {
         try {
             databaseController.initializeDatabase();
         } catch (SQLException e) {
-            System.out.println("Error initializing database: " + e.getMessage());
+            getPlugin().getLogger().log(Level.WARNING, e.getMessage());
         }
     }
 
