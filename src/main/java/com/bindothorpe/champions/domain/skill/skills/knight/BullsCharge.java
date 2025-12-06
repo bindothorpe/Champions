@@ -9,6 +9,7 @@ import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Sound;
@@ -66,9 +67,9 @@ public class BullsCharge extends Skill {
     @EventHandler
     public void onCustomDamage(CustomDamageEvent event) {
         Entity damager = event.getDamager();
-        if(!activeMap.containsKey(damager.getUniqueId())) {
-            return;
-        }
+        if(!activeMap.containsKey(damager.getUniqueId())) return;
+
+        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
 
         Entity damagee = event.getDamagee();
 
