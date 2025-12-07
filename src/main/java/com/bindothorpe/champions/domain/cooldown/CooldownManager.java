@@ -18,6 +18,7 @@ public class CooldownManager {
     private final DomainController dc;
 
     private static Map<UUID, Map<Object, Long>> cooldowns = new HashMap<>();
+    private static Map<UUID, Map<Object, Double>> cooldownDurations = new HashMap<>();
     private static Map<UUID, Map<Object, BukkitTask>> cooldownTasks = new HashMap<>();
 
     private CooldownManager(DomainController dc) {
@@ -31,18 +32,17 @@ public class CooldownManager {
     }
 
     public void startCooldown(UUID uuid, Object source, double durationInSeconds) {
-        if (!cooldowns.containsKey(uuid))
-            cooldowns.put(uuid, new HashMap<>());
+        cooldowns.computeIfAbsent(uuid, k -> new HashMap<>());
+        cooldownDurations.computeIfAbsent(uuid, k -> new HashMap<>());
+        cooldownTasks.computeIfAbsent(uuid, k -> new HashMap<>());
 
         cooldowns.get(uuid).put(source, System.currentTimeMillis() + (long) (durationInSeconds * 1000));
-
-        if (!cooldownTasks.containsKey(uuid))
-            cooldownTasks.put(uuid, new HashMap<>());
-
+        cooldownDurations.get(uuid).put(source, durationInSeconds);
         cooldownTasks.get(uuid).put(source, new BukkitRunnable() {
                     @Override
                     public void run() {
                         cooldowns.get(uuid).remove(source);
+                        cooldownDurations.get(uuid).remove(source);
                         cooldownTasks.get(uuid).remove(source);
                         this.cancel();
                         onCooldownEnd(uuid, source);
@@ -61,6 +61,14 @@ public class CooldownManager {
             return 0;
 
         return (cooldowns.get(uuid).get(source) - System.currentTimeMillis()) / 1000.0;
+    }
+
+    public double getCooldownDuration(UUID uuid, Object source) {
+        return cooldownDurations.get(uuid).get(source);
+    }
+
+    public double getCooldownPercentage(UUID uuid, Object source) {
+        return getCooldownRemaining(uuid, source) / getCooldownDuration(uuid, source);
     }
 
     public boolean isOnCooldown(UUID uuid, Object source) {
@@ -86,12 +94,14 @@ public class CooldownManager {
         // If the new cooldown has already passed, call onCooldownEnd directly.
         if (newCooldown <= System.currentTimeMillis()) {
             cooldowns.get(uuid).remove(source);
+            cooldownDurations.get(uuid).remove(source);
             onCooldownEnd(uuid, source);
         } else {
             // Schedule a new task with the reduced duration.
             cooldownTasks.get(uuid).put(source, new BukkitRunnable() {
                 @Override
                 public void run() {
+                    cooldowns.get(uuid).remove(source);
                     cooldowns.get(uuid).remove(source);
                     cooldownTasks.get(uuid).remove(source);
                     this.cancel();

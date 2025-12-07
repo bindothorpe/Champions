@@ -255,7 +255,7 @@ public abstract class Skill implements Listener {
             if(!isItemStackOfSkillType(player.getInventory().getItemInMainHand())) continue;
 
             double cooldownReminingInSeconds = getCooldownRemaining(uuid);
-            double cooldownPercentage = cooldownReminingInSeconds / cooldownDuration.get(getSkillLevel(uuid) - 1);
+            double cooldownPercentage = dc.getCooldownManager().getCooldownPercentage(uuid, this);
 
             ChatUtil.sendActionBarMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds));
         }
