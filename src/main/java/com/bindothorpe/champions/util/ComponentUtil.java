@@ -3,6 +3,7 @@ package com.bindothorpe.champions.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +43,25 @@ public class ComponentUtil {
 
     public static Component active() {
         return Component.text("Active: ").color(NamedTextColor.WHITE);
+    }
+
+    public static Component cooldownRemainingBar(String skillName, double cooldownRemainingPercentage, double cooldownRemainingInSeconds) {
+        return cooldownRemainingBar(skillName, cooldownRemainingPercentage, cooldownRemainingInSeconds, 40, "|");
+    }
+
+    public static Component cooldownRemainingBar(String skillName, double cooldownRemainingPercentage, double cooldownRemainingInSeconds, int width, String symbol) {
+        int completedWidth = (int) (cooldownRemainingPercentage * width);
+        int remainingWidth = width - completedWidth;
+
+        String cooldownCompleted = String.join("", Collections.nCopies(completedWidth, symbol));
+        String cooldownRemaining = String.join("", Collections.nCopies(remainingWidth, symbol));
+
+        return Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                .append(Component.text(" "))
+                .append(Component.text(cooldownRemaining).color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, false))
+                .append(Component.text(cooldownCompleted).color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false))
+                .append(Component.text(" ").decoration(TextDecoration.BOLD, false))
+                .append(Component.text(String.format("%.1fs", cooldownRemainingInSeconds)).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false));
     }
 
     public static Component chargeBar(int charge, int maxCharge) {

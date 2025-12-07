@@ -38,7 +38,7 @@ public class WolfsPounce extends ChargeSkill {
         MobilityUtil.stopVelocity(player);
         active.remove(player.getUniqueId());
 
-        CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, collisionDamage.get(getSkillLevel(player.getUniqueId()) - 1) * chargePercentage, player.getLocation(), CustomDamageSource.SKILL);
+        CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, collisionDamage.get(getSkillLevel(player.getUniqueId()) - 1) * chargePercentage, player.getLocation(), CustomDamageSource.SKILL, getName());
         CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent);
         damageEvent.setCommand(damageCommand);
 

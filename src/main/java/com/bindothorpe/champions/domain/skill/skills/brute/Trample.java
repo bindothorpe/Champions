@@ -130,7 +130,7 @@ public class Trample extends Skill {
         double damage = this.damage.get(getSkillLevel(player.getUniqueId()) - 1);
 
         for(Entity entity : nearby) {
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
             CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).force(0);
             damageEvent.setCommand(customDamageCommand);
             Bukkit.getPluginManager().callEvent(damageEvent);

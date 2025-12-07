@@ -191,7 +191,7 @@ public class HeavySwing extends ChargeSkill {
 
                 // Create damage event
                 CustomDamageEvent damageEvent = new CustomDamageEvent(dc, target, player, finalDamage,
-                        playerHeadLocation, CustomDamageSource.SKILL);
+                        playerHeadLocation, CustomDamageSource.SKILL, getName());
                 CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent);
                 damageEvent.setCommand(damageCommand);
 

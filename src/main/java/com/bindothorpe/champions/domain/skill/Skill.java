@@ -6,7 +6,13 @@ import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.cooldown.CooldownEndEvent;
 import com.bindothorpe.champions.events.skill.SkillUseEvent;
+import com.bindothorpe.champions.events.update.UpdateEvent;
+import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.ItemUtil;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.PlayerPickItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,6 +21,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedMainHandEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -194,6 +203,10 @@ public abstract class Skill implements Listener {
         dc.getSoundManager().playSound(player, CustomSound.SKILL_COOLDOWN_END);
 
         onCooldownEnd(event.getUuid(), event.getSource());
+
+        if(canDisplayOnSkillType() && isItemStackOfSkillType(player.getInventory().getItemInMainHand())) {
+            clearActionBar(player);
+        }
     }
 
     public void onCooldownEnd(UUID uuid, Object source) {
@@ -206,5 +219,57 @@ public abstract class Skill implements Listener {
 
     protected NamespacedKey getNamespacedKey(@NotNull UUID playerUUID) {
         return new NamespacedKey(dc.getPlugin(), String.format("%s_%s", playerUUID, getId()));
+    }
+
+    private void clearActionBar(Player player) {
+        ChatUtil.sendActionBarMessage(player, Component.text(""));
+    }
+
+    @EventHandler
+    public void onPlayerLeaveCurrentItemSlot(PlayerItemHeldEvent event) {
+        if(!isUser(event.getPlayer().getUniqueId())) return;
+        if(!canDisplayOnSkillType()) return;
+        if(!isOnCooldown(event.getPlayer().getUniqueId())) return;
+
+        ItemStack previousItem = event.getPlayer().getInventory().getItem(event.getPreviousSlot());
+
+        if(!isItemStackOfSkillType(previousItem)) return;
+
+        clearActionBar(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onTick(UpdateEvent event) {
+
+        if(!canDisplayOnSkillType()) return;
+
+        if(!event.getUpdateType().equals(UpdateType.TICK)) return;
+
+        for(UUID uuid : users.keySet()) {
+            if(!isOnCooldown(uuid)) continue;
+
+            Player player = Bukkit.getPlayer(uuid);
+
+            if(player == null) continue;
+
+            if(!isItemStackOfSkillType(player.getInventory().getItemInMainHand())) continue;
+
+            double cooldownReminingInSeconds = getCooldownRemaining(uuid);
+            double cooldownPercentage = cooldownReminingInSeconds / cooldownDuration.get(getSkillLevel(uuid) - 1);
+
+            ChatUtil.sendActionBarMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds));
+        }
+    }
+
+    private boolean canDisplayOnSkillType() {
+        return skillType == SkillType.SWORD || skillType == SkillType.AXE || skillType == SkillType.BOW;
+    }
+
+    private boolean isItemStackOfSkillType(ItemStack itemStack) {
+        if(itemStack == null) return false;
+
+        if(skillType == SkillType.SWORD && ItemUtil.isSword(itemStack.getType())) return true;
+        if(skillType == SkillType.BOW && ItemUtil.isBow(itemStack.getType())) return true;
+        return skillType == SkillType.AXE && ItemUtil.isAxe(itemStack.getType());
     }
 }

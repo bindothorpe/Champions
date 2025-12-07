@@ -46,7 +46,6 @@ public class GrandEntrance extends Skill {
         Player player = event.getPlayer();
 
         if(active.contains(event.getPlayer().getUniqueId())) {
-            System.out.println("GOING DOWNN");
             player.setVelocity(new Vector(0, -1, 0).multiply(DOWNWARDS_SPEED));
             active.remove(player.getUniqueId());
             active2.add(player.getUniqueId());
@@ -119,7 +118,7 @@ public class GrandEntrance extends Skill {
         Vector direction = new Vector(0, 1, 0);
 
         for(Entity entity : nearby) {
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
             CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).direction(direction).force(KNOCKUP_SPEED);
             damageEvent.setCommand(customDamageCommand);
             Bukkit.getPluginManager().callEvent(damageEvent);

@@ -71,15 +71,18 @@ public class InteractListener implements Listener {
     }
 
 
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getPlayer();
-
-        if(!hasBuildEquipped(player)) return;
-
-        event.setKeepInventory(true);
-        event.getDrops().clear();
-    }
+//    @EventHandler
+//    public void onPlayerDeath(PlayerDeathEvent event) {
+//        Player player = event.getPlayer();
+//
+//        if(!hasBuildEquipped(player)) return;
+//
+//        event.setKeepInventory(true);
+//        event.getDrops().clear();
+//        event.setShouldDropExperience(false);
+////        event.setShowDeathMessages(false);
+////        domainController.getCombatLogger()
+//    }
 
     @EventHandler
     public void onItemPickup(PlayerAttemptPickupItemEvent event) {

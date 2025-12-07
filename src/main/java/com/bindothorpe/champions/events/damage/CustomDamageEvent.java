@@ -2,9 +2,16 @@ package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
+import com.bindothorpe.champions.domain.combat.DamageLog;
+import com.bindothorpe.champions.domain.player.PlayerData;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -19,17 +26,19 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private final LivingEntity damager;
     private final double originalDamage;
     private Location attackLocation;
-    private CustomDamageSource source;
+    private final CustomDamageSource source;
+    private final String damageSourceString;
     private boolean cancelled;
     private CustomDamageCommand command;
 
-    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source) {
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
         this.dc = dc;
         this.damagee = entity;
         this.damager = hitBy;
         this.originalDamage = originalDamage;
         this.attackLocation = attackLocation;
         this.source = source;
+        this.damageSourceString = damageSourceString;
         this.cancelled = false;
     }
 
@@ -76,5 +85,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
         this.cancelled = cancelled;
     }
 
-
+    public String getDamageSourceString() {
+        return damageSourceString;
+    }
 }

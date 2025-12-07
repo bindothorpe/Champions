@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class CustomDamageListener implements Listener {
 
@@ -36,7 +37,37 @@ public class CustomDamageListener implements Listener {
         if(event.getSource().equals(CustomDamageSource.ATTACK_PROJECTILE) || event.getSource().equals(CustomDamageSource.SKILL_PROJECTILE)) {
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
         }
+    }
 
-//        player.sendMessage("Damage: " + event.getCommand().getDamage());
+    @EventHandler
+    public void onTakeDamage(CustomDamageEvent event) {
+        if(event.isCancelled())
+            return;
+
+        if (!(event.getDamagee() instanceof Player player))
+            return;
+
+        dc.getCombatLogger().logDamageTaken(player.getUniqueId());
+        dc.getCombatLogger().logDamage(player.getUniqueId(), event.getDamager().getUniqueId(), event.getSource(), event.getDamageSourceString());
+    }
+
+    @EventHandler
+    public void onDealDamage(CustomDamageEvent event) {
+        if(event.isCancelled())
+            return;
+
+        if (!(event.getDamager() instanceof Player player))
+            return;
+
+        dc.getCombatLogger().logDamageDealt(player.getUniqueId());
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        if(event.isCancelled()) return;
+
+        if(!dc.getPlayerManager().hasBuildSelected(event.getPlayer().getUniqueId())) return;
+
+
     }
 }

@@ -22,7 +22,6 @@ public class SpeedStatusEffect extends StatusEffect {
         if (entity == null) return;
 
         if(isActive(uuid)) {
-            System.out.println(getHighestAmplifier(uuid));
             dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, (double) getHighestAmplifier(uuid) / 10D, -1, false, false, this));
         } else {
             dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);

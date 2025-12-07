@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.item.items;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
@@ -48,7 +49,7 @@ public class FleshHookItem extends GameItem {
 
 
         //Damage the enemy
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE);
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE, dc.getSkillManager().getSkillName(SkillId.FLESH_HOOK));
         CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
         customDamageEvent.setCommand(customDamageCommand);
 

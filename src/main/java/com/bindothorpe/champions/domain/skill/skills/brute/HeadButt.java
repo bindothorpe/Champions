@@ -90,7 +90,7 @@ public class HeadButt extends Skill {
             Location startingLocation = startingLocations.get(uuid);
 
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, damage.get(getSkillLevel(uuid) - 1), player.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, damage.get(getSkillLevel(uuid) - 1), player.getLocation(), CustomDamageSource.SKILL, getName());
 
             //Get the direction of the player's headbutt by subtracting the starting location's vector from the current location's vector
             Vector dir = player.getLocation().toVector().subtract(startingLocation.toVector()).setY(0).normalize().setY(0.2).normalize();
@@ -150,7 +150,7 @@ public class HeadButt extends Skill {
             if(nearbyBlocks.isEmpty())
                 continue;
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), impactDamage.get(getSkillLevel(hitBy.get(uuid)) - 1), entity.getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), impactDamage.get(getSkillLevel(hitBy.get(uuid)) - 1), entity.getLocation(), CustomDamageSource.SKILL, getName());
             CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
                     .direction(new Vector(0, 0, 0));
             damageEvent.setCommand(damageCommand);

@@ -1,7 +1,12 @@
 package com.bindothorpe.champions.domain.combat;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.skill.Skill;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +19,7 @@ public class CombatLogger {
 
     private final Map<UUID, Long> lastDamageTaken = new HashMap<>();
     private final Map<UUID, Long> lastDamageDealt = new HashMap<>();
+    private final Map<UUID, DamageLog> lastDamageTakenLog = new HashMap<>();
 
     private CombatLogger(DomainController dc) {
         this.dc = dc;
@@ -24,6 +30,10 @@ public class CombatLogger {
             instance = new CombatLogger(dc);
         }
         return instance;
+    }
+
+    public void logDamage(UUID damageTaker, UUID damageDealer, CustomDamageSource damageSource, @Nullable String damageSourceString) {
+        lastDamageTakenLog.put(damageTaker, new DamageLog(damageSource, damageTaker, damageDealer, System.currentTimeMillis(), damageSourceString));
     }
 
     public void logDamageTaken(UUID uuid) {
@@ -50,4 +60,7 @@ public class CombatLogger {
         return lastDamageDealt.containsKey(uuid) && System.currentTimeMillis() - lastDamageDealt.get(uuid) < duration * 1000;
     }
 
+    public DamageLog getLastLog(@NotNull UUID uniqueId) {
+        return lastDamageTakenLog.get(uniqueId);
+    }
 }

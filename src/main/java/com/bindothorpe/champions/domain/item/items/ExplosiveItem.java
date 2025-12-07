@@ -5,6 +5,7 @@ import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
+import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
@@ -80,7 +81,7 @@ public class ExplosiveItem extends GameItem {
 
         for(Entity e : nearby) {
 
-            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, (LivingEntity) getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL);
+            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, (LivingEntity) getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL, dc.getSkillManager().getSkillName(SkillId.EXPLOSIVE_BOMB));
             CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
             customDamageEvent.setCommand(customDamageCommand);
 
