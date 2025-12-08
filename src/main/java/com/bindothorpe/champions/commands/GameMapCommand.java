@@ -5,6 +5,13 @@ import com.bindothorpe.champions.domain.game.map.GameMapData;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.TextUtil;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -18,8 +25,77 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class GameMapCommand implements CommandExecutor {
+
+    private static final List<String> ACTIONS = new ArrayList<>(List.of("create", "delete", "edit", "tp", "tp-all", "add-cp"));
+
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommand(DomainController dc) {
+        return Commands.literal("map")
+                .executes((ctx -> GameMapCommand.handleWithoutArgs(dc, ctx)))
+                .then(Commands.argument("action", StringArgumentType.word())
+                        .suggests(GameMapCommand::getActionSuggestions)
+                        .then(Commands.argument("map_name", StringArgumentType.word())));
+    }
+
+    private static int handleWithoutArgs(DomainController dc, CommandContext<CommandSourceStack> ctx) {
+        if(!(ctx.getSource().getSender() instanceof Player player)) {
+            ctx.getSource().getSender().sendMessage("Only players can perform this command.");
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        }
+
+        dc.getGuiManager().openMapMainGui(player.getUniqueId());
+
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+    }
+
+    private static int handleWithColorArg(DomainController dc, CommandContext<CommandSourceStack> ctx) {
+        if(!(ctx.getSource().getSender() instanceof Player player)) {
+            ctx.getSource().getSender().sendMessage("Only players can perform this command.");
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        }
+
+        TeamColor teamColor;
+        try {
+            teamColor = TeamColor.valueOf(StringArgumentType.getString(ctx, "color"));
+        } catch (IllegalArgumentException e) {
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Invalid team color.").color(NamedTextColor.GRAY));
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        }
+
+        dc.getTeamManager().addEntityToTeam(player, teamColor);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
+                Component.text("You are now on the ").color(NamedTextColor.GRAY)
+                        .append(Component.text(teamColor.toString()).color(teamColor.getTextColor()))
+                        .append(Component.text(" team.").color(NamedTextColor.GRAY)));
+
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+    }
+
+    private static CompletableFuture<Suggestions> getActionSuggestions(final CommandContext<CommandSourceStack> ctx, final SuggestionsBuilder builder) {
+
+        ACTIONS.stream()
+                .filter(action -> action.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                .forEach(action -> builder.suggest(action.toLowerCase()));
+
+
+        return builder.buildFuture();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     private final DomainController dc;
     private GameMapData gameMapData;

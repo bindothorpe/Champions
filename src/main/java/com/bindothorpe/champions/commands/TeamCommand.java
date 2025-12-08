@@ -3,57 +3,81 @@ package com.bindothorpe.champions.commands;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class TeamCommand implements CommandExecutor {
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
-    private final DomainController dc;
+public class TeamCommand {
 
-    public TeamCommand(DomainController dc) {
-        this.dc = dc;
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommand(DomainController dc) {
+        return Commands.literal("team")
+                .executes((ctx -> TeamCommand.handleWithoutArgs(dc, ctx)))
+                .then(Commands.argument("color", StringArgumentType.word())
+                        .suggests(TeamCommand::getSkillSlotSuggestions)
+                        .executes(ctx -> TeamCommand.handleWithColorArg(dc, ctx)));
     }
 
-    @Override
-    public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
-
-        if(!(commandSender instanceof Player)) {
-            commandSender.sendMessage("You need to be a player to perform this command.");
-            return true;
+    private static int handleWithoutArgs(DomainController dc, CommandContext<CommandSourceStack> ctx) {
+        if(!(ctx.getSource().getSender() instanceof Player player)) {
+            ctx.getSource().getSender().sendMessage("Only players can perform this command.");
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
         }
 
-        Player player = (Player) commandSender;
+        TeamColor color = dc.getTeamManager().getTeamFromEntity(player);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
+                Component.text("You are on the ").color(NamedTextColor.GRAY)
+                        .append(Component.text(color.toString()).color(color.getTextColor()))
+                        .append(Component.text(" team.").color(NamedTextColor.GRAY)));
 
-        if(strings.length == 0) {
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+    }
 
-            TeamColor color = dc.getTeamManager().getTeamFromEntity(player);
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
-                    Component.text("You are on the ").color(NamedTextColor.GRAY)
-                    .append(Component.text(color.toString()).color(color.getTextColor()))
-                    .append(Component.text(" team.").color(NamedTextColor.GRAY)));
-            return true;
-        } else {
-
-            TeamColor color;
-            try {
-                color = TeamColor.valueOf(strings[0].toUpperCase());
-            } catch (IllegalArgumentException e) {
-                ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Invalid team color.").color(NamedTextColor.GRAY));
-                return true;
-            }
-
-            dc.getTeamManager().addEntityToTeam(player, color);
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
-                    Component.text("You are now on the ").color(NamedTextColor.GRAY)
-                            .append(Component.text(color.toString()).color(color.getTextColor()))
-                            .append(Component.text(" team.").color(NamedTextColor.GRAY)));
+    private static int handleWithColorArg(DomainController dc, CommandContext<CommandSourceStack> ctx) {
+        if(!(ctx.getSource().getSender() instanceof Player player)) {
+            ctx.getSource().getSender().sendMessage("Only players can perform this command.");
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
         }
 
-        return true;
+        TeamColor teamColor;
+        try {
+            teamColor = TeamColor.valueOf(StringArgumentType.getString(ctx, "color"));
+        } catch (IllegalArgumentException e) {
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.ERROR, Component.text("Invalid team color.").color(NamedTextColor.GRAY));
+            return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+        }
+
+        dc.getTeamManager().addEntityToTeam(player, teamColor);
+        ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
+                Component.text("You are now on the ").color(NamedTextColor.GRAY)
+                        .append(Component.text(teamColor.toString()).color(teamColor.getTextColor()))
+                        .append(Component.text(" team.").color(NamedTextColor.GRAY)));
+
+        return com.mojang.brigadier.Command.SINGLE_SUCCESS;
+    }
+
+    private static CompletableFuture<Suggestions> getSkillSlotSuggestions(final CommandContext<CommandSourceStack> ctx, final SuggestionsBuilder builder) {
+
+        Arrays.stream(TeamColor.values())
+                .filter(teamColor -> teamColor.toString().toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                .forEach(teamColor -> builder.suggest(teamColor.toString().toUpperCase()));
+
+
+        return builder.buildFuture();
     }
 }
