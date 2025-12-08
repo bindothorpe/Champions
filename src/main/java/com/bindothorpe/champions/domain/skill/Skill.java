@@ -107,6 +107,10 @@ public abstract class Skill implements Listener {
 
 
     protected final boolean activate(UUID uuid, Event event) {
+        return activate(uuid, event, true);
+    }
+
+    protected final boolean activate(UUID uuid, Event event, boolean startCooldownOnSuccess) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null)
             return false;
@@ -122,7 +126,10 @@ public abstract class Skill implements Listener {
 
         ChatUtil.sendSkillMessage(player, getName(), users.get(uuid));
 
-        startCooldown(uuid);
+        if(startCooldownOnSuccess) {
+            startCooldown(uuid);
+        }
+
         return true;
     }
 

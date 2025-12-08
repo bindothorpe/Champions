@@ -41,7 +41,8 @@ public enum CustomSound {
 
     GAME_START(Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f),
     COUNTDOWN(Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 0.6f),
-    COUNTDOWN_END(Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.2f);
+    COUNTDOWN_END(Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.2f),
+    INFERNO_FLAME_SPAWN(Sound.ENTITY_GHAST_SHOOT, 0.1f, 1.0f);
 
 
     private final List<Sound> sounds;

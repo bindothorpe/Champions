@@ -25,7 +25,8 @@ public enum SkillId {
     SMOKE_ARROW(SkillType.BOW),
     BULLS_CHARGE(SkillType.AXE),
     FLESH_HOOK(SkillType.SWORD),
-    RIPOSTE(SkillType.SWORD);
+    RIPOSTE(SkillType.SWORD),
+    INFERNO(SkillType.SWORD);
 
 
     private final SkillType skillType;

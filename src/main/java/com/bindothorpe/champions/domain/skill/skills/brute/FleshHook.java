@@ -41,7 +41,7 @@ public class FleshHook extends ChargeSkill {
                 player,
                 fleshHookDamageMap.get(getSkillLevel(player.getUniqueId()) - 1),
                 1.5D + 0.3D * getSkillLevel(uuid));
-        dc.getGameItemManager().spawnGameItem(fleshHookItem, player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
+        dc.getGameItemManager().spawnGameItem(fleshHookItem, player.getEyeLocation().clone().add(0, -0.3, 0), player.getLocation().getDirection(), 1.5);
         fleshHookItemMap.put(player.getUniqueId(), fleshHookItem);
     }
 

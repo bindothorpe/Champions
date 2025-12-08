@@ -35,16 +35,57 @@ public abstract class ChargeSkill extends Skill {
         return Math.min((double) chargeMap.get(uuid) / maxCharge.get(getSkillLevel(uuid) - 1), 1);
     }
 
-
+    /**
+     * Called when the maximum charge duration has been reached for a player.
+     * This occurs when the player has been charging for the full duration allowed
+     * by their skill level, regardless of whether they've reached max charge.
+     *
+     * @param uuid the UUID of the player who reached max charge duration
+     * @param charge the current charge level when the duration was reached
+     */
     protected abstract void onMaxChargeDurationReached(UUID uuid, int charge);
 
+    /**
+     * Called when a player reaches the maximum charge level for their skill.
+     * This is triggered the first time the charge reaches the max value.
+     *
+     * @param uuid the UUID of the player who reached max charge
+     * @param charge the maximum charge value that was reached
+     */
     protected abstract void onMaxChargeReached(UUID uuid, int charge);
 
+    /**
+     * Called every tick while a player is charging their skill.
+     * This allows for continuous updates during the charging process.
+     *
+     * @param uuid the UUID of the player who is charging
+     * @param charge the current charge level
+     */
     protected abstract void onCharge(UUID uuid, int charge);
 
+    /**
+     * Called when a player begins charging their skill.
+     * This is triggered on the first tick of blocking when the skill can be used.
+     *
+     * @param uuid the UUID of the player who started charging
+     */
     protected abstract void onChargeStart(UUID uuid);
 
+    /**
+     * Called when a player stops charging their skill before reaching max duration.
+     * This occurs when the player stops blocking.
+     *
+     * @param uuid the UUID of the player who stopped charging
+     * @param charge the charge level when charging was stopped
+     */
     protected abstract void onChargeEnd(UUID uuid, int charge);
+
+    /**
+     * Called every tick for each user of this skill, regardless of charging state.
+     * This allows for custom update logic to be implemented per skill.
+     *
+     * @param uuid the UUID of the player being updated
+     */
     protected abstract void onUpdate(UUID uuid);
 
     @EventHandler
