@@ -2,20 +2,14 @@ package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
-import com.bindothorpe.champions.domain.combat.DamageLog;
-import com.bindothorpe.champions.domain.player.PlayerData;
 import com.bindothorpe.champions.domain.skill.SkillId;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.util.Vector;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 public class CustomDamageEvent extends Event implements Cancellable {
@@ -24,6 +18,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private final DomainController dc;
     private final LivingEntity damagee;
     private final LivingEntity damager;
+    private final Projectile projectile;
     private final double originalDamage;
     private Location attackLocation;
     private final CustomDamageSource source;
@@ -31,16 +26,22 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private boolean cancelled;
     private CustomDamageCommand command;
 
-    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, Projectile projectile, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
         this.dc = dc;
         this.damagee = entity;
         this.damager = hitBy;
+        this.projectile = projectile;
         this.originalDamage = originalDamage;
         this.attackLocation = attackLocation;
         this.source = source;
         this.damageSourceString = damageSourceString;
         this.cancelled = false;
     }
+
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
+        this(dc, entity, hitBy, null, originalDamage, attackLocation, source, damageSourceString);
+    }
+
 
     public CustomDamageCommand getCommand() {
         return command;
@@ -88,4 +89,48 @@ public class CustomDamageEvent extends Event implements Cancellable {
     public String getDamageSourceString() {
         return damageSourceString;
     }
+
+    public Projectile getProjectile() {
+        return projectile;
+    }
+
+    public static void addSkillIdData(@NotNull DomainController dc, @NotNull Projectile projectile, @NotNull SkillId skillId) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "skill_id");
+        addCustomData(projectile, key, PersistentDataType.STRING, skillId.toString());
+    }
+
+    public static SkillId getSkillIdData(@NotNull DomainController dc, @NotNull Projectile projectile) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "skill_id");
+        if(!projectile.getPersistentDataContainer().has(key)) return null;
+
+        return SkillId.valueOf(projectile.getPersistentDataContainer().get(key, PersistentDataType.STRING));
+    }
+
+    public static void addCustomDamageSourceData(@NotNull DomainController dc, @NotNull Projectile projectile, @NotNull CustomDamageSource customDamageSource) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "custom_damage_source");
+        addCustomData(projectile, key, PersistentDataType.STRING, customDamageSource.toString());
+    }
+
+    public static CustomDamageSource getCustomDamageSourceData(DomainController dc, Projectile projectile) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "custom_damage_source");
+        if(!projectile.getPersistentDataContainer().has(key)) return null;
+
+        return CustomDamageSource.valueOf(projectile.getPersistentDataContainer().get(key, PersistentDataType.STRING));
+    }
+
+    public static boolean hasSkillIdData(DomainController dc, Projectile projectile) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "skill_id");
+        return projectile.getPersistentDataContainer().has(key);
+    }
+
+
+    public static boolean hasCustomDamageSourceData(DomainController dc, Projectile projectile) {
+        NamespacedKey key = new NamespacedKey(dc.getPlugin(), "custom_damage_source");
+        return projectile.getPersistentDataContainer().has(key);
+    }
+
+    private static <P, C> void addCustomData(Projectile projectile, NamespacedKey key, PersistentDataType<P, C> dataType, C value) {
+        projectile.getPersistentDataContainer().set(key, dataType, value);
+    }
+
 }

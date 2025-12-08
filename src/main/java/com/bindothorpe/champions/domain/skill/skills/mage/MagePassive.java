@@ -23,7 +23,7 @@ public class MagePassive extends Skill {
     @Override
     public void addUser(UUID uuid, int skillLevel) {
         super.addUser(uuid, skillLevel);
-        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.COOLDOWN_REDUCTION, 0.5, -1.0, true, false, this));
+        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.COOLDOWN_REDUCTION, 0.1, -1.0, true, false, this));
     }
 
     @Override

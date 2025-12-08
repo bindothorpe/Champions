@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.timer.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,11 +16,17 @@ import org.bukkit.entity.LivingEntity;
 public class FlameItem extends GameItem {
 
     private final double collisionDamage;
+    private final double despawnDelay;
 
-    public FlameItem(DomainController dc, Entity owner, double collisionDamage, SkillId sourceSkillId) {
+    public FlameItem(DomainController dc, Entity owner, double collisionDamage, double despawnDelay, SkillId sourceSkillId) {
         super(dc, Material.BLAZE_POWDER, 0.7D, owner, 1.0, 0.15);
         this.collisionDamage = collisionDamage;
+        this.despawnDelay = despawnDelay;
     }
+    public FlameItem(DomainController dc, Entity owner, double collisionDamage, SkillId sourceSkillId) {
+        this(dc, owner, collisionDamage, 0, sourceSkillId);
+    }
+
 
     @Override
     public void onTickUpdate() {
@@ -37,8 +44,11 @@ public class FlameItem extends GameItem {
             return;
         }
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE, dc.getSkillManager().getSkillName(SkillId.FLESH_HOOK));
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE, dc.getSkillManager().getSkillName(SkillId.INFERNO));
+
         CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
+        customDamageCommand.force(0);
+        customDamageCommand.suppressHitSound();
         customDamageEvent.setCommand(customDamageCommand);
 
         Bukkit.getPluginManager().callEvent(customDamageEvent);
@@ -56,7 +66,12 @@ public class FlameItem extends GameItem {
 
     @Override
     public void onCollideWithBlock(Block block) {
-        remove();
+        if(despawnDelay > 0) {
+            new Timer(dc.getPlugin(), despawnDelay, this::remove);
+        } else {
+            remove();
+        }
+
     }
 
     @Override

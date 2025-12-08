@@ -31,6 +31,7 @@ public class CustomDamageCommand implements Command {
     private Vector overwriteDirection;
     private double overwriteForce = Double.MIN_VALUE;
     private double overwriteDamage = Double.MIN_VALUE;
+    private boolean suppressHitSound = false;
     private boolean hasExecuted = false;
 
     public CustomDamageCommand(DomainController dc, LivingEntity damagee, LivingEntity damager, double originalDamage, Location attackLocation, CustomDamageSource source) {
@@ -64,12 +65,14 @@ public class CustomDamageCommand implements Command {
         Vector newVelocity = damagee.getVelocity().add(overwriteDirection.multiply(overwriteForce == Double.MIN_VALUE ? getFinalKnockback() : overwriteForce));
         damagee.setVelocity(newVelocity);
 
-        // Play the damage animation
-        damagee.playHurtAnimation(0);
+        if(getDamage() > 0) {
+            // Play the damage animation
+            damagee.playHurtAnimation(0);
 
-        // Play the hurt sound
-        if(damagee.getHurtSound() != null) damagee.getWorld().playSound(Sound.sound().type(damagee.getHurtSound()).build(), damagee);
+            // Play the hurt sound
+            if(damagee.getHurtSound() != null) damagee.getWorld().playSound(Sound.sound().type(damagee.getHurtSound()).build(), damagee);
 
+        }
 
         hasExecuted = true;
     }
@@ -152,5 +155,13 @@ public class CustomDamageCommand implements Command {
 
     private Vector getKnockbackDirection() {
         return damagee.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
+    }
+
+    public void suppressHitSound() {
+        this.suppressHitSound = true;
+    }
+
+    public boolean shouldSuppressHitSound() {
+        return suppressHitSound;
     }
 }

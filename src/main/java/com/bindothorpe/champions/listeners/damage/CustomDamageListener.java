@@ -35,6 +35,9 @@ public class CustomDamageListener implements Listener {
         XpBarUtil.setXp(player, (int) event.getCommand().getDamage(), 1);
 
         if(event.getSource().equals(CustomDamageSource.ATTACK_PROJECTILE) || event.getSource().equals(CustomDamageSource.SKILL_PROJECTILE)) {
+
+            if(event.getCommand().shouldSuppressHitSound()) return;
+
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
         }
     }

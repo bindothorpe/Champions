@@ -65,7 +65,7 @@ public class Inferno extends ChargeSkill {
                 0.07D - random.nextInt(14) / 100.0D
         ));
         dc.getGameItemManager().spawnGameItem(flameItem, player.getEyeLocation().clone().add(0, -0.3, 0), direction, 1.6);
-        dc.getSoundManager().playSound(player.getLocation(), CustomSound.INFERNO_FLAME_SPAWN);
+        dc.getSoundManager().playSound(player.getLocation(), CustomSound.SKILL_INFERNO_FLAME_SPAWN);
     }
 
     @Override

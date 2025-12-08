@@ -32,6 +32,10 @@ public class PlayerDropItemWrapperEvent extends Event implements Cancellable {
         return item.getType().toString().contains("BOW");
     }
 
+    public boolean isWeapon() {
+        return isSword() || isAxe() || isBow();
+    }
+
     @Override
     public boolean isCancelled() {
         return cancelled;

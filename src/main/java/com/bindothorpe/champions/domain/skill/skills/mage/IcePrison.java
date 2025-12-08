@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.item.items.IceOrbItem;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -28,8 +29,9 @@ public class IcePrison extends Skill {
     }
 
     @EventHandler
-    public void onRightClick(PlayerInteractEvent event) {
+    public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();
+
         boolean success = activate(player.getUniqueId(), event);
 
         if (!success) {

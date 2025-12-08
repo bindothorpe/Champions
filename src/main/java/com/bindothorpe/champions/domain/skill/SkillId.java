@@ -26,7 +26,11 @@ public enum SkillId {
     BULLS_CHARGE(SkillType.AXE),
     FLESH_HOOK(SkillType.SWORD),
     RIPOSTE(SkillType.SWORD),
-    INFERNO(SkillType.SWORD);
+    INFERNO(SkillType.SWORD),
+    BLIZZARD(SkillType.SWORD),
+    IMMOLATE(SkillType.PASSIVE_A),
+    VOID(SkillType.PASSIVE_A),
+    STATIC_LAZER(SkillType.SWORD);
 
 
     private final SkillType skillType;

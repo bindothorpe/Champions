@@ -3,6 +3,7 @@ package com.bindothorpe.champions.events.damage;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.combat.DamageLog;
+import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.util.ChatUtil;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
@@ -100,9 +101,12 @@ public class EntityDamageByEntityListener implements Listener {
         LivingEntity damagee = (LivingEntity) event.getEntity();
 
         //TODO: Get the skill name from the skill id from the metadata of the arrow
+//        SkillId skillId = CustomDamageEvent.getSkillIdData(dc, projectile);
+        CustomDamageSource customDamageSource = CustomDamageEvent.getCustomDamageSourceData(dc, projectile);
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK_PROJECTILE, null);
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), projectile.getLocation(), CustomDamageSource.ATTACK_PROJECTILE);
+
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, projectile, event.getDamage(), projectile.getLocation(), customDamageSource, null);
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), projectile.getLocation(), customDamageSource);
 
         customDamageEvent.setCommand(customDamageCommand);
 
