@@ -24,7 +24,7 @@ public class FleshHookItem extends GameItem {
     private boolean flaggedForRemoval = false;
 
     public FleshHookItem(DomainController dc, Entity owner, double collisionDamage, double collisionPullForce) {
-        super(dc, Material.TRIPWIRE_HOOK, -1, owner, COLLISION_RADIUS, 0.15);
+        super(dc, Material.TRIPWIRE_HOOK, -1, owner, COLLISION_RADIUS, 0.15, BlockCollisionMode.TOP_ONLY);
         this.collisionDamage = collisionDamage;
         this.collisionPullForce = collisionPullForce;
     }

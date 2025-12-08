@@ -13,6 +13,11 @@ import java.util.UUID;
 
 public abstract class GameItem {
 
+    public enum BlockCollisionMode {
+        ALL_SIDES,      // Collide with any block face (walls, ceiling, floor)
+        TOP_ONLY        // Only collide with the top surface of blocks
+    }
+
     private Item item;
     private UUID id;
 
@@ -24,6 +29,7 @@ public abstract class GameItem {
 
     private double entityCollisionRadius = -1;
     private double blockCollisionRadius = -1;
+    private BlockCollisionMode blockCollisionMode = BlockCollisionMode.ALL_SIDES;
 
     public GameItem(DomainController dc, Material material, double duration, Entity owner, double entityCollisionRadius, double blockCollisionRadius) {
         this.dc = dc;
@@ -32,6 +38,11 @@ public abstract class GameItem {
         this.owner = owner;
         this.entityCollisionRadius = entityCollisionRadius;
         this.blockCollisionRadius = blockCollisionRadius;
+    }
+
+    public GameItem(DomainController dc, Material material, double duration, Entity owner, double entityCollisionRadius, double blockCollisionRadius, BlockCollisionMode blockCollisionMode) {
+        this(dc, material, duration, owner, entityCollisionRadius, blockCollisionRadius);
+        this.blockCollisionMode = blockCollisionMode;
     }
 
     public UUID spawn(Location startingLocation, Vector direction, double strength) {
@@ -83,12 +94,20 @@ public abstract class GameItem {
         return blockCollisionRadius;
     }
 
+    public BlockCollisionMode getBlockCollisionMode() {
+        return blockCollisionMode;
+    }
+
     public void setEntityCollisionRadius(double entityCollisionRadius) {
         this.entityCollisionRadius = entityCollisionRadius;
     }
 
     public void setBlockCollisionRadius(double blockCollisionRadius) {
         this.blockCollisionRadius = blockCollisionRadius;
+    }
+
+    public void setBlockCollisionMode(BlockCollisionMode blockCollisionMode) {
+        this.blockCollisionMode = blockCollisionMode;
     }
 
 }

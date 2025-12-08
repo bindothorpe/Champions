@@ -239,7 +239,7 @@ public class HeavySwing extends ChargeSkill {
         dc.getSoundManager().playSound(player, CustomSound.CHARGE_SKILL_CHARGE, getChargePercentage(uuid));
 
         // Show charge progress in action bar
-        ChatUtil.sendActionBarMessage(player, ComponentUtil.chargeBar(charge, getMaxCharge(uuid)));
+        ChatUtil.sendActionBarMessage(player, ComponentUtil.skillCharge(getName(), true, charge, getMaxCharge(uuid)));
     }
 
     @Override

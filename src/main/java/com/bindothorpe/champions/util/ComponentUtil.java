@@ -64,6 +64,25 @@ public class ComponentUtil {
                 .append(Component.text(String.format("%.1fs", cooldownRemainingInSeconds)).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false));
     }
 
+    public static Component skillCharge(String skillName, boolean showPercentage, int charge, int maxCharge, int width, String symbol) {
+        Component component = Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                .append(Component.text(" ").decoration(TextDecoration.BOLD, false)
+                        .append(chargeBar(charge, maxCharge, width, symbol)));
+
+        if(showPercentage) {
+
+            double percentage = Math.min((double) charge / (double) maxCharge, 1);
+            component = component.append(Component.text(" ").decoration(TextDecoration.BOLD, false)
+                    .append(Component.text(String.format("%d%%", (int) (percentage * 100))).color(NamedTextColor.WHITE)));
+        }
+
+        return component;
+    }
+
+    public static Component skillCharge(String skillName, boolean showPercentage, int charge, int maxCharge) {
+        return skillCharge(skillName, showPercentage, charge, maxCharge, 40, "|");
+    }
+
     public static Component chargeBar(int charge, int maxCharge) {
         return chargeBar(charge, maxCharge, 40, "|");
     }

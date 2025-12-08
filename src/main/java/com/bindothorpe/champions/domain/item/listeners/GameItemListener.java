@@ -9,6 +9,8 @@ import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.BlockUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -51,6 +53,7 @@ public class GameItemListener implements Listener {
 
         dc.getGameItemManager().getGameItems().forEach(GameItem::onRapidUpdate);
     }
+
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (!event.getUpdateType().equals(UpdateType.TICK))
@@ -72,12 +75,38 @@ public class GameItemListener implements Listener {
 
 
             List<Block> collidingBlocks = new ArrayList<>();
-            if(blockCollisionRadius != -1)
+            if(blockCollisionRadius != -1) {
                 collidingBlocks.addAll(BlockUtil.getNearbyBlocks(gameItem.getLocation(), blockCollisionRadius));
+
+                // Filter blocks based on collision mode
+                if(gameItem.getBlockCollisionMode() == GameItem.BlockCollisionMode.TOP_ONLY) {
+                    collidingBlocks = filterTopSurfaceOnly(gameItem.getLocation(), collidingBlocks);
+                }
+            }
 
             if(!collidingBlocks.isEmpty())
                 Bukkit.getPluginManager().callEvent(new GameItemCollideWithBlockEvent(dc, gameItem, collidingBlocks.get(0)));
         });
+    }
+
+    /**
+     * Filters blocks to only include those that are below the item and have air above them (top surface)
+     */
+    private List<Block> filterTopSurfaceOnly(Location itemLocation, List<Block> blocks) {
+        return blocks.stream()
+                .filter(block -> {
+                    // Check if block is below the item (item's Y is higher than block's top surface)
+                    double blockTopY = block.getY() + 1.0;
+                    boolean isBelow = itemLocation.getY() >= blockTopY - 0.5; // Small tolerance for edge cases
+
+                    // Check if the block is solid and has air or non-solid block above it
+                    boolean isSolid = block.getType().isSolid();
+                    Block blockAbove = block.getRelative(0, 1, 0);
+                    boolean hasAirAbove = !blockAbove.getType().isSolid() || blockAbove.getType() == Material.AIR;
+
+                    return isBelow && isSolid && hasAirAbove;
+                })
+                .collect(Collectors.toList());
     }
 
     @EventHandler

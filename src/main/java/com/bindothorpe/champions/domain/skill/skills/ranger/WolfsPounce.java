@@ -83,7 +83,7 @@ public class WolfsPounce extends ChargeSkill {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         dc.getSoundManager().playSound(player, CustomSound.CHARGE_SKILL_CHARGE, getChargePercentage(uuid));
-        ChatUtil.sendActionBarMessage(player, ComponentUtil.chargeBar(charge, getMaxCharge(uuid)));
+        ChatUtil.sendActionBarMessage(player, ComponentUtil.skillCharge(getName(), true, charge, getMaxCharge(uuid)));
     }
 
     @Override

@@ -30,6 +30,9 @@ public class StaticLazer extends ChargeSkill {
     private static final double BASE_DISTANCE = 30D;
     private static final double ADDITIONAL_DISTANCE_PER_LEVEL = 10D;
 
+    private static final double BASE_DAMAGE = 6D;
+    private static final double ADDITIONAL_DAMAGE_PER_LEVEL = 2D;
+
     public StaticLazer(DomainController dc) {
         super(dc, SkillId.STATIC_LAZER, SkillType.SWORD, ClassType.MAGE, "Static Lazer", List.of(9.5D, 9D, 8.5D, 8D, 7.5D), 5, 1, List.of(40, 35, 30, 25, 20), List.of(3D, 3D, 3D, 3D, 3D));
     }
@@ -49,7 +52,7 @@ public class StaticLazer extends ChargeSkill {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return;
         dc.getSoundManager().playSound(player, CustomSound.CHARGE_SKILL_CHARGE, getChargePercentage(uuid));
-        ChatUtil.sendActionBarMessage(player, ComponentUtil.chargeBar(charge, getMaxCharge(uuid)));
+        ChatUtil.sendActionBarMessage(player, ComponentUtil.skillCharge(getName(), true, charge, getMaxCharge(uuid)));
     }
 
     @Override
@@ -108,7 +111,7 @@ public class StaticLazer extends ChargeSkill {
                 hitEntity,
                 player,
                 null,
-                3D, //TODO: Replace this with scaling damage
+                BASE_DAMAGE + (getSkillLevel(uuid) * ADDITIONAL_DAMAGE_PER_LEVEL) * ((double) charge / getMaxCharge(uuid)),
                 player.getLocation(),
                 CustomDamageSource.SKILL,
                 getName()
