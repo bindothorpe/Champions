@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.brute;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
@@ -27,16 +28,21 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Trample extends Skill {
+public class Trample extends Skill implements ReloadableData {
 
-    private final int TRAMPLE_COUNT = 8;
-    private final int TRAMPLE_DELAY_IN_MILLISECONDS = 500;
-    private Map<UUID, Long> lastTrampleTimestamps = new HashMap<>();
-    private Map<UUID, Integer> activeTramplesRemaining = new HashMap<>();
-    private final List<Double> damage = List.of(0.5, 1.0, 1.5);
+    private static int BASE_TRAMPLE_COUNT;
+    private static int TRAMPLE_COUNT_INCREASE_PER_LEVEL;
+    private static double BASE_TRAMPLE_RADIUS;
+    private static double TRAMPLE_RADIUS_INCREASE_PER_LEVEL;
+    private static int TRAMPLE_DELAY_IN_MILLISECONDS;
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
+
+    private final Map<UUID, Long> lastTrampleTimestamps = new HashMap<>();
+    private final Map<UUID, Integer> activeTramplesRemaining = new HashMap<>();
 
     public Trample(DomainController dc) {
-        super(dc, SkillId.TRAMPLE, SkillId.TRAMPLE.getSkillType(), ClassType.BRUTE, "Trample", List.of(12d, 8d, 5d), 3, 1);
+        super(dc, "Trample", SkillId.TRAMPLE, SkillId.TRAMPLE.getSkillType(), ClassType.BRUTE);
     }
 
     @Override
@@ -58,7 +64,8 @@ public class Trample extends Skill {
         Player player = event.getPlayer();
 
         performTrample(player);
-        activeTramplesRemaining.put(player.getUniqueId(), TRAMPLE_COUNT - 1);
+        int trampleCount = calculateBasedOnLevel(BASE_TRAMPLE_COUNT, TRAMPLE_COUNT_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId()));
+        activeTramplesRemaining.put(player.getUniqueId(), trampleCount - 1);
         lastTrampleTimestamps.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
@@ -98,7 +105,7 @@ public class Trample extends Skill {
 
         // Create particle effect using ShapeUtil
         Location center = player.getLocation();
-        double radius = 3.0;
+        double radius = calculateBasedOnLevel(BASE_TRAMPLE_RADIUS, TRAMPLE_RADIUS_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId()));
 
         // Get circle points using ShapeUtil
         Set<Vector> circlePoints = ShapeUtil.circle(radius);
@@ -119,7 +126,7 @@ public class Trample extends Skill {
         }
 
         // Damage entities (your existing code)
-        Set<Entity> nearby = player.getLocation().getNearbyEntities(3, 1, 3)
+        Set<Entity> nearby = player.getLocation().getNearbyEntities(radius, 1, radius)
                 .stream()
                 .filter(entity -> !dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(entity)))
                 .filter(entity -> entity instanceof LivingEntity)
@@ -127,7 +134,7 @@ public class Trample extends Skill {
                 .filter(Entity::isOnGround)
                 .collect(Collectors.toSet());
 
-        double damage = this.damage.get(getSkillLevel(player.getUniqueId()) - 1);
+        double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId()));
 
         for(Entity entity : nearby) {
             CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
@@ -139,6 +146,26 @@ public class Trample extends Skill {
                 continue;
 
             customDamageCommand.execute();
+        }
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.trample.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.trample.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.cooldown_reduction_per_level");
+            BASE_TRAMPLE_COUNT = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.trample.base_trample_count");
+            TRAMPLE_COUNT_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.trample.trample_count_increase_per_level");
+            BASE_TRAMPLE_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.base_trample_radius");
+            TRAMPLE_RADIUS_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.trample_radius_increase_per_level");
+            TRAMPLE_DELAY_IN_MILLISECONDS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.trample.trample_delay_in_milliseconds");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.trample.damage_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
         }
     }
 }

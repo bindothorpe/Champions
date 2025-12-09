@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.brute;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -31,12 +32,17 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class HeadButt extends Skill {
+public class HeadButt extends Skill implements ReloadableData {
 
-    private static final double COLLISION_RADIUS = 0.5;
-    private static final double VELOCITY = 1.5;
-    private final List<Double> damage = Arrays.asList(1.0, 2.0, 3.0);
-    private final List<Double> impactDamage = Arrays.asList(2.0, 4.0, 7.0);
+    private static double COLLISION_RADIUS;
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
+    private static double BASE_WALL_IMPACT_DAMAGE;
+    private static double WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL;
+    private static double BASE_LAUNCH_STRENGTH;
+    private static double LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
+    private static double BASE_IMPACT_LAUNCH_STRENGTH;
+    private static double IMPACT_LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
 
     private final Set<UUID> active = new HashSet<>();
     private final Map<UUID, Location> startingLocations = new HashMap<>();
@@ -46,7 +52,7 @@ public class HeadButt extends Skill {
     private final Map<UUID, Location> hitStartingLocations = new HashMap<>();
 
     public HeadButt(DomainController dc) {
-        super(dc, SkillId.HEAD_BUTT, SkillType.AXE, ClassType.BRUTE, "Head Butt", Arrays.asList(10.0, 7.5, 3.0), 3, 1);
+        super(dc, "Head Butt", SkillId.HEAD_BUTT, SkillType.AXE, ClassType.BRUTE);
     }
 
     @EventHandler
@@ -57,7 +63,7 @@ public class HeadButt extends Skill {
 
         Player player = event.getPlayer();
 
-        player.setVelocity(player.getLocation().getDirection().setY(0).normalize().multiply(VELOCITY));
+        player.setVelocity(player.getLocation().getDirection().setY(0).normalize().multiply(calculateBasedOnLevel(BASE_LAUNCH_STRENGTH, LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player))));
         active.add(player.getUniqueId());
         startingLocations.put(player.getUniqueId(), player.getLocation());
 
@@ -90,14 +96,14 @@ public class HeadButt extends Skill {
             Location startingLocation = startingLocations.get(uuid);
 
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, damage.get(getSkillLevel(uuid) - 1), player.getLocation(), CustomDamageSource.SKILL, getName());
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid)), player.getLocation(), CustomDamageSource.SKILL, getName());
 
             //Get the direction of the player's headbutt by subtracting the starting location's vector from the current location's vector
             Vector dir = player.getLocation().toVector().subtract(startingLocation.toVector()).setY(0).normalize().setY(0.2).normalize();
 
             CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
                     .direction(dir)
-                    .force(VELOCITY);
+                    .force(calculateBasedOnLevel(BASE_IMPACT_LAUNCH_STRENGTH, IMPACT_LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(uuid)));
 
             damageEvent.setCommand(damageCommand);
 
@@ -150,7 +156,7 @@ public class HeadButt extends Skill {
             if(nearbyBlocks.isEmpty())
                 continue;
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), impactDamage.get(getSkillLevel(hitBy.get(uuid)) - 1), entity.getLocation(), CustomDamageSource.SKILL, getName());
+            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), calculateBasedOnLevel(BASE_WALL_IMPACT_DAMAGE, WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(hitBy.get(uuid))), entity.getLocation(), CustomDamageSource.SKILL, getName());
             CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
                     .direction(new Vector(0, 0, 0));
             damageEvent.setCommand(damageCommand);
@@ -213,14 +219,36 @@ public class HeadButt extends Skill {
         lore.add(Component.text("forward and headbutt the").color(NamedTextColor.GRAY));
         lore.add(Component.text("first enemy you hit, knocking").color(NamedTextColor.GRAY));
         lore.add(Component.text("them back and dealing").color(NamedTextColor.GRAY));
-        lore.add(ComponentUtil.skillLevelValues(skillLevel, damage, NamedTextColor.YELLOW)
+        lore.add(ComponentUtil.skillValuesBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)
                 .append(Component.text(" damage").color(NamedTextColor.GRAY)));
         lore.add(Component.text(" "));
         lore.add(Component.text("If they get knocked into a").color(NamedTextColor.GRAY));
         lore.add(Component.text("wall, they will be stunned").color(NamedTextColor.GRAY));
         lore.add(Component.text("for 0.5 seconds and take").color(NamedTextColor.GRAY));
-        lore.add(ComponentUtil.skillLevelValues(skillLevel, damage, NamedTextColor.YELLOW)
+        lore.add(ComponentUtil.skillValuesBasedOnLevel(BASE_WALL_IMPACT_DAMAGE, WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)
                 .append(Component.text(" damage").color(NamedTextColor.GRAY)));
         return lore;
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.head_butt.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.head_butt.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.cooldown_reduction_per_level");
+            COLLISION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.collision_radius");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.damage_increase_per_level");
+            BASE_WALL_IMPACT_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_wall_impact_damage");
+            WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.wall_impact_damage_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_impact_launch_strength");
+            BASE_IMPACT_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.base_impact_launch_strength");
+            IMPACT_LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.head_butt.impact_launch_strength_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }
