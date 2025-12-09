@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.ChargeSkill;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
@@ -25,16 +26,17 @@ import org.bukkit.util.Vector;
 import java.util.List;
 import java.util.UUID;
 
-public class StaticLazer extends ChargeSkill {
+public class StaticLazer extends ChargeSkill implements ReloadableData {
 
-    private static final double BASE_DISTANCE = 30D;
-    private static final double ADDITIONAL_DISTANCE_PER_LEVEL = 10D;
-
-    private static final double BASE_DAMAGE = 6D;
-    private static final double ADDITIONAL_DAMAGE_PER_LEVEL = 2D;
+    private static double BASE_DISTANCE;
+    private static double DISTANCE_INCREASE_PER_LEVEL;
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
+    private static double DETECTION_RADIUS;
+    private static double DETECTION_DENSITY_PER_BLOCK;
 
     public StaticLazer(DomainController dc) {
-        super(dc, SkillId.STATIC_LAZER, SkillType.SWORD, ClassType.MAGE, "Static Lazer", List.of(9.5D, 9D, 8.5D, 8D, 7.5D), 5, 1, List.of(40, 35, 30, 25, 20), List.of(3D, 3D, 3D, 3D, 3D));
+        super(dc, "Static Lazer", SkillId.STATIC_LAZER, SkillType.SWORD, ClassType.MAGE);
     }
 
     @Override
@@ -74,11 +76,14 @@ public class StaticLazer extends ChargeSkill {
         if (player == null)
             return;
 
+        double distance = calculateBasedOnLevel(BASE_DISTANCE, DISTANCE_INCREASE_PER_LEVEL, getSkillLevel(uuid));
+        double chargePercentage = (double) charge / getMaxCharge(uuid);
+
         RaycastResult result = RaycastUtil.drawRaycastFromPlayerInLookingDirection(
                 player,
-                BASE_DISTANCE + (getSkillLevel(uuid) * ADDITIONAL_DISTANCE_PER_LEVEL) * ((double) charge / getMaxCharge(uuid)),
-                2,
-                0.3,
+                distance * chargePercentage,
+                DETECTION_DENSITY_PER_BLOCK,
+                DETECTION_RADIUS,
                 false,
                 false,
                 false
@@ -106,12 +111,14 @@ public class StaticLazer extends ChargeSkill {
 
         dc.getSoundManager().playSound(explosionLocation, CustomSound.SKILL_STATIC_LAZER_HIT);
 
+        double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid));
+
         CustomDamageEvent customDamageEvent = new CustomDamageEvent(
                 dc,
                 hitEntity,
                 player,
                 null,
-                BASE_DAMAGE + (getSkillLevel(uuid) * ADDITIONAL_DAMAGE_PER_LEVEL) * ((double) charge / getMaxCharge(uuid)),
+                damage * chargePercentage,
                 player.getLocation(),
                 CustomDamageSource.SKILL,
                 getName()
@@ -133,5 +140,28 @@ public class StaticLazer extends ChargeSkill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.cooldown_reduction_per_level");
+            BASE_MAX_CHARGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.base_max_charge");
+            MAX_CHARGE_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.max_charge_reduction_per_level");
+            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.base_max_charge_duration");
+            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.max_charge_duration_increase_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.damage_increase_per_level");
+            BASE_DISTANCE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.base_distance");
+            DISTANCE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.distance_increase_per_level");
+            DETECTION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.detection_radius");
+            DETECTION_DENSITY_PER_BLOCK = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.detection_density_per_block");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

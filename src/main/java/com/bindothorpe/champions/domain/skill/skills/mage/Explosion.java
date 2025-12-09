@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -28,16 +29,19 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Explosion extends Skill {
-
-    private List<Double> travelSpeed = Arrays.asList(30.0, 38.0, 50.0);
-    private List<Double> damage = Arrays.asList(7.0, 7.5, 8.0);
-
+public class Explosion extends Skill implements ReloadableData {
     private Map<UUID, ArmorStand> explosionOrbsMap;
     private Map<UUID, Vector> directionMap;
 
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
+    private static double BASE_TRAVEL_SPEED;
+    private static double TRAVEL_SPEED_INCREASE_PER_LEVEL;
+    private static double BASE_COLLISION_RADIUS;
+    private static double COLLISION_RADIUS_INCREASE_PER_LEVEL;
+
     public Explosion(DomainController dc) {
-        super(dc, SkillId.EXPLOSION, SkillType.AXE, ClassType.MAGE, "Explosion", Arrays.asList(10D, 8D, 2D), 3, 1);
+        super(dc, "Explosion", SkillId.EXPLOSION, SkillType.AXE, ClassType.MAGE);
         explosionOrbsMap = new HashMap<>();
         directionMap = new HashMap<UUID, Vector>();
     }
@@ -76,11 +80,10 @@ public class Explosion extends Skill {
 
         for(Map.Entry<UUID, ArmorStand> entry: explosionOrbsMap.entrySet()) {
             UUID uuid = entry.getKey();
-            Player player = Bukkit.getPlayer(uuid);
 
             ArmorStand explosionOrb = entry.getValue();
             Vector direction = directionMap.get(uuid);
-            Vector add = direction.clone().multiply(travelSpeed.get(getSkillLevel(uuid) - 1) / 20);
+            Vector add = direction.clone().multiply(calculateBasedOnLevel(BASE_TRAVEL_SPEED, TRAVEL_SPEED_INCREASE_PER_LEVEL, getSkillLevel(uuid)) / 20);
 
             explosionOrb.teleport(explosionOrb.getLocation().add(add));
             explosionOrb.getWorld().spawnParticle(Particle.FLAME, explosionOrb.getEyeLocation(), 1, 0, 0, 0, 0, null, true);
@@ -95,7 +98,8 @@ public class Explosion extends Skill {
                 return;
             }
 
-            Set<UUID> uuids = explosionOrb.getEyeLocation().getNearbyEntities(0.25, 0.25, 0.25).stream().filter(entity -> entity instanceof LivingEntity).map(entity -> entity.getUniqueId()).collect(Collectors.toSet());
+            double radius = calculateBasedOnLevel(BASE_COLLISION_RADIUS, COLLISION_RADIUS_INCREASE_PER_LEVEL, getSkillLevel(uuid));
+            Set<UUID> uuids = explosionOrb.getEyeLocation().getNearbyEntities(radius, radius, radius).stream().filter(entity -> entity instanceof LivingEntity).map(entity -> entity.getUniqueId()).collect(Collectors.toSet());
             uuids.remove(uuid);
             uuids.remove(explosionOrb.getUniqueId());
 
@@ -138,7 +142,7 @@ public class Explosion extends Skill {
 
         for(UUID id: uuids) {
             LivingEntity entity = (LivingEntity) Bukkit.getEntity(id);
-            entity.damage(damage.get(getSkillLevel(uuid) - 1));
+            entity.damage(calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid)));
         }
 
         location.getWorld().spawnParticle(Particle.EXPLOSION, location, 1, 0, 0, 0, 0, null, true);
@@ -168,13 +172,33 @@ public class Explosion extends Skill {
                 .append(Component.text("to").color(NamedTextColor.GRAY)));
         lore.add(Component.text("launch an explosive orb").color(NamedTextColor.GRAY));
         lore.add(Component.text("that travels ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, travelSpeed, NamedTextColor.YELLOW)));
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_TRAVEL_SPEED, TRAVEL_SPEED_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)));
         lore.add(Component.text("blocks per second and").color(NamedTextColor.GRAY));
         lore.add(Component.text("deals ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, damage, NamedTextColor.YELLOW))
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
                 .append(Component.text(" damage").color(NamedTextColor.RED)));
         lore.add(Component.text("on impact or recast, to all").color(NamedTextColor.GRAY));
         lore.add(Component.text("nearby enemies").color(NamedTextColor.GRAY));
         return lore;
+    }
+
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.explosion.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.explosion.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.cooldown_reduction_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.damage_increase_per_level");
+            BASE_TRAVEL_SPEED = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.base_travel_speed");
+            TRAVEL_SPEED_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.travel_speed_increase_per_level");
+            BASE_COLLISION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.base_collision_radius");
+            COLLISION_RADIUS_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.collision_radius_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

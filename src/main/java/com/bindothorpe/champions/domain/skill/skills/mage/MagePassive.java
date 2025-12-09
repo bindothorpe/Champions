@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -11,13 +12,12 @@ import net.kyori.adventure.text.Component;
 
 import java.util.*;
 
-public class MagePassive extends Skill {
+public class MagePassive extends Skill implements ReloadableData {
 
-    private final Map<UUID, Set<UUID>> effects;
+    private static double COOLDOWN_REDUCTION;
 
     public MagePassive(DomainController dc) {
-        super(dc, SkillId.MAGE_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.MAGE, "Mage Passive", null, 1, 0);
-        this.effects = new HashMap<>();
+        super(dc, "Mage Passive", SkillId.MAGE_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.MAGE);
     }
 
     @Override
@@ -35,5 +35,17 @@ public class MagePassive extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return null;
+    }
+
+
+
+    @Override
+    public void onReload() {
+        try {
+            COOLDOWN_REDUCTION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.passive.cooldown_reduction");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

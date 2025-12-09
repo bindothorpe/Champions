@@ -186,8 +186,8 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.mage.explosion.damage_increase_per_level", 0.5);
         getFile().addDefault("skills.mage.explosion.base_travel_speed", 30.0);
         getFile().addDefault("skills.mage.explosion.travel_speed_increase_per_level", 10.0);
-        getFile().addDefault("skills.mage.explosion.base_collision_radius", 2.5);
-        getFile().addDefault("skills.mage.explosion.collision_radius_increase_per_level", 0.3);
+        getFile().addDefault("skills.mage.explosion.base_collision_radius", 0.25);
+        getFile().addDefault("skills.mage.explosion.collision_radius_increase_per_level", 0.1);
         // Ice Prison
         getFile().addDefault("skills.mage.ice_prison.max_level", 3);
         getFile().addDefault("skills.mage.ice_prison.level_up_cost", 1);
@@ -195,6 +195,8 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.mage.ice_prison.cooldown_reduction_per_level", 2.0);
         getFile().addDefault("skills.mage.ice_prison.base_duration", 3.0);
         getFile().addDefault("skills.mage.ice_prison.duration_increase_per_level", 1.0);
+        getFile().addDefault("skills.mage.ice_prison.base_orb_duration", 3.0);
+        getFile().addDefault("skills.mage.ice_prison.orb_duration_increase_per_level", 1.0);
         getFile().addDefault("skills.mage.ice_prison.base_launch_strength", 1.5);
         getFile().addDefault("skills.mage.ice_prison.launch_strength_increase_per_level", 0.2);
         getFile().addDefault("skills.mage.ice_prison.radius", 5);
@@ -221,7 +223,7 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.mage.void.duration_reduction_on_hit_reduction_per_level", 0.25);
         getFile().addDefault("skills.mage.void.damage_received_mod", -1.0);
         getFile().addDefault("skills.mage.void.slow_mod", 1);
-        // Heavy Swing
+        // Static Lazer
         getFile().addDefault("skills.mage.static_lazer.max_level", 5);
         getFile().addDefault("skills.mage.static_lazer.level_up_cost", 1);
         getFile().addDefault("skills.mage.static_lazer.base_cooldown", 5.0);

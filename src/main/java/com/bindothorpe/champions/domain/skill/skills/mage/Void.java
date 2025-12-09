@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -15,22 +16,29 @@ import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class Void extends Skill {
+public class Void extends Skill implements ReloadableData {
 
 
     private static final List<Double> activeDuration = List.of(4D, 5D, 6D);
     private static final List<Double> durationReductionOnHit = List.of(1D, 0.75D, 0.5D);
 
+
+    private static double BASE_ACTIVE_DURATION;
+    private static double ACTIVE_DURATION_INCREASE_PER_LEVEL;
+    private static double BASE_DURATION_REDUCTION_ON_HIT;
+    private static double DURATION_REDUCTION_ON_HIT_REDUCTION_PER_LEVEL;
+    private static double DAMAGE_RECEIVED_MOD;
+    private static int SLOW_MOD;
+
     private final Map<UUID, Long> activeEndDuration = new HashMap<>();
 
     public Void(DomainController dc) {
-        super(dc, SkillId.VOID, SkillType.PASSIVE_A, ClassType.MAGE, "Void", List.of(15D, 13D, 11D), 3, 1);
+        super(dc,"Void", SkillId.VOID, SkillType.PASSIVE_A, ClassType.MAGE);
     }
 
 
@@ -50,7 +58,7 @@ public class Void extends Skill {
     private void enableVoid(@NotNull UUID uuid, PlayerDropItemWrapperEvent event) {
         if(!activate(uuid, event)) return;
 
-        activeEndDuration.put(uuid, System.currentTimeMillis() + ((long) (activeDuration.get(getSkillLevel(uuid) - 1) * 1000L)));
+        activeEndDuration.put(uuid, System.currentTimeMillis() + ((long) (calculateBasedOnLevel(BASE_ACTIVE_DURATION, ACTIVE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid)) * 1000L)));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(
                 EntityStatusType.KNOCKBACK_RECEIVED,
                 0,
@@ -60,13 +68,13 @@ public class Void extends Skill {
                 this));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(
                 EntityStatusType.DAMAGE_RECEIVED,
-                -0.5,
+                DAMAGE_RECEIVED_MOD,
                 -1,
                 true,
                 false,
                 this
         ));
-        dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.SLOW, uuid, getNamespacedKey(uuid), 1);
+        dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.SLOW, uuid, getNamespacedKey(uuid), SLOW_MOD);
         dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.INVISIBLE, uuid, getNamespacedKey(uuid));
 
     }
@@ -91,7 +99,7 @@ public class Void extends Skill {
 
         if(!activeEndDuration.containsKey(uuid)) return;
 
-        activeEndDuration.put(uuid, activeEndDuration.get(uuid) - ((long) (durationReductionOnHit.get(getSkillLevel(uuid) - 1) * 1000L)));
+        activeEndDuration.put(uuid, activeEndDuration.get(uuid) - ((long) (calculateBasedOnLevel(BASE_DURATION_REDUCTION_ON_HIT, -DURATION_REDUCTION_ON_HIT_REDUCTION_PER_LEVEL, getSkillLevel(uuid)) * 1000L)));
         dc.getSoundManager().playSound(Objects.requireNonNull(Bukkit.getPlayer(uuid)).getLocation(), CustomSound.SKILL_VOID_HURT);
     }
 
@@ -119,5 +127,24 @@ public class Void extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.cooldown_reduction_per_level");
+            BASE_ACTIVE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.base_active_duration");
+            ACTIVE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.active_duration_increase_per_level");
+            BASE_DURATION_REDUCTION_ON_HIT = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.base_duration_reduction_on_hit");
+            DURATION_REDUCTION_ON_HIT_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.duration_reduction_on_hit_reduction_per_level");
+            DAMAGE_RECEIVED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.damage_received_mod");
+            SLOW_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.slow_mod");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

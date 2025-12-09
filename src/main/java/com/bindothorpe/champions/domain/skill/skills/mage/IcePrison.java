@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.item.items.IceOrbItem;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -19,13 +20,18 @@ import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.*;
 
-public class IcePrison extends Skill {
+public class IcePrison extends Skill implements ReloadableData {
 
-    private final List<Double> duration = Arrays.asList(3.0, 4.0, 5.0);
-
+    private static double BASE_DURATION;
+    private static double DURATION_INCREASE_PER_LEVEL;
+    private static double BASE_ORB_DURATION;
+    private static double ORB_DURATION_INCREASE_PER_LEVEL;
+    private static double BASE_LAUNCH_STRENGTH;
+    private static double LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
+    private static double RADIUS;
 
     public IcePrison(DomainController dc) {
-        super(dc, SkillId.ICE_PRISON, SkillType.AXE, ClassType.MAGE, "Ice Prison", Arrays.asList(13.0, 10.0, 8.0), 3, 1);
+        super(dc, "Ice Prison", SkillId.ICE_PRISON, SkillType.AXE, ClassType.MAGE);
     }
 
     @EventHandler
@@ -34,7 +40,11 @@ public class IcePrison extends Skill {
 
         if (!activate(player.getUniqueId(), event)) return;
 
-        dc.getGameItemManager().spawnGameItem(new IceOrbItem(dc, 5, duration.get(getSkillLevel(player.getUniqueId()) - 1), player), player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
+        dc.getGameItemManager().spawnGameItem(
+                new IceOrbItem(dc, calculateBasedOnLevel(BASE_ORB_DURATION, ORB_DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), calculateBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), player, RADIUS),
+                player.getEyeLocation(),
+                player.getLocation().getDirection(),
+                calculateBasedOnLevel(BASE_LAUNCH_STRENGTH, LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player)));
     }
 
     @Override
@@ -58,9 +68,29 @@ public class IcePrison extends Skill {
         description.add(Component.text("an ice orb, that creates").color(NamedTextColor.GRAY));
         description.add(Component.text("an ice prison that stays").color(NamedTextColor.GRAY));
         description.add(Component.text("for ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, duration, NamedTextColor.YELLOW))
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
                 .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
 
         return description;
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.ice_prison.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.ice_prison.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.cooldown_reduction_per_level");
+            BASE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.base_duration");
+            DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.duration_increase_per_level");
+            BASE_ORB_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.base_orb_duration");
+            ORB_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.orb_duration_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.launch_strength_increase_per_level");
+            RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.ice_prison.radius");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.items.FlameItem;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -26,17 +27,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class Immolate extends Skill {
+public class Immolate extends Skill implements ReloadableData {
 
-    private static final List<Double> activeDuration = List.of(4D, 5D, 6D);
+    private static double BASE_ACTIVE_DURATION;
+    private static double ACTIVE_DURATION_INCREASE_PER_LEVEL;
+    private static double DAMAGE_DONE_MOD;
+    private static double DAMAGE_RECEIVED_MOD;
+    private static double MOVE_SPEED_MOD;
+    private static double BASE_FLAME_DAMAGE;
+    private static double FLAME_DAMAGE_INCREASE_PER_LEVEL;
 
     private final Map<UUID, Long> activeEndDuration = new HashMap<>();
 
     public Immolate(DomainController dc) {
-        super(dc, SkillId.IMMOLATE, SkillType.PASSIVE_A, ClassType.MAGE, "Immolate", List.of(15D, 13D, 11D), 3, 1);
+        super(dc, "Immolate", SkillId.IMMOLATE, SkillType.PASSIVE_A, ClassType.MAGE);
     }
 
-    
+
     @EventHandler
     public void onItemDrop(PlayerDropItemWrapperEvent event) {
         if(!isUser(event.getPlayer().getUniqueId())) return;
@@ -53,17 +60,19 @@ public class Immolate extends Skill {
     private void enableImmolate(@NotNull UUID uuid, PlayerDropItemWrapperEvent event) {
         if(!activate(uuid, event)) return;
 
-        activeEndDuration.put(uuid, System.currentTimeMillis() + ((long) (activeDuration.get(getSkillLevel(uuid) - 1) * 1000L)));
+        double activeDuration = calculateBasedOnLevel(BASE_ACTIVE_DURATION, ACTIVE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid));
+
+        activeEndDuration.put(uuid, System.currentTimeMillis() + ((long) (activeDuration * 1000L)));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(
                 EntityStatusType.ATTACK_DAMAGE_DONE,
-                1,
+                DAMAGE_DONE_MOD,
                 -1,
                 true,
                 false,
                 this));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(
                 EntityStatusType.DAMAGE_RECEIVED,
-                1,
+                DAMAGE_RECEIVED_MOD,
                 -1,
                 true,
                 false,
@@ -71,7 +80,7 @@ public class Immolate extends Skill {
         ));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(
                 EntityStatusType.MOVEMENT_SPEED,
-                0.2,
+                MOVE_SPEED_MOD,
                 -1.0,
                 false,
                 false,
@@ -117,9 +126,11 @@ public class Immolate extends Skill {
     }
 
     private void spawnFlames(@NotNull Player player) {
+        double flameDamage = calculateBasedOnLevel(BASE_FLAME_DAMAGE, FLAME_DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId()));
+
         GameItem flameItem = new FlameItem(dc,
                 player,
-                1,
+                flameDamage,
                 3.0D,
                 getId());
 
@@ -135,5 +146,25 @@ public class Immolate extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.immolate.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.immolate.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.cooldown_reduction_per_level");
+            BASE_ACTIVE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.base_active_duration");
+            ACTIVE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.active_duration_increase_per_level");
+            DAMAGE_DONE_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.damage_done_mod");
+            DAMAGE_RECEIVED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.damage_received_mod");
+            MOVE_SPEED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.move_speed_mod");
+            BASE_FLAME_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.base_flame_damage");
+            FLAME_DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.flame_damage_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

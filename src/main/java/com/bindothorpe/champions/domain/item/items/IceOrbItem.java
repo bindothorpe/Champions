@@ -18,9 +18,11 @@ public class IceOrbItem extends GameItem {
     private final double icePrisonDuration;
     private boolean collisionFlag = false;
     private Entity collidedEntity;
-    public IceOrbItem(DomainController dc, double duration, double icePrisonDuration, Entity owner) {
+    private final double icePrisonRadius;
+    public IceOrbItem(DomainController dc, double duration, double icePrisonDuration, Entity owner, double icePrisonRadius) {
         super(dc, Material.ICE, duration, owner, 0.5, -1);
         this.icePrisonDuration = icePrisonDuration;
+        this.icePrisonRadius = icePrisonRadius;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class IceOrbItem extends GameItem {
 
     @Override
     public void onDespawn() {
-        List<Vector> vectors = ShapeUtil.sphere(5).stream().sorted((v1, v2) -> v2.getBlockY() - v1.getBlockY()).collect(Collectors.toList());
+        List<Vector> vectors = ShapeUtil.sphere(icePrisonRadius).stream().sorted((v1, v2) -> v2.getBlockY() - v1.getBlockY()).collect(Collectors.toList());
 
         Location loc = collisionFlag ? collidedEntity.getLocation() : getLocation();
 
