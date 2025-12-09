@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.brute;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -28,17 +29,24 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GrandEntrance extends Skill {
+public class GrandEntrance extends Skill implements ReloadableData {
 
     private final Set<UUID> active = new HashSet<>();
     private final Set<UUID> active2 = new HashSet<>();
-    private final List<Double> damage = List.of(1.0, 1.5, 2.0);
-    private static final double DOWNWARDS_SPEED = 4;
-    private static final double KNOCKUP_SPEED = 1;
-    private static final double LAUNCH_SPEED = 1.5;
+
+    protected  static double BASE_DAMAGE;
+    protected  static double DAMAGE_INCREASE_PER_LEVEL;
+    protected  static double BASE_LAUNCH_STRENGTH;
+    protected  static double LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
+    protected  static double BASE_LAUNCH_DOWN_STRENGTH;
+    protected  static double LAUNCH_DOWN_STRENGTH_INCREASE_PER_LEVEL;
+    protected  static double BASE_KNOCK_UP_RADIUS;
+    protected  static double KNOCK_UP_RADIUS_INCREASE_PER_LEVEL;
+    protected  static double BASE_KNOCK_UP_STRENGTH;
+    protected  static double KNOCK_UP_STRENGTH_INCREASE_PER_LEVEL;
 
     public GrandEntrance(DomainController dc) {
-        super(dc, SkillId.GRAND_ENTRANCE, SkillType.AXE, ClassType.BRUTE, "Grand Entrance", Arrays.asList(10.0, 7.0, 3.5), 3, 1);
+        super(dc, "Grand Entrance", SkillId.GRAND_ENTRANCE, SkillType.AXE, ClassType.BRUTE);
     }
 
     @EventHandler
@@ -46,7 +54,7 @@ public class GrandEntrance extends Skill {
         Player player = event.getPlayer();
 
         if(active.contains(event.getPlayer().getUniqueId())) {
-            player.setVelocity(new Vector(0, -1, 0).multiply(DOWNWARDS_SPEED));
+            player.setVelocity(new Vector(0, -1, 0).multiply(calculateBasedOnLevel(BASE_LAUNCH_DOWN_STRENGTH, LAUNCH_DOWN_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player))));
             active.remove(player.getUniqueId());
             active2.add(player.getUniqueId());
             return;
@@ -59,7 +67,7 @@ public class GrandEntrance extends Skill {
         }
 
         Vector dir = player.getLocation().getDirection().setY(0).normalize().setY(0.9).normalize();
-        player.setVelocity(player.getVelocity().add(dir.multiply(LAUNCH_SPEED)));
+        player.setVelocity(player.getVelocity().add(dir.multiply(calculateBasedOnLevel(BASE_LAUNCH_STRENGTH, LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player)))));
 
         new BukkitRunnable() {
             @Override
@@ -106,7 +114,8 @@ public class GrandEntrance extends Skill {
     }
 
     private void performStomp(Player player) {
-        Set<Entity> nearby = player.getLocation().getNearbyEntities(3, 1, 3)
+        double radius = calculateBasedOnLevel(BASE_KNOCK_UP_RADIUS, KNOCK_UP_RADIUS_INCREASE_PER_LEVEL, getSkillLevel(player));
+        Set<Entity> nearby = player.getLocation().getNearbyEntities(radius, 1, radius)
                 .stream()
                 .filter(entity -> !dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(entity)))
                 .filter(entity -> entity instanceof LivingEntity)
@@ -114,12 +123,13 @@ public class GrandEntrance extends Skill {
                 .filter(Entity::isOnGround)
                 .collect(Collectors.toSet());
 
-        double damage = this.damage.get(getSkillLevel(player.getUniqueId()) - 1);
+        double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player));
         Vector direction = new Vector(0, 1, 0);
 
+        double knockUpStrength = calculateBasedOnLevel(BASE_KNOCK_UP_STRENGTH, KNOCK_UP_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player));
         for(Entity entity : nearby) {
             CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
-            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).direction(direction).force(KNOCKUP_SPEED);
+            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).direction(direction).force(knockUpStrength);
             damageEvent.setCommand(customDamageCommand);
             Bukkit.getPluginManager().callEvent(damageEvent);
 
@@ -149,4 +159,31 @@ public class GrandEntrance extends Skill {
         List<Component> lore = new ArrayList<>();
         return lore;
     }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.cooldown_reduction_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.damage_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.launch_strength_increase_per_level");
+            BASE_LAUNCH_DOWN_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_launch_down_strength");
+            LAUNCH_DOWN_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.launch_down_strength_increase_per_level");
+            BASE_KNOCK_UP_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_knock_up_radius");
+            KNOCK_UP_RADIUS_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.knock_up_radius_increase_per_level");
+            BASE_KNOCK_UP_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.base_knock_up_strength");
+            KNOCK_UP_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.knock_up_strength_increase_per_level");
+
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
+    }
+
+
+
 }

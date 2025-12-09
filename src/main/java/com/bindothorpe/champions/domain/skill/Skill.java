@@ -195,6 +195,10 @@ public abstract class Skill implements Listener {
         return users.get(uuid);
     }
 
+    protected int getSkillLevel(@NotNull Player player) {
+        return getSkillLevel(player.getUniqueId());
+    }
+
     protected Set<UUID> getUsers() {
         return users.keySet();
     }
@@ -277,6 +281,33 @@ public abstract class Skill implements Listener {
         return skillType == SkillType.SWORD || skillType == SkillType.AXE || skillType == SkillType.BOW;
     }
 
+    /**
+     * Calculates a value based on a base value and a per-level increase/decrease.
+     * <p>
+     * The formula used is: {@code baseValue + (increasePerLevel * (level - 1))}
+     * </p>
+     * <p>
+     * To reduce the value per level instead of increasing it, pass a negative value
+     * for {@code increasePerLevel}.
+     * </p>
+     *
+     * @param <T> the number type (Integer, Double, Float, or Long)
+     * @param baseValue the base value at level 1
+     * @param increasePerLevel the amount to increase (or decrease if negative) per level
+     * @param level the current level (must be >= 1)
+     * @return the calculated value at the specified level
+     * @throws UnsupportedOperationException if the number type is not supported
+     * @throws NullPointerException if baseValue or increasePerLevel is null
+     *
+     * @Example
+     * <pre>
+     * // Increasing example
+     * Integer health = calculateBasedOnLevel(100, 10, 5); // Returns 140
+     *
+     * // Decreasing example (negative increasePerLevel)
+     * Double speed = calculateBasedOnLevel(10.0, -0.5, 3); // Returns 9.0
+     * </pre>
+     */
     protected <T extends Number> T calculateBasedOnLevel(T baseValue, T increasePerLevel, int level) {
         if (baseValue instanceof Integer) {
             return (T) Integer.valueOf(baseValue.intValue() + increasePerLevel.intValue() * (level - 1));

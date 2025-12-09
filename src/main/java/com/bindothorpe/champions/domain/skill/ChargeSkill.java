@@ -11,28 +11,30 @@ import org.bukkit.event.EventHandler;
 import java.util.*;
 
 public abstract class ChargeSkill extends Skill {
-    private final List<Integer> maxCharge;
-    private final List<Double> maxChargeDuration;
     private final Map<UUID, Integer> chargeMap = new HashMap<>();
     private final Map<UUID, Long> chargeStartMap = new HashMap<>();
     private final Set<UUID> maxCharged = new HashSet<>();
 
-    public ChargeSkill(DomainController dc, SkillId id, SkillType skillType, ClassType classType, String name, List<Double> cooldownDuration, int maxLevel, int levelUpCost, List<Integer> maxCharge, List<Double> maxChargeDuration) {
-        super(dc, id, skillType, classType, name, cooldownDuration, maxLevel, levelUpCost);
-        this.maxCharge = maxCharge;
-        this.maxChargeDuration = maxChargeDuration;
+    protected static int BASE_MAX_CHARGE;
+    protected static int MAX_CHARGE_REDUCTION_PER_LEVEL;
+    protected static double BASE_MAX_CHARGE_DURATION;
+    protected static double MAX_CHARGE_DURATION_INCREASE_PER_LEVEL;
+
+
+    public ChargeSkill(DomainController dc, String name, SkillId id, SkillType skillType, ClassType classType) {
+        super(dc, name, id, skillType, classType);
     }
 
     protected int getMaxCharge(UUID uuid) {
         if(!isUser(uuid))
             return -1;
-        return maxCharge.get(getSkillLevel(uuid) - 1);
+        return calculateBasedOnLevel(BASE_MAX_CHARGE, -MAX_CHARGE_REDUCTION_PER_LEVEL, getSkillLevel(uuid));
     }
 
     protected double getChargePercentage(UUID uuid) {
         if(!isUser(uuid))
             return -1;
-        return Math.min((double) chargeMap.get(uuid) / maxCharge.get(getSkillLevel(uuid) - 1), 1);
+        return Math.min((double) chargeMap.get(uuid) / getMaxCharge(uuid), 1);
     }
 
     /**
@@ -120,7 +122,7 @@ public abstract class ChargeSkill extends Skill {
                     onCharge(uuid, charge);
                 }
 
-                int maxChargeValue = maxCharge.get(getSkillLevel(uuid) - 1);
+                int maxChargeValue = getMaxCharge(uuid);
 
                 //Check if the charge is at max
                 if (chargeMap.get(uuid) >= maxChargeValue && !maxCharged.contains(uuid)) {
@@ -129,7 +131,7 @@ public abstract class ChargeSkill extends Skill {
                 }
 
                 //Check if the charge has reached the max duration
-                if (System.currentTimeMillis() - chargeStartMap.get(uuid) >= maxChargeDuration.get(getSkillLevel(uuid) - 1) * 1000) {
+                if (System.currentTimeMillis() - chargeStartMap.get(uuid) >= calculateBasedOnLevel(BASE_MAX_CHARGE_DURATION, MAX_CHARGE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid)) * 1000) {
 
                     int charge = chargeMap.get(uuid);
                     onMaxChargeDurationReached(uuid, charge);

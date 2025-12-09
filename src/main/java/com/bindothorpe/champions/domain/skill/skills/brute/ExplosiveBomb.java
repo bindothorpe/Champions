@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.items.ExplosiveItem;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -16,13 +17,14 @@ import org.bukkit.event.EventHandler;
 
 import java.util.*;
 
-public class ExplosiveBomb extends Skill {
+public class ExplosiveBomb extends Skill implements ReloadableData {
 
     private Map<UUID, GameItem> explosiveBombs = new HashMap<>();
-    private final List<Double> damage = Arrays.asList(2.0, 3.0, 4.0);
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
 
     public ExplosiveBomb(DomainController dc) {
-        super(dc, SkillId.EXPLOSIVE_BOMB, SkillType.AXE, ClassType.BRUTE, "Explosive Bomb", Arrays.asList(5.0, 4.5, 4.0), 3, 1);
+        super(dc, "Explosive Bomb", SkillId.EXPLOSIVE_BOMB, SkillType.AXE, ClassType.BRUTE);
     }
 
     @EventHandler
@@ -42,7 +44,7 @@ public class ExplosiveBomb extends Skill {
         if (!activate(player.getUniqueId(), event))
             return;
 
-        GameItem bomb = new ExplosiveItem(dc, player, damage.get(getSkillLevel(player.getUniqueId()) - 1));
+        GameItem bomb = new ExplosiveItem(dc, player, calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)));
         dc.getGameItemManager().spawnGameItem(bomb, player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
         explosiveBombs.put(player.getUniqueId(), bomb);
     }
@@ -57,7 +59,7 @@ public class ExplosiveBomb extends Skill {
         lore.add(Component.text("Explosive Bomb that sticks").color(NamedTextColor.GRAY));
         lore.add(Component.text("to walls and explodes,").color(NamedTextColor.GRAY));
         lore.add(Component.text("dealing ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, damage, NamedTextColor.YELLOW))
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
                 .append(Component.text(" damage,").color(NamedTextColor.GRAY)));
         lore.add(Component.text("if you ").color(NamedTextColor.GRAY)
                 .append(ComponentUtil.rightClick())
@@ -67,5 +69,20 @@ public class ExplosiveBomb extends Skill {
 
     public void removeBomb(UUID uuid) {
         explosiveBombs.remove(uuid);
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.cooldown_reduction_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.explosive_bomb.damage_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }
