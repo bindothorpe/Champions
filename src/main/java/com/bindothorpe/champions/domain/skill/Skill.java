@@ -33,26 +33,22 @@ public abstract class Skill implements Listener {
     private final Map<UUID, Integer> users;
 
     protected DomainController dc;
+    private final String name;
     private final SkillId id;
     private final SkillType skillType;
     private final ClassType classType;
-    private final String name;
-    private final List<Double> cooldownDuration;
-    private final int maxLevel;
-    private final int levelUpCost;
+    protected static double BASE_COOLDOWN;
+    protected static double COOLDOWN_REDUCTION_PER_LEVEL;
+    protected static int MAX_LEVEL;
+    protected static int LEVEL_UP_COST;
 
-
-    public Skill(DomainController dc, SkillId id, SkillType skillType, ClassType classType, String name, List<Double> cooldownDuration, int maxLevel, int levelUpCost) {
+    public Skill(DomainController dc,String name, SkillId id, SkillType skillType, ClassType classType) {
         this.dc = dc;
+        this.name = name;
         this.id = id;
         this.skillType = skillType;
         this.classType = classType;
-        this.name = name;
-        this.cooldownDuration = cooldownDuration;
-        this.maxLevel = maxLevel;
-        this.levelUpCost = levelUpCost;
         this.users = new HashMap<>();
-//        this.cooldownMap = new HashMap<>();
     }
 
 
@@ -74,16 +70,19 @@ public abstract class Skill implements Listener {
 
     public abstract List<Component> getDescription(int skillLevel);
 
-    public List<Double> getCooldownDuration() {
-        return cooldownDuration;
+    public double getBaseCooldown() {
+        return BASE_COOLDOWN;
+    }
+    public double getCooldownReductionPerLevel() {
+        return COOLDOWN_REDUCTION_PER_LEVEL;
     }
 
     public int getMaxLevel() {
-        return maxLevel;
+        return MAX_LEVEL;
     }
 
     public int getLevelUpCost() {
-        return levelUpCost;
+        return LEVEL_UP_COST;
     }
 
     protected void startCooldown(UUID uuid, double overwriteCooldown) {
@@ -93,15 +92,10 @@ public abstract class Skill implements Listener {
         if(overwriteCooldown > 0) {
             duration = overwriteCooldown;
         } else {
-            if (cooldownDuration == null || cooldownDuration.isEmpty())
-                return;
-            try {
-                duration = cooldownDuration.get(users.get(uuid) - 1);
-            } catch (IndexOutOfBoundsException e) {
-                duration = cooldownDuration.get(0);
-            }
+            if (BASE_COOLDOWN <= 0) return;
+            duration = BASE_COOLDOWN - (COOLDOWN_REDUCTION_PER_LEVEL * (users.getOrDefault(uuid, 1) - 1));
 
-            if (duration == 0)
+            if (duration <= 0)
                 return;
 
         }

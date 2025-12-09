@@ -28,19 +28,13 @@ import java.util.*;
 
 public class Evade extends Skill implements ReloadableData {
 
-    private static int MAX_LEVEL;
-    private static int LEVEL_UP_COST;
-    private static double BASE_COOLDOWN;
-    private static double COOLDOWN_REDUCTION_PER_LEVEL;
     private static double COOLDOWN_ON_SUCCESS;
     private static double ACTIVE_DURATION;
-    private static final double EVADE_WINDOW_DURATION = 1.0D;
-    private static final double EVADE_COOLDOWN_ON_SUCCESS = 1.0D;
 
     private final Map<UUID, Long> blockingUsersMap = new HashMap<>();
 
     public Evade(DomainController dc) {
-        super(dc, SkillId.EVADE, SkillType.SWORD, ClassType.ASSASSIN, "Evade", List.of(10D), 1, 2);
+        super(dc, "Evade", SkillId.EVADE, SkillType.SWORD, ClassType.ASSASSIN);
     }
 
 
@@ -104,7 +98,7 @@ public class Evade extends Skill implements ReloadableData {
                         .append(Component.text(damager.getName()).color(NamedTextColor.YELLOW))
                         .append(Component.text("'s attack.").color(NamedTextColor.GRAY))
         );
-        startCooldown(player.getUniqueId(), EVADE_COOLDOWN_ON_SUCCESS);
+        startCooldown(player.getUniqueId(), COOLDOWN_ON_SUCCESS);
     }
 
     private Location getLocationBehindEntity(Entity entity) {
@@ -137,7 +131,7 @@ public class Evade extends Skill implements ReloadableData {
         Set<UUID> expiredUsersSet = new HashSet<>();
 
         blockingUsersMap.entrySet().stream()
-                .filter((entry) -> System.currentTimeMillis() > entry.getValue() + ((long) EVADE_WINDOW_DURATION * 1000L))
+                .filter((entry) -> System.currentTimeMillis() > entry.getValue() + ((long) ACTIVE_DURATION * 1000L))
                 .forEach((entry) -> expiredUsersSet.add(entry.getKey()));
 
         expiredUsersSet

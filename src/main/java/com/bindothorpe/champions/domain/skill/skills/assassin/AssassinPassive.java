@@ -14,13 +14,10 @@ import java.util.*;
 
 public class AssassinPassive extends Skill implements ReloadableData {
 
-    private final Map<UUID, Set<UUID>> effects;
-
     private static double MOVE_SPEED_MOD;
 
     public AssassinPassive(DomainController dc) {
-        super(dc, SkillId.ASSASSIN_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.ASSASSIN, "Assassin Passive", null, 1, 0);
-        this.effects = new HashMap<>();
+        super(dc,"Assassin Passive", SkillId.ASSASSIN_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.ASSASSIN);
     }
 
     @Override
