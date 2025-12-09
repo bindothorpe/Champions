@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -21,9 +22,9 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public class BackStab extends Skill {
+public class BackStab extends Skill implements ReloadableData {
 
-    private static final double DAMAGE = 4.0;
+    private static double DAMAGE_MOD = 4.0;
 
     public BackStab(DomainController dc) {
         super(dc, SkillId.BACK_STAB, SkillType.PASSIVE_B, ClassType.ASSASSIN, "Back Stab", null, 1, 2);
@@ -43,7 +44,7 @@ public class BackStab extends Skill {
 
         dc.getEntityStatusManager().addEntityStatus(player.getUniqueId(), new EntityStatus(
                 EntityStatusType.ATTACK_DAMAGE_DONE,
-                DAMAGE,
+                DAMAGE_MOD,
                 0.2,
                 false,
                 false,
@@ -69,10 +70,21 @@ public class BackStab extends Skill {
                 Component.text("Attacks from behind").color(NamedTextColor.GRAY)),
 
                 Component.text("opponents deal ").color(NamedTextColor.GRAY)
-                        .append(ComponentUtil.skillLevelValues(skillLevel, List.of(DAMAGE), NamedTextColor.YELLOW)
+                        .append(ComponentUtil.skillLevelValues(skillLevel, List.of(DAMAGE_MOD), NamedTextColor.YELLOW)
                         .append(Component.text(" additional").color(NamedTextColor.GRAY))),
 
                 Component.text("damage.").color(NamedTextColor.GRAY)
                 );
+    }
+
+
+    @Override
+    public void onReload() {
+        try {
+            DAMAGE_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.back_stab.damage_mod");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

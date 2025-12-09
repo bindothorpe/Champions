@@ -44,6 +44,7 @@ public class InitDataConfig {
             try {
                 Skill skill = (Skill) clazz.getConstructor(DomainController.class).newInstance(dc);
                 dc.getSkillManager().registerSkill(skill);
+                dc.getSkillManager().reloadSkillData(skill.getId());
             } catch (Exception e) {
                 System.out.println("Failed to register skill: " + clazz.getName());
             }

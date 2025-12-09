@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -30,6 +31,7 @@ public class SilkArrow extends Skill {
 
     private final Set<UUID> primed = new HashSet<>();
     private final Set<Arrow> particleTrail = new HashSet<>();
+    private final Map<Arrow, Location> lastLocation = new HashMap<>();
 
 
     public SilkArrow(DomainController dc) {
@@ -101,6 +103,7 @@ public class SilkArrow extends Skill {
 //        }
 
         arrow.remove();
+        lastLocation.remove(arrow);
     }
 
     @EventHandler
@@ -109,18 +112,62 @@ public class SilkArrow extends Skill {
             return;
 
         for (Arrow arrow : particleTrail) {
-            Location loc = arrow.getLocation();
+            Location currentLoc = arrow.getLocation();
 
             if(!(arrow.getShooter() instanceof Player player)) {
-                return;
+                continue; // Changed from return to continue
             }
 
-            if(player.getLocation().distance(arrow.getLocation()) <= 2) {
-                return;
+            if(player.getLocation().distance(currentLoc) <= 2) {
+                continue; // Changed from return to continue
             }
 
-            dc.getTemporaryBlockManager().spawnTemporaryBlock(loc, Material.COBWEB, DURATION);
+            // Check if we have a last location for this arrow
+            Location lastLoc = lastLocation.get(arrow);
+
+            if(lastLoc != null) {
+                // Get all block locations between last and current location
+                List<Location> blocksBetween = getBlockLocationsBetween(lastLoc, currentLoc);
+
+                // Place cobwebs at each location
+                for(Location loc : blocksBetween) {
+                    dc.getTemporaryBlockManager().spawnTemporaryBlock(loc, Material.COBWEB, DURATION);
+                }
+            } else {
+                // First time - just place at current location
+                dc.getTemporaryBlockManager().spawnTemporaryBlock(currentLoc, Material.COBWEB, DURATION);
+            }
+
+            // Update last location
+            lastLocation.put(arrow, currentLoc.clone());
         }
+    }
+
+    private List<Location> getBlockLocationsBetween(Location start, Location end) {
+        List<Location> locations = new ArrayList<>();
+
+        // Make sure both locations are in the same world
+        if(!start.getWorld().equals(end.getWorld())) {
+            return locations;
+        }
+
+        // Get the vector between the two points
+        Vector direction = end.toVector().subtract(start.toVector());
+        double distance = direction.length();
+        direction.normalize();
+
+        // Step through the line and collect block locations
+        for(double i = 0; i <= distance; i += 0.5) { // 0.5 block intervals
+            Location loc = start.clone().add(direction.clone().multiply(i));
+            Location blockLoc = loc.getBlock().getLocation();
+
+            // Avoid duplicates by checking if we already added this block
+            if(locations.isEmpty() || !blockLoc.equals(locations.get(locations.size() - 1))) {
+                locations.add(blockLoc);
+            }
+        }
+
+        return locations;
     }
 
 

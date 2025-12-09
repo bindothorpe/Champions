@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -11,9 +12,11 @@ import net.kyori.adventure.text.Component;
 
 import java.util.*;
 
-public class AssassinPassive extends Skill {
+public class AssassinPassive extends Skill implements ReloadableData {
 
     private final Map<UUID, Set<UUID>> effects;
+
+    private static double MOVE_SPEED_MOD;
 
     public AssassinPassive(DomainController dc) {
         super(dc, SkillId.ASSASSIN_PASSIVE, SkillType.CLASS_PASSIVE, ClassType.ASSASSIN, "Assassin Passive", null, 1, 0);
@@ -23,7 +26,7 @@ public class AssassinPassive extends Skill {
     @Override
     public void addUser(UUID uuid, int skillLevel) {
         super.addUser(uuid, skillLevel);
-        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, 0.2, -1.0, false, false, this));
+        dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, MOVE_SPEED_MOD, -1.0, false, false, this));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.KNOCKBACK_DONE, 0.0, -1.0, true, true, this));
         dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
@@ -39,5 +42,15 @@ public class AssassinPassive extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return null;
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MOVE_SPEED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.passive.move_speed_mod");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

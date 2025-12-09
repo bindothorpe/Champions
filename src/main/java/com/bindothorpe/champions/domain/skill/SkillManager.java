@@ -90,4 +90,11 @@ public class SkillManager {
         return skillIds;
     }
 
+    public void reloadSkillData(SkillId id) {
+        Skill skill = skillMap.get(id);
+        if(skill == null) return;
+        if(!(skill instanceof ReloadableData reloadableData)) return;
+
+        reloadableData.onReload();
+    }
 }

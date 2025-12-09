@@ -2,6 +2,8 @@ package com.bindothorpe.champions.config;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.config.game.map.MapConfig;
+import com.bindothorpe.champions.config.skill.SkillConfig;
+import com.bindothorpe.champions.domain.skill.Skill;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,10 @@ public class CustomConfigManager {
         if(loadConfig(new MapConfig())) {
             config.getFile().options().copyDefaults(true);
             config.saveFile();
-            dc.getPlugin().getLogger().info("Loaded map config");
+            dc.getPlugin().getLogger().info("Loaded map config.");
+        }
+        if(loadConfig(new SkillConfig())) {
+            dc.getPlugin().getLogger().info("Loaded skill config.");
         }
     }
 

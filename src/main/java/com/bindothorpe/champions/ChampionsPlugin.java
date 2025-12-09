@@ -2,6 +2,7 @@ package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.*;
 import com.bindothorpe.champions.events.update.Updater;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -16,6 +17,10 @@ public final class ChampionsPlugin extends JavaPlugin {
         dc = new DomainController(this);
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
+            commands.registrar().register(ChampionsCommand.createCommand().build());
+        });
 
         Objects.requireNonNull(getCommand("build")).setExecutor(new BuildCommand(dc));
         Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand(dc));

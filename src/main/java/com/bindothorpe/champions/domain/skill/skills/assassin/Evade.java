@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -25,8 +26,14 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class Evade extends Skill {
+public class Evade extends Skill implements ReloadableData {
 
+    private static int MAX_LEVEL;
+    private static int LEVEL_UP_COST;
+    private static double BASE_COOLDOWN;
+    private static double COOLDOWN_REDUCTION_PER_LEVEL;
+    private static double COOLDOWN_ON_SUCCESS;
+    private static double ACTIVE_DURATION;
     private static final double EVADE_WINDOW_DURATION = 1.0D;
     private static final double EVADE_COOLDOWN_ON_SUCCESS = 1.0D;
 
@@ -183,5 +190,21 @@ public class Evade extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
+    }
+
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.cooldown_reduction_per_level");
+            COOLDOWN_ON_SUCCESS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.cooldown_on_success");
+            ACTIVE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.active_duration");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }
