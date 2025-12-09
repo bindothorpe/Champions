@@ -27,7 +27,7 @@ public class BackStab extends Skill implements ReloadableData {
     private static double DAMAGE_MOD = 4.0;
 
     public BackStab(DomainController dc) {
-        super(dc, SkillId.BACK_STAB, SkillType.PASSIVE_B, ClassType.ASSASSIN, "Back Stab", null, 1, 2);
+        super(dc, "Back Stab", SkillId.BACK_STAB, SkillType.PASSIVE_B, ClassType.ASSASSIN);
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -81,6 +81,8 @@ public class BackStab extends Skill implements ReloadableData {
     @Override
     public void onReload() {
         try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.back_stab.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.back_stab.level_up_cost");
             DAMAGE_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.back_stab.damage_mod");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
         } catch (Exception e) {

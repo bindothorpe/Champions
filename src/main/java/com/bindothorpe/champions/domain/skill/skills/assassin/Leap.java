@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -24,14 +25,18 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class Leap extends Skill {
+public class Leap extends Skill implements ReloadableData {
+
+    private static double BASE_LEAP_STRENGTH;
+    private static double LEAP_STRENGTH_INCREASE_PER_LEVEL;
+    private static double BASE_WALL_KICK_STRENGTH;
+    private static double WALL_KICK_STRENGTH_INCREASE_PER_LEVEL;
 
     private final Set<UUID> wallKickSet = new HashSet<>();
-    private final List<Double> leapStrength = List.of(1.0, 1.2, 1.4);
-    private final List<Double> wallKickStrength = List.of(0.7, 0.9, 1.1);
+
 
     public Leap(DomainController dc) {
-        super(dc, SkillId.LEAP, SkillType.AXE, ClassType.ASSASSIN, "Leap", List.of(5.0d, 4.0d, 3.0d), 3, 1);
+        super(dc, "Leap", SkillId.LEAP, SkillType.AXE, ClassType.ASSASSIN);
     }
 
     @EventHandler
@@ -89,7 +94,7 @@ public class Leap extends Skill {
         ChatUtil.sendSkillMessage(player, "Wall Kick", getSkillLevel(player.getUniqueId()));
         dc.getSoundManager().playSound(player, CustomSound.SKILL_LEAP);
 
-        MobilityUtil.launch(player, direction, wallKickStrength.get(getSkillLevel(player.getUniqueId()) - 1), false, 0.0, 0.7, 2.0, true);
+        MobilityUtil.launch(player, direction, calculateBasedOnLevel(BASE_WALL_KICK_STRENGTH, WALL_KICK_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId())), false, 0.0, 0.7, 2.0, true);
         wallKickSet.add(player.getUniqueId());
     }
 
@@ -99,7 +104,7 @@ public class Leap extends Skill {
         }
 
         dc.getSoundManager().playSound(player, CustomSound.SKILL_LEAP);
-        MobilityUtil.launch(player, leapStrength.get(getSkillLevel(player.getUniqueId()) - 1), 0.2, 1.0, true);
+        MobilityUtil.launch(player, calculateBasedOnLevel(BASE_LEAP_STRENGTH, LEAP_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId())), 0.2, 1.0, true);
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -117,7 +122,7 @@ public class Leap extends Skill {
                 .append(Component.text("to perform").color(NamedTextColor.GRAY)));
         lore.add(Component.text("a Leap, launching your self").color(NamedTextColor.GRAY));
         lore.add(Component.text("with a force of ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, leapStrength, NamedTextColor.YELLOW)));
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_LEAP_STRENGTH, LEAP_STRENGTH_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)));
         lore.add(Component.text("in the direction you are").color(NamedTextColor.GRAY));
         lore.add(Component.text("facing").color(NamedTextColor.GRAY));
         lore.add(Component.empty());
@@ -127,9 +132,27 @@ public class Leap extends Skill {
         lore.add(Component.text("Wall Kick, launching yourself").color(NamedTextColor.GRAY));
         lore.add(Component.text("in the opposite direction with").color(NamedTextColor.GRAY));
         lore.add(Component.text("a force of ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, wallKickStrength, NamedTextColor.YELLOW)));
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_WALL_KICK_STRENGTH, WALL_KICK_STRENGTH_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)));
 
         return lore;
+    }
+
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.leap.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.leap.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.leap.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.leap.cooldown_reduction_per_level");
+            BASE_LEAP_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.leap.base_leap_strength");
+            LEAP_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.leap.leap_strength_increase_per_level");
+            BASE_WALL_KICK_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.leap.base_wall_kick_strength");
+            WALL_KICK_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.leap.wall_kick_strength_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 
 }

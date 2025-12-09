@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -30,13 +31,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class SmokeArrow extends Skill {
+public class SmokeArrow extends Skill implements ReloadableData {
 
     private final Set<UUID> primed = new HashSet<>();
     private final Set<Arrow> particleTrail = new HashSet<>();
 
+    private static double BASE_BLIND_DURATION;
+    private static double BLIND_DURATION_INCREASE_PER_LEVEL;
+
     public SmokeArrow(DomainController dc) {
-        super(dc, SkillId.SMOKE_ARROW, SkillType.BOW, ClassType.ASSASSIN, "Smoke Arrow", List.of(20D, 18D, 16D, 14D, 12D), 5, 1);
+        super(dc, "Smoke Arrow", SkillId.SMOKE_ARROW, SkillType.BOW, ClassType.ASSASSIN);
     }
 
     @Override
@@ -96,7 +100,7 @@ public class SmokeArrow extends Skill {
         if(hit == null) {
             return;
         }
-        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.BLIND, hit.getUniqueId(), getNamespacedKey(player), 1, 2);
+        StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.BLIND, hit.getUniqueId(), getNamespacedKey(player), 1, calculateBasedOnLevel(BASE_BLIND_DURATION, BLIND_DURATION_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId())));
     }
 
     @EventHandler
@@ -130,5 +134,21 @@ public class SmokeArrow extends Skill {
             return false;
 
         return super.canUseHook(uuid, event);
+    }
+
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.cooldown_reduction_per_level");
+            BASE_BLIND_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.base_blind_duration");
+            BLIND_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.blind_duration_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }

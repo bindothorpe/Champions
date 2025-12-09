@@ -21,6 +21,30 @@ public class ComponentUtil {
         return builder.build();
     }
 
+    public static <T extends Number> Component skillValuesBasedOnLevel(T baseValue, T increasePerLevel, int level, int maxLevel, NamedTextColor highlightColor) {
+        TextComponent.Builder builder = Component.text();
+        for (int i = 0; i < maxLevel; i++) {
+            if (i > 0) {
+                builder.append(Component.text(" / ").color(NamedTextColor.GRAY));
+            }
+            builder.append(Component.text(String.valueOf(calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+        }
+        return builder.build();
+    }
+
+    private static <T extends Number> T calculateBasedOnLevel(T baseValue, T increasePerLevel, int level) {
+        if (baseValue instanceof Integer) {
+            return (T) Integer.valueOf(baseValue.intValue() + increasePerLevel.intValue() * (level - 1));
+        } else if (baseValue instanceof Double) {
+            return (T) Double.valueOf(baseValue.doubleValue() + increasePerLevel.doubleValue() * (level - 1));
+        } else if (baseValue instanceof Float) {
+            return (T) Float.valueOf(baseValue.floatValue() + increasePerLevel.floatValue() * (level - 1));
+        } else if (baseValue instanceof Long) {
+            return (T) Long.valueOf(baseValue.longValue() + increasePerLevel.longValue() * (level - 1));
+        }
+        throw new UnsupportedOperationException("Unsupported number type: " + baseValue.getClass());
+    }
+
     public static Component leftClick(boolean capitalized) {
         return Component.text(capitalized ? "Left-click " : "left-click ").color(NamedTextColor.YELLOW);
     }

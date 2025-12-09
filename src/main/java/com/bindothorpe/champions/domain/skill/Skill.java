@@ -277,6 +277,19 @@ public abstract class Skill implements Listener {
         return skillType == SkillType.SWORD || skillType == SkillType.AXE || skillType == SkillType.BOW;
     }
 
+    protected <T extends Number> T calculateBasedOnLevel(T baseValue, T increasePerLevel, int level) {
+        if (baseValue instanceof Integer) {
+            return (T) Integer.valueOf(baseValue.intValue() + increasePerLevel.intValue() * (level - 1));
+        } else if (baseValue instanceof Double) {
+            return (T) Double.valueOf(baseValue.doubleValue() + increasePerLevel.doubleValue() * (level - 1));
+        } else if (baseValue instanceof Float) {
+            return (T) Float.valueOf(baseValue.floatValue() + increasePerLevel.floatValue() * (level - 1));
+        } else if (baseValue instanceof Long) {
+            return (T) Long.valueOf(baseValue.longValue() + increasePerLevel.longValue() * (level - 1));
+        }
+        throw new UnsupportedOperationException("Unsupported number type: " + baseValue.getClass());
+    }
+
     private boolean isItemStackOfSkillType(ItemStack itemStack) {
         if(itemStack == null) return false;
 

@@ -17,6 +17,8 @@ public class SkillConfig extends CustomConfig {
         // Passive
         getFile().addDefault("skills.assassin.passive.move_speed_mod", 0.2);
         // BackStab damage mod
+        getFile().addDefault("skills.assassin.back_stab.max_level", 1);
+        getFile().addDefault("skills.assassin.back_stab.level_up_cost", 2);
         getFile().addDefault("skills.assassin.back_stab.damage_mod", 4.0);
         // Evade
         getFile().addDefault("skills.assassin.evade.max_level", 1);
@@ -30,9 +32,9 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.leap.level_up_cost", 1);
         getFile().addDefault("skills.assassin.leap.base_cooldown", 5.0);
         getFile().addDefault("skills.assassin.leap.cooldown_reduction_per_level", 1.0);
-        getFile().addDefault("skills.assassin.leap.leap_strength", 1.0);
+        getFile().addDefault("skills.assassin.leap.base_leap_strength", 1.0);
         getFile().addDefault("skills.assassin.leap.leap_strength_increase_per_level", 0.2);
-        getFile().addDefault("skills.assassin.leap.wall_kick_strength", 0.7);
+        getFile().addDefault("skills.assassin.leap.base_wall_kick_strength", 0.7);
         getFile().addDefault("skills.assassin.leap.wall_kick_strength_increase_per_level", 0.2);
         // Smoke Arrow
         getFile().addDefault("skills.assassin.smoke_arrow.max_level", 5);
