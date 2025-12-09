@@ -32,29 +32,20 @@ public class IcePrison extends Skill {
     public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();
 
-        boolean success = activate(player.getUniqueId(), event);
-
-        if (!success) {
-            return;
-        }
+        if (!activate(player.getUniqueId(), event)) return;
 
         dc.getGameItemManager().spawnGameItem(new IceOrbItem(dc, 5, duration.get(getSkillLevel(player.getUniqueId()) - 1), player), player.getEyeLocation(), player.getLocation().getDirection(), 1.5);
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event e) {
-        if (!(e instanceof PlayerInteractEvent))
+    protected boolean canUseHook(UUID uuid, Event event) {
+        if (!(event instanceof PlayerRightClickEvent playerRightClickEvent))
             return false;
 
-        PlayerInteractEvent event = (PlayerInteractEvent) e;
-
-        if (!Objects.equals(event.getHand(), EquipmentSlot.HAND))
+        if (!playerRightClickEvent.isAxe())
             return false;
 
-        if (!event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_AXE"))
-            return false;
-
-        return super.canUseHook(uuid, e);
+        return super.canUseHook(uuid, event);
     }
 
     @Override
