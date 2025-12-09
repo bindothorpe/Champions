@@ -2,11 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.knight;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
-import com.bindothorpe.champions.domain.item.GameItem;
-import com.bindothorpe.champions.domain.item.items.ExplosiveItem;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -25,16 +21,19 @@ import org.bukkit.event.EventPriority;
 
 import java.util.*;
 
-public class Riposte extends Skill {
+public class Riposte extends Skill implements ReloadableData {
 
-    private static final double RIPOSITE_DURATION = 1.0D;
+    private static double BLOCK_WINDOW_DURATION;
+    private static double BUFF_DURATION;
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
 
     private final Map<UUID, Long> blockingUsersMap = new HashMap<>();
     private final Set<UUID> blockedAttackUsersSet = new HashSet<>();
 
 
     public Riposte(DomainController dc) {
-        super(dc, SkillId.RIPOSTE, SkillType.SWORD, ClassType.KNIGHT, "Riposte", List.of(14d, 13d, 12d, 11d, 10d), 5, 1);
+        super(dc, "Riposte", SkillId.RIPOSTE, SkillType.SWORD, ClassType.KNIGHT);
     }
 
     @EventHandler
@@ -52,7 +51,7 @@ public class Riposte extends Skill {
 
 
         //Add the user to the map
-        blockingUsersMap.put(player.getUniqueId(), System.currentTimeMillis() + ((long) RIPOSITE_DURATION * 1000L));
+        blockingUsersMap.put(player.getUniqueId(), System.currentTimeMillis() + ((long) BLOCK_WINDOW_DURATION * 1000L));
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -76,7 +75,7 @@ public class Riposte extends Skill {
         event.setCancelled(true);
 
         this.blockedAttackUsersSet.add(damagee.getUniqueId());
-        this.blockingUsersMap.put(damagee.getUniqueId(), System.currentTimeMillis() + ((long) RIPOSITE_DURATION * 1000L));
+        this.blockingUsersMap.put(damagee.getUniqueId(), System.currentTimeMillis() + ((long) BUFF_DURATION * 1000L));
 
         ChatUtil.sendMessage(
                 damagee,
@@ -104,17 +103,9 @@ public class Riposte extends Skill {
 
         blockingUsersMap.remove(event.getDamager().getUniqueId());
         blockedAttackUsersSet.remove(event.getDamager().getUniqueId());
-        event.getCommand().damage(event.getCommand().getDamage() + 2D);
-//        EntityStatusManager.getInstance(dc).addEntityStatus(event.getDamager().getUniqueId(), new EntityStatus(
-//                EntityStatusType.ATTACK_DAMAGE_DONE,
-//                2.0D,
-//                0.1D,
-//                false,
-//                false,
-//                this
-//        ));
 
-
+        double additionalDamage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(event.getDamager().getUniqueId()));
+        event.getCommand().damage(event.getCommand().getDamage() + additionalDamage);
     }
 
     @EventHandler
@@ -139,7 +130,7 @@ public class Riposte extends Skill {
                             Component.text("You failed to ").color(NamedTextColor.GRAY)
                                     .append(Component.text(getName()).color(NamedTextColor.YELLOW))
                                     .append(Component.text(".").color(NamedTextColor.GRAY))
-                                    );
+                    );
                 });
 
     }
@@ -147,6 +138,23 @@ public class Riposte extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.riposte.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.riposte.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.cooldown_reduction_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.damage_increase_per_level");
+            BLOCK_WINDOW_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.block_window_duration");
+            BUFF_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.buff_duration");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 
 }

@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.ChargeSkill;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
@@ -27,16 +28,20 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class HeavySwing extends ChargeSkill {
-    private final List<Double> baseDamage = List.of(2d, 3d, 4d);
-    private final List<Double> minConeAngle = List.of(45d, 45d, 45d);
-    private final List<Double> maxConeAngle = List.of(90d, 90d, 90d);
-    private final List<Double> minRange = List.of(2d, 3d, 4d);
-    private final List<Double> maxRange = List.of(5d, 6d, 7d);
+public class HeavySwing extends ChargeSkill implements ReloadableData {
+    private static double BASE_DAMAGE;
+    private static double DAMAGE_INCREASE_PER_LEVEL;
+    private static double BASE_MIN_CONE_ANGLE;
+    private static double MIN_CONE_ANGLE_INCREASE_PER_LEVEL;
+    private static double BASE_MAX_CONE_ANGLE;
+    private static double MAX_CONE_ANGLE_INCREASE_PER_LEVEL;
+    private static double BASE_MIN_RANGE;
+    private static double MIN_RANGE_INCREASE_PER_LEVEL;
+    private static double BASE_MAX_RANGE;
+    private static double MAX_RANGE_INCREASE_PER_LEVEL;
 
     public HeavySwing(DomainController dc) {
-        super(dc, SkillId.HEAVY_SWING, SkillType.SWORD, ClassType.KNIGHT, "Heavy Swing",
-                List.of(5d, 4d, 3d), 3, 1, List.of(40, 35, 30), List.of(5d, 5d, 5d));
+        super(dc, "Heavy Swing", SkillId.HEAVY_SWING, SkillType.SWORD, ClassType.KNIGHT);
     }
 
     /**
@@ -85,16 +90,17 @@ public class HeavySwing extends ChargeSkill {
 
         // Calculate damage (50% to 100% based on charge)
         double damageMultiplier = 0.5 + (0.5 * chargePercentage);
-        double finalDamage = baseDamage.get(skillLevel - 1) * damageMultiplier;
+        double baseDamage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, skillLevel);
+        double finalDamage = baseDamage * damageMultiplier;
 
         // Calculate cone angle (min to max based on charge)
-        double minAngle = minConeAngle.get(skillLevel - 1);
-        double maxAngle = maxConeAngle.get(skillLevel - 1);
+        double minAngle = calculateBasedOnLevel(BASE_MIN_CONE_ANGLE, MIN_CONE_ANGLE_INCREASE_PER_LEVEL, skillLevel);
+        double maxAngle = calculateBasedOnLevel(BASE_MAX_CONE_ANGLE, MAX_CONE_ANGLE_INCREASE_PER_LEVEL, skillLevel);
         double coneAngle = minAngle + ((maxAngle - minAngle) * chargePercentage);
 
         // Calculate range (min to max based on charge)
-        double minRangeValue = minRange.get(skillLevel - 1);
-        double maxRangeValue = maxRange.get(skillLevel - 1);
+        double minRangeValue = calculateBasedOnLevel(BASE_MIN_RANGE, MIN_RANGE_INCREASE_PER_LEVEL, skillLevel);
+        double maxRangeValue = calculateBasedOnLevel(BASE_MAX_RANGE, MAX_RANGE_INCREASE_PER_LEVEL, skillLevel);
         double finalRange = minRangeValue + ((maxRangeValue - minRangeValue) * chargePercentage);
 
         // Get player's full 3D looking direction (including vertical angle)
@@ -267,6 +273,10 @@ public class HeavySwing extends ChargeSkill {
     public List<Component> getDescription(int skillLevel) {
         List<Component> lore = new ArrayList<>();
 
+        double baseDamage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, skillLevel);
+        double minRange = calculateBasedOnLevel(BASE_MIN_RANGE, MIN_RANGE_INCREASE_PER_LEVEL, skillLevel);
+        double maxRange = calculateBasedOnLevel(BASE_MAX_RANGE, MAX_RANGE_INCREASE_PER_LEVEL, skillLevel);
+
         lore.add(ComponentUtil.active()
                 .append(Component.text("Hold down ").color(NamedTextColor.GRAY))
                 .append(ComponentUtil.rightClick())
@@ -275,14 +285,40 @@ public class HeavySwing extends ChargeSkill {
         lore.add(Component.text("Let go of right-click to release a").color(NamedTextColor.GRAY));
         lore.add(Component.text("powerful slash attack in front of").color(NamedTextColor.GRAY));
         lore.add(Component.text("you that deals ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, baseDamage, NamedTextColor.YELLOW))
+                .append(Component.text(String.format("%.1f", baseDamage)).color(NamedTextColor.YELLOW))
                 .append(Component.text(" damage").color(NamedTextColor.GRAY)));
 
         lore.add(Component.text("to all enemies within ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel,
-                        Arrays.asList("2~5", "3~6", "4~7"), NamedTextColor.YELLOW))
+                .append(Component.text(String.format("%.0f~%.0f", minRange, maxRange)).color(NamedTextColor.YELLOW))
                 .append(Component.text(" blocks").color(NamedTextColor.GRAY)));
 
         return lore;
+    }
+
+    @Override
+    public void onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.cooldown_reduction_per_level");
+            BASE_MAX_CHARGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.base_max_charge");
+            MAX_CHARGE_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.max_charge_reduction_per_level");
+            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_max_charge_duration");
+            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.max_charge_duration_increase_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.damage_increase_per_level");
+            BASE_MIN_CONE_ANGLE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_min_cone_angle");
+            MIN_CONE_ANGLE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.min_cone_angle_increase_per_level");
+            BASE_MAX_CONE_ANGLE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_max_cone_angle");
+            MAX_CONE_ANGLE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.max_cone_angle_increase_per_level");
+            BASE_MIN_RANGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_min_range");
+            MIN_RANGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.min_range_increase_per_level");
+            BASE_MAX_RANGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_max_range");
+            MAX_RANGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.max_range_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+        }
     }
 }
