@@ -8,6 +8,8 @@ import com.bindothorpe.champions.events.build.UnequipBuildEvent;
 import com.bindothorpe.champions.util.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -128,9 +130,33 @@ public class BuildManager {
 
         equipItems(uuid, build.getClassType());
 
+        setHealthForPlayer(uuid, build.getClassType());
+
+
         dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, buildId);
 
         Bukkit.getPluginManager().callEvent(new EquipBuildEvent(build, uuid));
+    }
+
+    private void setHealthForPlayer(UUID uuid, ClassType classType) {
+        Player player = Bukkit.getPlayer(uuid);
+        if(player == null) return;
+
+        double maxHealth = ClassTypeHealthValues.getMaxHealthOfClass(classType);
+
+        // Set the actual max health using attributes
+        AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.MAX_HEALTH);
+
+        assert maxHealthAttribute != null;
+        maxHealthAttribute.setBaseValue(maxHealth);
+
+
+        // Optional: Set player's current health to their new max
+        player.setHealth(maxHealth);
+
+        // Set health scale to always show 10 hearts (20 health points)
+        player.setHealthScale(20.0);
+        player.setHealthScaled(true);
     }
 
     private void equipItems(UUID uuid, ClassType classType) {
@@ -167,6 +193,9 @@ public class BuildManager {
         for (SkillId skillId : build.getSkills().values()) {
             dc.getSkillManager().unequipSkillForPlayer(uuid, skillId);
         }
+
+
+        setHealthForPlayer(uuid, null);
 
         dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, null);
         Bukkit.getPluginManager().callEvent(new UnequipBuildEvent(build, uuid));
