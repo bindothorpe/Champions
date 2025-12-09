@@ -149,6 +149,8 @@ public class BuildManager {
         player.getInventory().setItem(1, new ItemStack(Material.IRON_AXE));
         if (classType == ClassType.RANGER || classType == ClassType.ASSASSIN)
             player.getInventory().setItem(2, new ItemStack(Material.BOW));
+            int arrowAmount = classType == ClassType.ASSASSIN ? 12 : 24;
+            player.getInventory().setItem(8, new ItemStack(Material.ARROW, arrowAmount));
     }
 
     public void unequipBuildForPlayer(UUID uuid) {

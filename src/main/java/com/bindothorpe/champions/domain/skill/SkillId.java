@@ -30,7 +30,7 @@ public enum SkillId {
     BLIZZARD(SkillType.SWORD),
     IMMOLATE(SkillType.PASSIVE_A),
     VOID(SkillType.PASSIVE_A),
-    STATIC_LAZER(SkillType.SWORD);
+    STATIC_LAZER(SkillType.SWORD), EVADE(SkillType.SWORD), BACK_STAB(SkillType.PASSIVE_B);
 
 
     private final SkillType skillType;

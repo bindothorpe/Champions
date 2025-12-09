@@ -118,7 +118,7 @@ public class Riposte extends Skill {
     }
 
     @EventHandler
-    public void onTick(UpdateEvent event) {
+    public void onExpire(UpdateEvent event) {
         if(!event.getUpdateType().equals(UpdateType.TICK)) return;
 
         Set<UUID> expiredUsersSet = new HashSet<>();

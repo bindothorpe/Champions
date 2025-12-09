@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +81,12 @@ public class EntityDamageByEntityListener implements Listener {
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityLaunchProjectile(ProjectileLaunchEvent event) {
+        if(event.isCancelled()) return;
+        CustomDamageEvent.addCustomDamageSourceData(dc, event.getEntity(), CustomDamageSource.ATTACK_PROJECTILE, false);
+    }
+
     @EventHandler
     public void onDamageByProjectile(EntityDamageByEntityEvent event) {
 
@@ -103,6 +110,12 @@ public class EntityDamageByEntityListener implements Listener {
         //TODO: Get the skill name from the skill id from the metadata of the arrow
 //        SkillId skillId = CustomDamageEvent.getSkillIdData(dc, projectile);
         CustomDamageSource customDamageSource = CustomDamageEvent.getCustomDamageSourceData(dc, projectile);
+
+        if(customDamageSource == null) {
+            event.setCancelled(true);
+            return;
+        }
+
 
 
         CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, projectile, event.getDamage(), projectile.getLocation(), customDamageSource, null);

@@ -86,23 +86,34 @@ public abstract class Skill implements Listener {
         return levelUpCost;
     }
 
-    protected void startCooldown(UUID uuid) {
-        double duration = 0;
-        if (cooldownDuration == null || cooldownDuration.isEmpty())
-            return;
-        try {
-            duration = cooldownDuration.get(users.get(uuid) - 1);
-        } catch (IndexOutOfBoundsException e) {
-            duration = cooldownDuration.get(0);
-        }
+    protected void startCooldown(UUID uuid, double overwriteCooldown) {
 
-        if (duration == 0)
-            return;
+        double duration = 0;
+
+        if(overwriteCooldown > 0) {
+            duration = overwriteCooldown;
+        } else {
+            if (cooldownDuration == null || cooldownDuration.isEmpty())
+                return;
+            try {
+                duration = cooldownDuration.get(users.get(uuid) - 1);
+            } catch (IndexOutOfBoundsException e) {
+                duration = cooldownDuration.get(0);
+            }
+
+            if (duration == 0)
+                return;
+
+        }
 
         double cooldownMultiplier = dc.getEntityStatusManager().getMultiplicationValue(uuid, EntityStatusType.COOLDOWN_REDUCTION) - 1;
         double cooldownReduction = duration * cooldownMultiplier;
 
         dc.getCooldownManager().startCooldown(uuid, this, duration - cooldownReduction);
+    }
+
+    protected void startCooldown(UUID uuid) {
+        startCooldown(uuid, -1);
     }
 
 
@@ -162,7 +173,7 @@ public abstract class Skill implements Listener {
         return true;
     }
 
-    private boolean isOnCooldown(UUID uuid) {
+    public boolean isOnCooldown(UUID uuid) {
         return dc.getCooldownManager().isOnCooldown(uuid, this);
     }
 

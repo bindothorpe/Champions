@@ -64,7 +64,7 @@ public class Blizzard extends ChargeSkill {
         for (int i = 0; i < 2; i++) {
             Projectile snowball = player.launchProjectile(Snowball.class);
 
-            CustomDamageEvent.addCustomDamageSourceData(dc, snowball, CustomDamageSource.SKILL_PROJECTILE);
+            CustomDamageEvent.addCustomDamageSourceData(dc, snowball, CustomDamageSource.SKILL_PROJECTILE, true);
             CustomDamageEvent.addSkillIdData(dc, snowball, getId());
 
             double x = 0.2D - random.nextInt(40) / 100.0D;

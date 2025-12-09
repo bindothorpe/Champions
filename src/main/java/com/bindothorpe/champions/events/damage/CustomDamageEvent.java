@@ -106,9 +106,21 @@ public class CustomDamageEvent extends Event implements Cancellable {
         return SkillId.valueOf(projectile.getPersistentDataContainer().get(key, PersistentDataType.STRING));
     }
 
-    public static void addCustomDamageSourceData(@NotNull DomainController dc, @NotNull Projectile projectile, @NotNull CustomDamageSource customDamageSource) {
+    public static void addCustomDamageSourceData(@NotNull DomainController dc, @NotNull Projectile projectile, @NotNull CustomDamageSource customDamageSource, boolean overrideIfPresent) {
         NamespacedKey key = new NamespacedKey(dc.getPlugin(), "custom_damage_source");
+
+        // If we should NOT override and data already exists, return early
+        if (!overrideIfPresent && hasCustomDamageSourceData(dc, projectile)) {
+            System.out.println("Data already exists: " + getCustomDamageSourceData(dc, projectile));
+            return;
+        }
+
+        // Otherwise, add/override the data
         addCustomData(projectile, key, PersistentDataType.STRING, customDamageSource.toString());
+    }
+
+    public static void addCustomDamageSourceData(@NotNull DomainController dc, @NotNull Projectile projectile, @NotNull CustomDamageSource customDamageSource) {
+        addCustomDamageSourceData(dc, projectile, customDamageSource, true);
     }
 
     public static CustomDamageSource getCustomDamageSourceData(DomainController dc, Projectile projectile) {

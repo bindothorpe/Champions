@@ -20,7 +20,7 @@ public class CustomDamageListener implements Listener {
         this.dc = dc;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onCustomDamageEvent(CustomDamageEvent event) {
         if(event.isCancelled())
             return;

@@ -38,7 +38,7 @@ public class ComponentUtil {
     }
 
     public static Component passive() {
-        return Component.text("Passive ").color(NamedTextColor.WHITE);
+        return Component.text("Passive: ").color(NamedTextColor.WHITE);
     }
 
     public static Component active() {
