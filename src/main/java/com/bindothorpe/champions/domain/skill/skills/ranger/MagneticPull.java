@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -26,13 +27,16 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MagneticPull extends Skill {
+public class MagneticPull extends Skill implements ReloadableData {
 
     private final Map<UUID, Set<Arrow>> playerArrowsMap = new HashMap<>();
     private final Map<UUID, Set<Arrow>> playerFollowingArrowsMap = new HashMap<>();
     private final Map<UUID, BukkitTask> arrowTaskMap = new HashMap<>();
+
+    private static double ARROW_SPEED_MULT;
+
     public MagneticPull(DomainController dc) {
-        super(dc, SkillId.MAGNETIC_PULL, SkillType.PASSIVE_A, ClassType.RANGER, "Magnetic Pull", List.of(10d, 7.5d, 5d), 3, 1);
+        super(dc, "Magnetic Pull", SkillId.MAGNETIC_PULL, SkillType.PASSIVE_A, ClassType.RANGER);
     }
 
     @EventHandler
@@ -194,7 +198,7 @@ public class MagneticPull extends Skill {
                     continue;
                 }
                 Vector direction = calculateDirection(player, arrow);
-                arrow.setVelocity(direction.clone().multiply(2));
+                arrow.setVelocity(direction.clone().multiply(ARROW_SPEED_MULT));
             }
         }
     }
@@ -223,5 +227,21 @@ public class MagneticPull extends Skill {
     @Override
     public List<Component> getDescription(int skillLevel) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.magnetic_pull.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.magnetic_pull.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.magnetic_pull.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.magnetic_pull.cooldown_reduction_per_level");
+            ARROW_SPEED_MULT = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.magnetic_pull.arrow_speed_mult");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
     }
 }

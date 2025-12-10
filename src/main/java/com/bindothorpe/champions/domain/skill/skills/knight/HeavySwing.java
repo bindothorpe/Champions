@@ -296,7 +296,7 @@ public class HeavySwing extends ChargeSkill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.heavy_swing.level_up_cost");
@@ -317,8 +317,10 @@ public class HeavySwing extends ChargeSkill implements ReloadableData {
             BASE_MAX_RANGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.base_max_range");
             MAX_RANGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.heavy_swing.max_range_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

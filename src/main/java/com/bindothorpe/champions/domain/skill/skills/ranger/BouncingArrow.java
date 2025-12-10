@@ -2,9 +2,12 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -25,13 +28,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class BouncingArrow extends Skill {
+public class BouncingArrow extends Skill implements ReloadableData {
 
-    private List<Integer> bounce = Arrays.asList(1, 2, 3);
-    private List<Double> distance = Arrays.asList(5D, 8D, 14D);
+    private static int BASE_BOUNCE_COUNT;
+    private static int BOUNCE_COUNT_INCREASE_PER_LEVEL;
+    private static double BASE_BOUNCE_DISTANCE;
+    private static double BOUNCE_DISTANCE_INCREASE_PER_LEVEL;
 
     public BouncingArrow(DomainController dc) {
-        super(dc, SkillId.BOUNCING_ARROW, SkillType.PASSIVE_B, ClassType.RANGER, "Bouncing Arrow", null, 3, 1);
+        super(dc, "Bouncing Arrow", SkillId.BOUNCING_ARROW, SkillType.PASSIVE_B, ClassType.RANGER);
     }
 
     @EventHandler
@@ -52,9 +57,11 @@ public class BouncingArrow extends Skill {
             return;
         }
 
-        arrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), bounce.get(getSkillLevel(player.getUniqueId()) - 1)));
+        int level = getSkillLevel(player);
+
+        arrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), calculateBasedOnLevel(BASE_BOUNCE_COUNT, BOUNCE_COUNT_INCREASE_PER_LEVEL, level)));
         arrow.setMetadata("blacklist", new FixedMetadataValue(dc.getPlugin(), Arrays.asList(player.getUniqueId())));
-        arrow.setMetadata("distance", new FixedMetadataValue(dc.getPlugin(), distance.get(getSkillLevel(player.getUniqueId()) - 1)));
+        arrow.setMetadata("distance", new FixedMetadataValue(dc.getPlugin(), calculateBasedOnLevel(BASE_BOUNCE_DISTANCE, BOUNCE_DISTANCE_INCREASE_PER_LEVEL, level)));
     }
 
     @EventHandler
@@ -103,6 +110,8 @@ public class BouncingArrow extends Skill {
         Vector direction = closest.getLocation().add(0, closest.getHeight(), 0).subtract(startingLocation).toVector().normalize();
         Projectile newArrow = event.getEntity().getWorld().spawnArrow(startingLocation.add(direction), direction, (float) arrow.getVelocity().length(), 1);
 
+        CustomDamageEvent.addCustomDamageSourceData(dc, arrow, CustomDamageSource.ATTACK_PROJECTILE);
+
         newArrow.setShooter(arrow.getShooter());
         newArrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), bounce - 1));
         newArrow.setMetadata("blacklist", new FixedMetadataValue(dc.getPlugin(), blacklist));
@@ -115,11 +124,28 @@ public class BouncingArrow extends Skill {
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Passive: ").color(NamedTextColor.WHITE)
                 .append(Component.text("Arrows bounce ").color(NamedTextColor.GRAY))
-                .append(ComponentUtil.skillLevelValues(skillLevel, bounce, NamedTextColor.YELLOW)));
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_BOUNCE_COUNT, BOUNCE_COUNT_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW)));
         lore.add(Component.text("times to the nearest enemy").color(NamedTextColor.GRAY));
         lore.add(Component.text("within ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, distance, NamedTextColor.YELLOW))
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_BOUNCE_DISTANCE, BOUNCE_DISTANCE_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
                 .append(Component.text(" blocks").color(NamedTextColor.GRAY)));
         return lore;
+    }
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.bouncing_arrow.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.bouncing_arrow.level_up_cost");
+            BASE_BOUNCE_COUNT = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.bouncing_arrow.base_bounce_count");
+            BOUNCE_COUNT_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.bouncing_arrow.bounce_count_increase_per_level");
+            BASE_BOUNCE_DISTANCE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.bouncing_arrow.base_bounce_distance");
+            BOUNCE_DISTANCE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.bouncing_arrow.bounce_distance_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
     }
 }

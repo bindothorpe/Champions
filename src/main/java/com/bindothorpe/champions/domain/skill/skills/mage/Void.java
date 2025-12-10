@@ -130,7 +130,7 @@ public class Void extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.level_up_cost");
@@ -143,8 +143,10 @@ public class Void extends Skill implements ReloadableData {
             DAMAGE_RECEIVED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.void.damage_received_mod");
             SLOW_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.void.slow_mod");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

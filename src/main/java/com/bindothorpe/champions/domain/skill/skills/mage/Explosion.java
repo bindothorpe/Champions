@@ -184,7 +184,7 @@ public class Explosion extends Skill implements ReloadableData {
 
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.explosion.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.explosion.level_up_cost");
@@ -197,8 +197,10 @@ public class Explosion extends Skill implements ReloadableData {
             BASE_COLLISION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.base_collision_radius");
             COLLISION_RADIUS_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.explosion.collision_radius_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

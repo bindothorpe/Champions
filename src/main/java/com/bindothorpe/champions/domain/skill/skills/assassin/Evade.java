@@ -188,7 +188,7 @@ public class Evade extends Skill implements ReloadableData {
 
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.level_up_cost");
@@ -197,8 +197,10 @@ public class Evade extends Skill implements ReloadableData {
             COOLDOWN_ON_SUCCESS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.cooldown_on_success");
             ACTIVE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.evade.active_duration");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

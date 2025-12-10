@@ -27,7 +27,12 @@ public class ComponentUtil {
             if (i > 0) {
                 builder.append(Component.text(" / ").color(NamedTextColor.GRAY));
             }
-            builder.append(Component.text(String.valueOf(calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+            if(baseValue instanceof Long || baseValue instanceof Integer) {
+                builder.append(Component.text(String.valueOf(calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+            } else {
+                builder.append(Component.text(String.format("%.1f", calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+            }
+
         }
         return builder.build();
     }

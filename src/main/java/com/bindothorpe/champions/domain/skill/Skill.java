@@ -37,10 +37,10 @@ public abstract class Skill implements Listener {
     private final SkillId id;
     private final SkillType skillType;
     private final ClassType classType;
-    protected static double BASE_COOLDOWN;
-    protected static double COOLDOWN_REDUCTION_PER_LEVEL;
-    protected static int MAX_LEVEL;
-    protected static int LEVEL_UP_COST;
+    protected double BASE_COOLDOWN;
+    protected double COOLDOWN_REDUCTION_PER_LEVEL;
+    protected int MAX_LEVEL;
+    protected int LEVEL_UP_COST;
 
     public Skill(DomainController dc,String name, SkillId id, SkillType skillType, ClassType classType) {
         this.dc = dc;

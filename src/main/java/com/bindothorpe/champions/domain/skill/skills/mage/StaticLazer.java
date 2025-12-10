@@ -143,7 +143,7 @@ public class StaticLazer extends ChargeSkill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.static_lazer.level_up_cost");
@@ -160,8 +160,10 @@ public class StaticLazer extends ChargeSkill implements ReloadableData {
             DETECTION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.detection_radius");
             DETECTION_DENSITY_PER_BLOCK = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.static_lazer.detection_density_per_block");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

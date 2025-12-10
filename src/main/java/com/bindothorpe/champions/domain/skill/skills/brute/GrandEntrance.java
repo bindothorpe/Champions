@@ -161,7 +161,7 @@ public class GrandEntrance extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.level_up_cost");
@@ -179,8 +179,10 @@ public class GrandEntrance extends Skill implements ReloadableData {
             KNOCK_UP_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.grand_entrance.knock_up_strength_increase_per_level");
 
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 

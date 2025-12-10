@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -29,17 +30,25 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class SonarArrow extends Skill {
+public class SonarArrow extends Skill implements ReloadableData {
 
     private final Set<UUID> primed = new HashSet<>();
     private final Set<Arrow> particleTrail = new HashSet<>();
     private final Set<Arrow> bouncingArrows = new HashSet<>();
 
+    private static double DETECTION_RADIUS;
+    private static double BOUNCE_STRENGTH_MULT;
 
-    private final double range = 10;
+    private static List<Double> getDetectionRadiusList(int divisions) {
+        List<Double> radius_list = new ArrayList<>();
+        for(int i = 0; i < divisions; i++) {
+            radius_list.add(DETECTION_RADIUS / divisions * (i + 1));
+        }
+        return radius_list;
+    }
 
     public SonarArrow(DomainController dc) {
-        super(dc, SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER, "Sonar Arrow", Arrays.asList(10.0), 1, 2);
+        super(dc, "Sonar Arrow", SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER);
     }
 
     @EventHandler
@@ -123,7 +132,7 @@ public class SonarArrow extends Skill {
 
         // Spawn the new arrow at the location where the old one hit
         Arrow bouncingArrow = (Arrow) arrow.getWorld().spawnEntity(arrow.getLocation(), EntityType.ARROW);
-        bouncingArrow.setVelocity(velocity.multiply(0.8));
+        bouncingArrow.setVelocity(velocity.multiply(BOUNCE_STRENGTH_MULT));
         bouncingArrow.setShooter(player);
 
         bouncingArrow.setMetadata("sonar", new FixedMetadataValue(dc.getPlugin(), true));
@@ -137,7 +146,8 @@ public class SonarArrow extends Skill {
         new BukkitRunnable() {
             int x = 0;
             Set<Entity> entities = new HashSet<>();
-            List<Double> ranges = Arrays.asList(5D, 7.5D, 10D);
+            List<Double> ranges = getDetectionRadiusList(3);
+
             int devider = 64;
 
             @Override
@@ -269,7 +279,7 @@ public class SonarArrow extends Skill {
         lore.add(Component.text("or an enemy, it will emit a").color(NamedTextColor.GRAY));
         lore.add(Component.text("sonar pulse, revealing all").color(NamedTextColor.GRAY));
         lore.add(Component.text("enemies in a ").color(NamedTextColor.GRAY)
-                .append(ComponentUtil.skillLevelValues(skillLevel, Arrays.asList(range), NamedTextColor.YELLOW))
+                .append(ComponentUtil.skillLevelValues(skillLevel, List.of(DETECTION_RADIUS), NamedTextColor.YELLOW))
                 .append(Component.text(" block").color(NamedTextColor.GRAY)));
         lore.add(Component.text("radius").color(NamedTextColor.GRAY));
         lore.add(Component.text(" "));
@@ -279,5 +289,22 @@ public class SonarArrow extends Skill {
         lore.add(Component.text("of the first block it hits").color(NamedTextColor.GRAY));
 
         return lore;
+    }
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.sonar_arrow.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.sonar_arrow.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.sonar_arrow.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.sonar_arrow.cooldown_reduction_per_level");
+            DETECTION_RADIUS = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.sonar_arrow.detection_radius");
+            BOUNCE_STRENGTH_MULT = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.sonar_arrow.bounce_strength_mult");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
     }
 }

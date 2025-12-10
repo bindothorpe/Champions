@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.ChargeSkill;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
@@ -24,12 +25,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class WolfsPounce extends ChargeSkill {
+public class WolfsPounce extends ChargeSkill implements ReloadableData {
     private final List<Double> collisionDamage = List.of(3d, 4d, 5d);
     private final Map<UUID, Double> active = new HashMap();
 
+    protected  static double BASE_DAMAGE;
+    protected  static double DAMAGE_INCREASE_PER_LEVEL;
+    protected  static double BASE_LAUNCH_STRENGTH;
+    protected  static double LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
+
     public WolfsPounce(DomainController dc) {
-        super(dc, SkillId.WOLFS_POUNCE, SkillType.SWORD, ClassType.RANGER, "Wolfs Pounce", List.of(12d, 10d, 7d), 3, 1, List.of(40, 30, 15), List.of(5d, 5d, 5d));
+        super(dc, "Wolfs Pounce", SkillId.WOLFS_POUNCE, SkillType.SWORD, ClassType.RANGER);
     }
 
     private void handleWolfsPounceCollide(Player player, Entity entity, double chargePercentage) {
@@ -135,6 +141,30 @@ public class WolfsPounce extends ChargeSkill {
     public List<Component> getDescription(int skillLevel) {
         List<Component> lore = new ArrayList<>();
         return lore;
+    }
+
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.cooldown_reduction_per_level");
+            BASE_MAX_CHARGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_max_charge");
+            MAX_CHARGE_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_charge_reduction_per_level");
+            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_max_charge_duration");
+            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_charge_duration_increase_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.damage_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.launch_strength_increase_per_level");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
     }
 
 

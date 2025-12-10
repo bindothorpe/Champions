@@ -149,7 +149,7 @@ public class Immolate extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.immolate.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.mage.immolate.level_up_cost");
@@ -163,8 +163,10 @@ public class Immolate extends Skill implements ReloadableData {
             BASE_FLAME_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.base_flame_damage");
             FLAME_DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.immolate.flame_damage_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

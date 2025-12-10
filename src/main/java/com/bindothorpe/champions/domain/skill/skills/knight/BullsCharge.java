@@ -103,7 +103,7 @@ public class BullsCharge extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.bulls_charge.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.bulls_charge.level_up_cost");
@@ -118,8 +118,10 @@ public class BullsCharge extends Skill implements ReloadableData {
             BASE_SLOW_EFFECT_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.bulls_charge.base_slow_effect_duration");
             SLOW_EFFECT_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.bulls_charge.slow_effect_duration_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

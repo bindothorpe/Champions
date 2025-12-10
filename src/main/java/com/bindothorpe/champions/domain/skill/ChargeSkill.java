@@ -15,10 +15,10 @@ public abstract class ChargeSkill extends Skill {
     private final Map<UUID, Long> chargeStartMap = new HashMap<>();
     private final Set<UUID> maxCharged = new HashSet<>();
 
-    protected static int BASE_MAX_CHARGE;
-    protected static int MAX_CHARGE_REDUCTION_PER_LEVEL;
-    protected static double BASE_MAX_CHARGE_DURATION;
-    protected static double MAX_CHARGE_DURATION_INCREASE_PER_LEVEL;
+    protected int BASE_MAX_CHARGE;
+    protected int MAX_CHARGE_REDUCTION_PER_LEVEL;
+    protected double BASE_MAX_CHARGE_DURATION;
+    protected double MAX_CHARGE_DURATION_INCREASE_PER_LEVEL;
 
 
     public ChargeSkill(DomainController dc, String name, SkillId id, SkillType skillType, ClassType classType) {

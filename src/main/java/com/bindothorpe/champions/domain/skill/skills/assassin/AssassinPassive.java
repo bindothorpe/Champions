@@ -42,12 +42,14 @@ public class AssassinPassive extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MOVE_SPEED_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.passive.move_speed_mod");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

@@ -110,11 +110,11 @@ public class SkillItem extends GuiItem {
                 .append(Component.text("/").color(NamedTextColor.GRAY))
                 .append(Component.text(dc.getSkillManager().getSkillMaxLevel(skillId)).color(NamedTextColor.GRAY)));
 
-        if(dc.getSkillManager().getSkillCooldownDuration(skillId) != null) {
+        if(dc.getSkillManager().getBaseCooldown(skillId) > 0) {
             lore.add(Component.text(" "));
 
             lore.add(Component.text("Cooldown: ").color(NamedTextColor.GRAY)
-                    .append(ComponentUtil.skillLevelValues(skillLevel, dc.getSkillManager().getSkillCooldownDuration(skillId), NamedTextColor.YELLOW)));
+                    .append(ComponentUtil.skillValuesBasedOnLevel(dc.getSkillManager().getBaseCooldown(skillId), -dc.getSkillManager().getCooldownReductionPerLevel(skillId), skillLevel, dc.getSkillManager().getSkillMaxLevel(skillId), NamedTextColor.YELLOW)));
         }
 
         lore.add(Component.text(" "));

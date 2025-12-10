@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -25,9 +26,9 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class SilkArrow extends Skill {
+public class SilkArrow extends Skill implements ReloadableData {
 
-    private static final double DURATION = 10.0D;
+    private static double DURATION = 10.0D;
 
     private final Set<UUID> primed = new HashSet<>();
     private final Set<Arrow> particleTrail = new HashSet<>();
@@ -35,7 +36,7 @@ public class SilkArrow extends Skill {
 
 
     public SilkArrow(DomainController dc) {
-        super(dc, SkillId.SILK_ARROW, SkillType.BOW, ClassType.RANGER, "Silk Arrow", List.of(10.0), 1, 2);
+        super(dc, "Silk Arrow", SkillId.SILK_ARROW, SkillType.BOW, ClassType.RANGER);
     }
 
     @EventHandler
@@ -209,5 +210,21 @@ public class SilkArrow extends Skill {
         lore.add(Component.text("seconds.").color(NamedTextColor.GRAY));
 
         return lore;
+    }
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.silk_arrow.max_level");
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.silk_arrow.level_up_cost");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.silk_arrow.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.silk_arrow.cooldown_reduction_per_level");
+            DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.silk_arrow.duration");
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
     }
 }

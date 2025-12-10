@@ -141,7 +141,7 @@ public class Riposte extends Skill implements ReloadableData {
     }
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.riposte.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.knight.riposte.level_up_cost");
@@ -152,8 +152,10 @@ public class Riposte extends Skill implements ReloadableData {
             BLOCK_WINDOW_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.block_window_duration");
             BUFF_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.knight.riposte.buff_duration");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 

@@ -19,7 +19,7 @@ public final class ChampionsPlugin extends JavaPlugin {
         dataConfig.initialize();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
-            commands.registrar().register(ChampionsCommand.createCommand().build());
+            commands.registrar().register(ChampionsCommand.createCommand(dc).build());
         });
 
         Objects.requireNonNull(getCommand("build")).setExecutor(new BuildCommand(dc));

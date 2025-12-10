@@ -79,14 +79,16 @@ public class BackStab extends Skill implements ReloadableData {
 
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.back_stab.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.back_stab.level_up_cost");
             DAMAGE_MOD = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.assassin.back_stab.damage_mod");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

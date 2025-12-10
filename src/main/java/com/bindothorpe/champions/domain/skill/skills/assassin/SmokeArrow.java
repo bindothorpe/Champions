@@ -138,7 +138,7 @@ public class SmokeArrow extends Skill implements ReloadableData {
 
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.level_up_cost");
@@ -147,8 +147,10 @@ public class SmokeArrow extends Skill implements ReloadableData {
             BASE_BLIND_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.base_blind_duration");
             BLIND_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.assassin.smoke_arrow.blind_duration_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }

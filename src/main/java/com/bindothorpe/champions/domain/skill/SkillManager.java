@@ -55,11 +55,11 @@ public class SkillManager {
         return skillMap.get(skillId).getDescription(skillLevel);
     }
 
-    public List<Double> getSkillCooldownDuration(SkillId skillId) {
-        if(!skillMap.containsKey(skillId))
-            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
-        return skillMap.get(skillId).getCooldownDuration();
-    }
+//    public List<Double> getSkillCooldownDuration(SkillId skillId) {
+//        if(!skillMap.containsKey(skillId))
+//            throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
+//        return skillMap.get(skillId).getCooldownDuration();
+//    }
     public int getSkillMaxLevel(SkillId skillId) {
         if(!skillMap.containsKey(skillId))
             throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
@@ -90,11 +90,32 @@ public class SkillManager {
         return skillIds;
     }
 
-    public void reloadSkillData(SkillId id) {
+    public ReloadResult.ResultState reloadSkillData(SkillId id) {
         Skill skill = skillMap.get(id);
-        if(skill == null) return;
-        if(!(skill instanceof ReloadableData reloadableData)) return;
+        if(skill == null) return ReloadResult.ResultState.NOT_FOUND;
+        if(!(skill instanceof ReloadableData reloadableData)) return ReloadResult.ResultState.NOT_RELOADABLE;
 
-        reloadableData.onReload();
+        return reloadableData.onReload() ? ReloadResult.ResultState.SUCCESS : ReloadResult.ResultState.FAILED;
     }
+
+    public ReloadResult reloadAllSkillData() {
+        ReloadResult result = new ReloadResult();
+        for(SkillId skillId: skillMap.keySet()) {
+            result.addResult(reloadSkillData(skillId));
+        }
+        return result;
+    }
+
+    public double getBaseCooldown(SkillId skillId) {
+        Skill skill = skillMap.get(skillId);
+        if(skill == null) return 0;
+        return skill.getBaseCooldown();
+    }
+
+    public double getCooldownReductionPerLevel(SkillId skillId) {
+        Skill skill = skillMap.get(skillId);
+        if(skill == null) return 0;
+        return skill.getCooldownReductionPerLevel();
+    }
+
 }

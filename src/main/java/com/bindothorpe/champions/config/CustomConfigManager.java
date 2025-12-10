@@ -20,14 +20,17 @@ public class CustomConfigManager {
     }
 
     private void initialize() {
-        CustomConfig config = new MapConfig();
-        if(loadConfig(new MapConfig())) {
-            config.getFile().options().copyDefaults(true);
-            config.saveFile();
-            dc.getPlugin().getLogger().info("Loaded map config.");
-        }
-        if(loadConfig(new SkillConfig())) {
+        CustomConfig skillConfig = new SkillConfig();
+        if(loadConfig(skillConfig)) {
+            skillConfig.getFile().options().copyDefaults(true);
+            skillConfig.saveFile();
             dc.getPlugin().getLogger().info("Loaded skill config.");
+        }
+        CustomConfig mapConfig = new MapConfig();
+        if(loadConfig(mapConfig)) {
+            mapConfig.getFile().options().copyDefaults(true);
+            mapConfig.saveFile();
+            dc.getPlugin().getLogger().info("Loaded map config.");
         }
     }
 
@@ -56,6 +59,28 @@ public class CustomConfigManager {
         customConfigMap.put(name, config);
         config.setup();
         return true;
+    }
+
+    public void reloadConfig(String name) {
+        CustomConfig config = customConfigMap.get(name);
+        if(config != null) {
+            config.reloadFile();
+            dc.getPlugin().getLogger().info("Reloaded " + name + " config.");
+        } else {
+            dc.getPlugin().getLogger().warning("Config " + name + " not found.");
+        }
+    }
+
+    public void reloadAllConfigs() {
+        if(customConfigMap.isEmpty()) {
+            dc.getPlugin().getLogger().warning("No configs loaded to reload.");
+            return;
+        }
+
+        for(Map.Entry<String, CustomConfig> entry : customConfigMap.entrySet()) {
+            entry.getValue().reloadFile();
+            dc.getPlugin().getLogger().info("Reloaded " + entry.getKey() + " config.");
+        }
     }
 
 

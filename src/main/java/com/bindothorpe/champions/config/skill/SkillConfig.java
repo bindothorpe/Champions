@@ -267,7 +267,7 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.ranger.magnetic_pull.level_up_cost", 1);
         getFile().addDefault("skills.ranger.magnetic_pull.base_cooldown", 10.0);
         getFile().addDefault("skills.ranger.magnetic_pull.cooldown_reduction_per_level", 2.5);
-        getFile().addDefault("skills.ranger.magnetic_pull.arrow_speed_mult", 2);
+        getFile().addDefault("skills.ranger.magnetic_pull.arrow_speed_mult", 2.0);
         // Silk Arrow
         getFile().addDefault("skills.ranger.silk_arrow.max_level", 1);
         getFile().addDefault("skills.ranger.silk_arrow.level_up_cost", 2);
@@ -295,10 +295,5 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.ranger.wolfs_pounce.base_launch_strength", 0.4);
         getFile().addDefault("skills.ranger.wolfs_pounce.launch_strength_increase_per_level", 0.05);
 
-
-
-        // Make sure defaults are copied to the file
-        getFile().options().copyDefaults(true);
-        saveFile();
     }
 }

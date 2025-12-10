@@ -40,12 +40,14 @@ public class MagePassive extends Skill implements ReloadableData {
 
 
     @Override
-    public void onReload() {
+    public boolean onReload() {
         try {
             COOLDOWN_REDUCTION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.mage.passive.cooldown_reduction");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
         } catch (Exception e) {
             dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
         }
     }
 }
