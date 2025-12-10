@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import org.bukkit.Bukkit;
@@ -11,6 +12,9 @@ import org.bukkit.event.EventHandler;
 import java.util.*;
 
 public abstract class ChargeSkill extends Skill {
+
+    private static final long CHARGE_GRACE_PERIOD = 300L;
+
     private final Map<UUID, Integer> chargeMap = new HashMap<>();
     private final Map<UUID, Long> chargeStartMap = new HashMap<>();
     private final Set<UUID> maxCharged = new HashSet<>();
@@ -91,6 +95,22 @@ public abstract class ChargeSkill extends Skill {
     protected abstract void onUpdate(UUID uuid);
 
     @EventHandler
+    public void onPlayerRightClick(PlayerRightClickEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        if(!isUser(uuid)) return;
+        //Check if the player can use the skill
+        if (!canUse(uuid, null)) return;
+
+        if (!chargeMap.containsKey(uuid)) {
+            chargeMap.put(uuid, 1);
+            chargeStartMap.put(uuid, System.currentTimeMillis());
+            onChargeStart(uuid);
+            onCharge(uuid, 1);
+        }
+    }
+
+    @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (!event.getUpdateType().equals(UpdateType.TICK))
             return;
@@ -104,7 +124,7 @@ public abstract class ChargeSkill extends Skill {
             onUpdate(uuid);
 
             //Check if the player is blocking
-            if (player.isBlocking()) {
+            if (player.isBlocking() || isUserInGracePeriod(uuid)) {
 
                 //Check if the player can use the skill
                 if (!canUse(uuid, null))
@@ -143,10 +163,16 @@ public abstract class ChargeSkill extends Skill {
                 if (!chargeMap.containsKey(uuid))
                     continue;
 
+                if(isUserInGracePeriod(uuid)) continue;
+
                 int charge = chargeMap.get(uuid);
                 chargeMap.remove(uuid);
                 onChargeEnd(uuid, charge);
             }
         }
+    }
+
+    private boolean isUserInGracePeriod(UUID uuid) {
+        return System.currentTimeMillis() - chargeStartMap.get(uuid) < CHARGE_GRACE_PERIOD;
     }
 }
