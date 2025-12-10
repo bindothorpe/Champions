@@ -3,11 +3,13 @@ package com.bindothorpe.champions.domain.build;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.build.EquipBuildEvent;
 import com.bindothorpe.champions.events.build.UnequipBuildEvent;
 import com.bindothorpe.champions.util.ItemUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Item;
@@ -22,6 +24,15 @@ public class BuildManager {
     private static BuildManager instance;
     private Map<String, Build> buildMap;
     private Map<ClassType, ItemStack[]> armorContentsMap;
+
+    private static NamespacedKey key;
+
+    private NamespacedKey getKey(DomainController dc) {
+        if(key == null) {
+            key = new NamespacedKey(dc.getPlugin(), "BuildManager");
+        }
+        return key;
+    }
 
     private BuildManager(DomainController dc) {
         this.dc = dc;
@@ -119,6 +130,8 @@ public class BuildManager {
             throw new IllegalArgumentException(String.format("Build with id \"%s\" not found.", buildId));
         }
 
+        dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.NO_HUNGER, uuid, getKey(dc), 1, -1);
+
         Map<SkillType, Integer> skillLevels = build.getSkillLevels();
         for (Map.Entry<SkillType, SkillId> entry : build.getSkills().entrySet()) {
             if (entry.getValue() == null) {
@@ -184,6 +197,9 @@ public class BuildManager {
         if (buildId == null) {
             return;
         }
+
+
+        dc.getStatusEffectManager().removeStatusEffectFromPlayer(StatusEffectType.NO_HUNGER, uuid, getKey(dc));
 
         Build build = buildMap.get(buildId);
         if (build == null) {

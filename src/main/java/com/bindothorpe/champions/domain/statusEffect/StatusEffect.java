@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public abstract class StatusEffect implements Listener {
@@ -50,6 +51,10 @@ public abstract class StatusEffect implements Listener {
         activeEntitiesDataMap.computeIfAbsent(uuid, k -> new StatusEffectData(dc, uuid, this::handleEntityValueChanged));
         activeEntitiesDataMap.get(uuid).removeEffectInstance(sourceKey);
         handleEntityValueChanged(uuid);
+    }
+
+    public Set<UUID> getActiveUserUUIDs() {
+        return activeEntitiesDataMap.keySet();
     }
 
     public abstract void handleEntityValueChanged(UUID uuid);
