@@ -5,11 +5,13 @@ import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.combat.DamageLog;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.ItemUtil;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.EntityEffect;
+import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -21,6 +23,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,9 +61,10 @@ public class EntityDamageByEntityListener implements Listener {
         if (event.isCancelled())
             return;
 
+        double damage = getDamageFromItemInHand(damager.getInventory().getItemInMainHand());
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK, null);
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), damager.getLocation(), CustomDamageSource.ATTACK);
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, damage, damager.getLocation(), CustomDamageSource.ATTACK, null);
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, damage, damager.getLocation(), CustomDamageSource.ATTACK);
 
         customDamageEvent.setCommand(customDamageCommand);
 
@@ -79,6 +84,19 @@ public class EntityDamageByEntityListener implements Listener {
         customDamageCommand.execute();
 
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
+    }
+
+    private double getDamageFromItemInHand(ItemStack itemInMainHand) {
+        if(itemInMainHand == null) return 1.0;
+
+        Material material = itemInMainHand.getType();
+
+        if(ItemUtil.isWeapon(itemInMainHand)) {
+            if(ItemUtil.isIron(material) || ItemUtil.isGolden(material)) return 6.0;
+            if(ItemUtil.isDiamond(material)) return 7.0;
+        }
+
+        return 1.0;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

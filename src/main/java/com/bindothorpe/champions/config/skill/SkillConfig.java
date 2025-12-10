@@ -274,6 +274,11 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.ranger.silk_arrow.base_cooldown", 10.0);
         getFile().addDefault("skills.ranger.silk_arrow.cooldown_reduction_per_level", 0.0);
         getFile().addDefault("skills.ranger.silk_arrow.duration", 10.0);
+        // Roped Arrow
+        getFile().addDefault("skills.ranger.roped_arrow.max_level", 1);
+        getFile().addDefault("skills.ranger.roped_arrow.level_up_cost", 2);
+        getFile().addDefault("skills.ranger.roped_arrow.base_cooldown", 10.0);
+        getFile().addDefault("skills.ranger.roped_arrow.cooldown_reduction_per_level", 1.0);
         // Sonar Arrow
         getFile().addDefault("skills.ranger.sonar_arrow.max_level", 1);
         getFile().addDefault("skills.ranger.sonar_arrow.level_up_cost", 2);
