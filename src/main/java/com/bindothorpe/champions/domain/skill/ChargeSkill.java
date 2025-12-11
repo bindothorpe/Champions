@@ -2,9 +2,8 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
-import com.bindothorpe.champions.events.interact.PlayerStartBlockingEvent;
-import com.bindothorpe.champions.events.interact.PlayerStopBlockingEvent;
+import com.bindothorpe.champions.events.interact.blocking.PlayerStartBlockingEvent;
+import com.bindothorpe.champions.events.interact.blocking.PlayerStopBlockingEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.EntityUtil;

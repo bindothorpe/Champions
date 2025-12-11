@@ -10,6 +10,9 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.events.interact.blocking.PlayerStartBlockingEvent;
+import com.bindothorpe.champions.events.interact.blocking.PlayerStopBlockingEvent;
+import com.bindothorpe.champions.events.interact.blocking.PlayerUpdateBlockingEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ChatUtil;
@@ -18,11 +21,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -31,7 +37,7 @@ public class Evade extends Skill implements ReloadableData {
     private static double COOLDOWN_ON_SUCCESS;
     private static double ACTIVE_DURATION;
 
-    private final Map<UUID, Long> blockingUsersMap = new HashMap<>();
+    private final Map<UUID, Long> activeBlockingUsersStartTimeMap = new HashMap<>();
 
     public Evade(DomainController dc) {
         super(dc, "Evade", SkillId.EVADE, SkillType.SWORD, ClassType.ASSASSIN);
@@ -39,52 +45,96 @@ public class Evade extends Skill implements ReloadableData {
 
 
     @EventHandler
-    public void onRightClick(PlayerRightClickEvent event) {
+    public void onStartBlocking(PlayerStartBlockingEvent event) {
         Player player = event.getPlayer();
+        if(player == null) return;
 
-        if(!event.isSword())
-            return;
+        UUID uuid = player.getUniqueId();
 
-        if(blockingUsersMap.containsKey(player.getUniqueId()))
-            return;
+        if(!isUser(uuid)) return;
+        if(!canUse(uuid, event)) return;
 
-        if (!activate(player.getUniqueId(), event, false))
-            return;
-
-
-        //Add the user to the map
-        blockingUsersMap.put(player.getUniqueId(), System.currentTimeMillis());
-
-        //TODO: REMOVE THIS LINE:
-        player.getWorld().spawnParticle(Particle.LARGE_SMOKE, player.getLocation().clone().add(0, 0.5, 0), 1);
-
+        if(activeBlockingUsersStartTimeMap.containsKey(player.getUniqueId())) return;
+        activeBlockingUsersStartTimeMap.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onCustomDamageBlock(CustomDamageEvent event) {
+    @EventHandler
+    public void onBlockCustomDamage(CustomDamageEvent event) {
         if(event.isCancelled()) return;
+        if(!(event.getDamagee() instanceof Player player)) return;
+        if(!(event.getDamager() instanceof LivingEntity livingEntity)) return;
 
-        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
+        UUID uuid = player.getUniqueId();
+        if(!activeBlockingUsersStartTimeMap.containsKey(uuid)) return;
 
-        if(event.getDamagee() == null) return;
-
-        if(!(event.getDamagee() instanceof Player damagee)) return;
-
-        if(!damagee.isBlocking()) return;
-
-        if(!blockingUsersMap.containsKey(damagee.getUniqueId())) return;
-
-        if(event.getDamager() == null) return;
-
+        // Block the attack and start the cooldown
         event.setCancelled(true);
-        performEvade(damagee, event.getDamager());
+        activeBlockingUsersStartTimeMap.remove(uuid);
+
+        performEvade(player, livingEntity);
+    }
+
+    @EventHandler
+    public void onUpdateBlocking(PlayerUpdateBlockingEvent event) {
+        Player player = event.getPlayer();
+        if(player == null) return;
+
+        UUID uuid = player.getUniqueId();
+
+        if(!activeBlockingUsersStartTimeMap.containsKey(uuid)) return;
+
+        // Check if the window has passed
+        if(event.getBlockDuration() <= ACTIVE_DURATION) return;
+
+        //Fail blocking
+        activeBlockingUsersStartTimeMap.remove(uuid);
+        startCooldown(uuid);
+
+        ChatUtil.sendMessage(
+                player,
+                ChatUtil.Prefix.SKILL,
+                Component.text("You failed to ").color(NamedTextColor.GRAY)
+                        .append(Component.text(getName()).color(NamedTextColor.YELLOW))
+                        .append(Component.text(".").color(NamedTextColor.GRAY))
+        );
+    }
+
+    @EventHandler
+    public void onStopBlocking(PlayerStopBlockingEvent event) {
+        Player player = event.getPlayer();
+        if(player == null) return;
+
+        UUID uuid = player.getUniqueId();
+
+        if(!activeBlockingUsersStartTimeMap.containsKey(uuid)) return;
+
+        //Fail blocking
+        activeBlockingUsersStartTimeMap.remove(uuid);
+        startCooldown(uuid);
+
+        ChatUtil.sendMessage(
+                player,
+                ChatUtil.Prefix.SKILL,
+                Component.text("You failed to ").color(NamedTextColor.GRAY)
+                        .append(Component.text(getName()).color(NamedTextColor.YELLOW))
+                        .append(Component.text(".").color(NamedTextColor.GRAY))
+        );
+    }
+
+    private void playerEvadeParticle(@NotNull Player player) {
+        player.getWorld().spawnParticle(
+                Particle.LARGE_SMOKE,
+                player.getLocation().clone().add(0, 0.5, 0),
+                1,
+                0, 0, 0,
+                0
+        );
     }
 
     private void performEvade(Player player, Entity damager) {
         dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.TRUE_INVISIBLE, player.getUniqueId(), getNamespacedKey(player), 1, 0.3);
 
-        player.getWorld().spawnParticle(Particle.LARGE_SMOKE, player.getLocation().clone().add(0, 0.5, 0), 1);
+        playerEvadeParticle(player);
         if(!player.isSneaking()) {
             player.teleport(getLocationBehindEntity(damager));
         } else {
@@ -102,82 +152,59 @@ public class Evade extends Skill implements ReloadableData {
     }
 
     private Location getLocationBehindEntity(Entity entity) {
-        Location location = entity.getLocation().clone();
+        Location entityLoc = entity.getLocation();
+        Vector direction = entityLoc.getDirection().normalize().multiply(-1);
 
-        location.add(entity.getLocation().getDirection().multiply(-1));
-        location.setY(entity.getLocation().getY() + 0.1);
+        // Start checking from 2 blocks away and move closer
+        for (double distance = 2.0; distance >= 0.5; distance -= 0.25) {
+            Location location = entityLoc.clone();
+            location.add(direction.clone().multiply(distance));
+            location.setY(entityLoc.getY() + 0.1);
 
-        //TODO: Check if it is a valid location
+            if (isLocationPassable(location)) {
+                return location;
+            }
+        }
 
-        return location;
+        // Fallback: return entity's current location if no valid spot found
+        return entityLoc.clone();
     }
 
     private Location getLocationInFrontEntity(Entity entity, Vector facingDirection) {
-        Location location = entity.getLocation().clone();
+        Location entityLoc = entity.getLocation();
+        Vector direction = entityLoc.getDirection().normalize();
 
-        location.add(entity.getLocation().getDirection());
-        location.setY(entity.getLocation().getY() + 0.1);
-        location.setDirection(facingDirection);
+        // Start checking from 1 block away and move closer
+        for (double distance = 1.0; distance >= 0.5; distance -= 0.25) {
+            Location location = entityLoc.clone();
+            location.add(direction.clone().multiply(distance));
+            location.setY(entityLoc.getY() + 0.1);
+            location.setDirection(facingDirection.multiply(2));
 
-        //TODO: Check if it is a valid location
-
-        return location;
-    }
-
-    @EventHandler
-    public void onExpire(UpdateEvent event) {
-        if(!event.getUpdateType().equals(UpdateType.TICK)) return;
-
-        Set<UUID> expiredUsersSet = new HashSet<>();
-
-        blockingUsersMap.entrySet().stream()
-                .filter((entry) -> System.currentTimeMillis() > entry.getValue() + ((long) ACTIVE_DURATION * 1000L))
-                .forEach((entry) -> expiredUsersSet.add(entry.getKey()));
-
-        expiredUsersSet
-                .forEach((uuid) -> {
-                    blockingUsersMap.remove(uuid);
-                    //Send a fail message
-                    Player player = Bukkit.getPlayer(uuid);
-                    if(player == null) return;
-                    ChatUtil.sendMessage(
-                            player,
-                            ChatUtil.Prefix.SKILL,
-                            Component.text("You failed to ").color(NamedTextColor.GRAY)
-                                    .append(Component.text(getName()).color(NamedTextColor.YELLOW))
-                                    .append(Component.text(".").color(NamedTextColor.GRAY))
-                    );
-                    startCooldown(player.getUniqueId());
-                });
-
-    }
-
-    @EventHandler
-    public void onStopBlocking(UpdateEvent event) {
-        if(!event.getUpdateType().equals(UpdateType.TICK)) return;
-
-        for(UUID uuid: getUsers()) {
-            if(!blockingUsersMap.containsKey(uuid)) continue;
-
-            if(System.currentTimeMillis() - blockingUsersMap.get(uuid) < 250L) continue;
-
-            Player player = Bukkit.getPlayer(uuid);
-
-            if(player == null) continue;
-
-            if(player.isBlocking()) continue;
-
-            blockingUsersMap.remove(uuid);
-            ChatUtil.sendMessage(
-                    player,
-                    ChatUtil.Prefix.SKILL,
-                    Component.text("You failed to ").color(NamedTextColor.GRAY)
-                            .append(Component.text(getName()).color(NamedTextColor.YELLOW))
-                            .append(Component.text(".").color(NamedTextColor.GRAY))
-            );
-            startCooldown(player.getUniqueId());
+            if (isLocationPassable(location)) {
+                return location;
+            }
         }
 
+        // Fallback: return entity's current location if no valid spot found
+        Location fallback = entityLoc.clone();
+        fallback.setDirection(facingDirection.multiply(2));
+        return fallback;
+    }
+
+    private boolean isLocationPassable(Location location) {
+        if (location.getWorld() == null) {
+            return false;
+        }
+
+        Block block = location.getBlock();
+        Block blockAbove = location.clone().add(0, 1, 0).getBlock();
+
+        // Check if the location and block above are passable (air or non-solid)
+        boolean feetPassable = block.isPassable() || block.getType().isAir();
+        boolean headPassable = blockAbove.isPassable() || blockAbove.getType().isAir();
+
+        return feetPassable && headPassable;
     }
 
 

@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.events.interact;
+package com.bindothorpe.champions.events.interact.blocking;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;

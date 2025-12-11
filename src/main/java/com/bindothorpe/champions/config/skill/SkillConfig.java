@@ -43,6 +43,14 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.smoke_arrow.cooldown_reduction_per_level", 2.0);
         getFile().addDefault("skills.assassin.smoke_arrow.base_blind_duration", 2.0);
         getFile().addDefault("skills.assassin.smoke_arrow.blind_duration_increase_per_level", 0.2);
+        // Recall
+        getFile().addDefault("skills.assassin.recall.max_level", 3);
+        getFile().addDefault("skills.assassin.recall.level_up_cost", 1);
+        getFile().addDefault("skills.assassin.recall.base_cooldown", 40.0);
+        getFile().addDefault("skills.assassin.recall.cooldown_reduction_per_level", 1.0);
+        getFile().addDefault("skills.assassin.recall.location_duration", 10.0);
+        getFile().addDefault("skills.assassin.recall.base_heal_amount", 4.0);
+        getFile().addDefault("skills.assassin.recall.heal_amount_increase_per_level", 4.0);
 
         // Brute
         // Explosive Bomb

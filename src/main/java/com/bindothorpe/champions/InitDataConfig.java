@@ -12,8 +12,7 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
-import com.bindothorpe.champions.events.interact.PlayerBlockListener;
-import com.bindothorpe.champions.events.interact.TestListener;
+import com.bindothorpe.champions.events.interact.blocking.PlayerBlockListener;
 import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
@@ -69,8 +68,6 @@ public class InitDataConfig {
                 System.out.println("Failed to register custom item: " + clazz.getName());
             }
         }
-
-        pm.registerEvents(new TestListener(), dc.getPlugin());
 
         pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());

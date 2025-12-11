@@ -29,7 +29,8 @@ public enum SkillId {
     STATIC_LAZER(SkillType.SWORD),
     EVADE(SkillType.SWORD),
     BACK_STAB(SkillType.PASSIVE_B),
-    ROPED_ARROW(SkillType.BOW);
+    ROPED_ARROW(SkillType.BOW),
+    RECALL(SkillType.PASSIVE_A);
 
 
     private final SkillType skillType;

@@ -1,6 +1,6 @@
 package com.bindothorpe.champions.util;
 
-import com.bindothorpe.champions.events.interact.PlayerBlockListener;
+import com.bindothorpe.champions.events.interact.blocking.PlayerBlockListener;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;

@@ -1,6 +1,7 @@
-package com.bindothorpe.champions.events.interact;
+package com.bindothorpe.champions.events.interact.blocking;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import org.bukkit.Bukkit;
@@ -42,11 +43,7 @@ public class PlayerBlockListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        player.sendMessage("0");
-
         if(!isHoldingShield(player)) return;
-
-        player.sendMessage("1");
 
         blockingStartTimestampMap.computeIfAbsent(uuid, k -> System.currentTimeMillis());
 
@@ -64,6 +61,15 @@ public class PlayerBlockListener implements Listener {
             if(player == null) continue;;
 
             if(player.isBlocking() || isUserInGracePeriod(uuid)) {
+
+                long startTime = blockingStartTimestampMap.get(uuid);
+                long endTime = System.currentTimeMillis();
+
+                long blockDurationInMilliseconds = endTime - startTime;
+                double blockDuration = (double) blockDurationInMilliseconds / 1000;
+
+                PlayerUpdateBlockingEvent updateBlockingEvent = new PlayerUpdateBlockingEvent(player, blockDuration, blockDurationInMilliseconds);
+                updateBlockingEvent.callEvent();
 
             } else {
                 if (!blockingStartTimestampMap.containsKey(uuid)) continue;
