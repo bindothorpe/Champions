@@ -138,7 +138,7 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.knight.bulls_charge.base_active_duration", 3.0);
         getFile().addDefault("skills.knight.bulls_charge.active_duration_increase_per_level", 1.0);
         getFile().addDefault("skills.knight.bulls_charge.move_speed_effect", 2);
-        getFile().addDefault("skills.knight.bulls_charge.slow_effect", 1);
+        getFile().addDefault("skills.knight.bulls_charge.slow_effect", 4);
         getFile().addDefault("skills.knight.bulls_charge.base_slow_effect_duration", 2.0);
         getFile().addDefault("skills.knight.bulls_charge.slow_effect_duration_increase_per_level", 0.5);
         // Heavy Swing

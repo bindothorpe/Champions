@@ -127,7 +127,7 @@ public class HoldPosition extends Skill implements ReloadableData {
                 .append(ComponentUtil.rightClick(true))
                 .append(Component.text("to hold your position, reducing incoming damage by ").color(NamedTextColor.GRAY))
                 .append(ComponentUtil.skillValuesBasedOnLevel((int) (BASE_DAMAGE_REDUCTION_PERCENTAGE * 100), (int) (DAMAGE_REDUCTION_PERCENTAGE_INCREASE_PER_LEVEL * 100), skillLevel, MAX_LEVEL, true, NamedTextColor.YELLOW))
-                .append(Component.text(", Slow 4 and no knockback for ").color(NamedTextColor.GRAY))
+                .append(Component.text(", Slow IV and no knockback for ").color(NamedTextColor.GRAY))
                 .append(ComponentUtil.skillValuesBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
                 .append(Component.text(" seconds.").color(NamedTextColor.GRAY)),
                 35);

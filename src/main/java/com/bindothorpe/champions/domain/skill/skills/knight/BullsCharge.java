@@ -12,16 +12,16 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BullsCharge extends Skill implements ReloadableData {
 
@@ -99,7 +99,23 @@ public class BullsCharge extends Skill implements ReloadableData {
 
     @Override
     public List<Component> getDescription(int skillLevel) {
-        return List.of();
+        List<Component> lore = new ArrayList<>(ComponentUtil.wrapComponentWithFormatting(
+                ComponentUtil.active()
+                        .append(ComponentUtil.rightClick(true))
+                        .append(Component.text("to charge forward with Speed ").append(Component.text(TextUtil.intToRoman(MOVE_SPEED_EFFECT))).color(NamedTextColor.GRAY))
+                        .append(Component.text(" for ").color(NamedTextColor.GRAY))
+                        .append(ComponentUtil.skillValuesBasedOnLevel(BASE_ACTIVE_DURATION, ACTIVE_DURATION_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
+                        .append(Component.text(" seconds.").color(NamedTextColor.GRAY)),
+                45));
+        lore.add(Component.text(" "));
+        lore.addAll(ComponentUtil.wrapComponentWithFormatting(
+                Component.text("If you attack during this time, your target receives Slow ")
+                        .append(Component.text(TextUtil.intToRoman(SLOW_EFFECT)))
+                        .append(Component.text(" for ")).color(NamedTextColor.GRAY)
+                        .append(ComponentUtil.skillValuesBasedOnLevel(BASE_SLOW_EFFECT_DURATION, SLOW_EFFECT_DURATION_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
+                        .append(Component.text(" seconds, as well as no knockback.").color(NamedTextColor.GRAY)),
+                45));
+        return lore;
     }
 
     @Override
