@@ -3,8 +3,11 @@ package com.bindothorpe.champions.domain.skill;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.events.interact.PlayerStartBlockingEvent;
+import com.bindothorpe.champions.events.interact.PlayerStopBlockingEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import com.bindothorpe.champions.util.EntityUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -95,45 +98,51 @@ public abstract class ChargeSkill extends Skill {
     protected abstract void onUpdate(UUID uuid);
 
     @EventHandler
-    public void onPlayerRightClick(PlayerRightClickEvent event) {
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-        if(!isUser(uuid)) return;
-        //Check if the player can use the skill
-        if (!canUse(uuid, null)) return;
+    public void onPlayerStartBlocking(PlayerStartBlockingEvent event) {
+        if(event.getPlayer() == null) return;
+        UUID uuid = event.getPlayer().getUniqueId();
 
+        if(!isUser(uuid)) return;
+        if (!canUse(uuid, event)) return;
         if (!chargeMap.containsKey(uuid)) {
             chargeMap.put(uuid, 1);
-            chargeStartMap.put(uuid, System.currentTimeMillis());
             onChargeStart(uuid);
             onCharge(uuid, 1);
         }
     }
 
     @EventHandler
+    public void onPlayerStopBlocking(PlayerStopBlockingEvent event) {
+        if(event.getPlayer() == null) return;
+        UUID uuid = event.getPlayer().getUniqueId();
+
+        if (!chargeMap.containsKey(uuid)) return;
+
+        int charge = chargeMap.get(uuid);
+        chargeMap.remove(uuid);
+        onChargeEnd(uuid, charge);
+
+    }
+
+    @EventHandler
     public void onUpdate(UpdateEvent event) {
-        if (!event.getUpdateType().equals(UpdateType.TICK))
-            return;
+        if(!event.getUpdateType().equals(UpdateType.TICK)) return;
 
-        for (UUID uuid : getUsers()) {
+        for(UUID uuid: getUsers()) {
             Player player = Bukkit.getPlayer(uuid);
-
-            if (player == null)
-                continue;
+            if(player == null) continue;
 
             onUpdate(uuid);
 
-            //Check if the player is blocking
-            if (player.isBlocking() || isUserInGracePeriod(uuid)) {
+            // Check if the player is blocking
+            if(EntityUtil.isPlayerBlocking(player)) {
 
-                //Check if the player can use the skill
-                if (!canUse(uuid, null))
-                    return;
+                // If the player can not use it, continue to the next iteration
+                if(!canUse(uuid, event)) continue;
 
-                //Check if the chargeMap contains the player
+
                 if (!chargeMap.containsKey(uuid)) {
                     chargeMap.put(uuid, 1);
-                    chargeStartMap.put(uuid, System.currentTimeMillis());
                     onChargeStart(uuid);
                     onCharge(uuid, 1);
                 } else {
@@ -151,28 +160,98 @@ public abstract class ChargeSkill extends Skill {
                 }
 
                 //Check if the charge has reached the max duration
-                if (System.currentTimeMillis() - chargeStartMap.get(uuid) >= calculateBasedOnLevel(BASE_MAX_CHARGE_DURATION, MAX_CHARGE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid)) * 1000) {
+                if (EntityUtil.getPlayerBlockingDuration(player) >= calculateBasedOnLevel(BASE_MAX_CHARGE_DURATION, MAX_CHARGE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid))) {
 
                     int charge = chargeMap.get(uuid);
                     onMaxChargeDurationReached(uuid, charge);
                     chargeMap.remove(uuid);
                 }
 
-            } else {
-
-                if (!chargeMap.containsKey(uuid))
-                    continue;
-
-                if(isUserInGracePeriod(uuid)) continue;
-
-                int charge = chargeMap.get(uuid);
-                chargeMap.remove(uuid);
-                onChargeEnd(uuid, charge);
             }
         }
-    }
 
-    private boolean isUserInGracePeriod(UUID uuid) {
-        return System.currentTimeMillis() - chargeStartMap.get(uuid) < CHARGE_GRACE_PERIOD;
     }
+//
+//    @EventHandler
+//    public void onUpdate(UpdateEvent event) {
+//        if (!event.getUpdateType().equals(UpdateType.TICK))
+//            return;
+//
+//        for (UUID uuid : getUsers()) {
+//            Player player = Bukkit.getPlayer(uuid);
+//
+//            if (player == null)
+//                continue;
+//
+//            onUpdate(uuid);
+//
+//            //Check if the player is blocking
+//            if (player.isBlocking() || isUserInGracePeriod(uuid)) {
+//
+//                //Check if the player can use the skill
+//                if (!canUse(uuid, null))
+//                    return;
+//
+//                //Check if the chargeMap contains the player
+//                if (!chargeMap.containsKey(uuid)) {
+//                    chargeMap.put(uuid, 1);
+//                    chargeStartMap.put(uuid, System.currentTimeMillis());
+//                    onChargeStart(uuid);
+//                    onCharge(uuid, 1);
+//                } else {
+//                    int charge = chargeMap.get(uuid) + 1;
+//                    chargeMap.put(uuid, charge);
+//                    onCharge(uuid, charge);
+//                }
+//
+//                int maxChargeValue = getMaxCharge(uuid);
+//
+//                //Check if the charge is at max
+//                if (chargeMap.get(uuid) >= maxChargeValue && !maxCharged.contains(uuid)) {
+//                    onMaxChargeReached(uuid, maxChargeValue);
+//                    maxCharged.add(uuid);
+//                }
+//
+//                //Check if the charge has reached the max duration
+//                if (System.currentTimeMillis() - chargeStartMap.get(uuid) >= calculateBasedOnLevel(BASE_MAX_CHARGE_DURATION, MAX_CHARGE_DURATION_INCREASE_PER_LEVEL, getSkillLevel(uuid)) * 1000) {
+//
+//                    int charge = chargeMap.get(uuid);
+//                    onMaxChargeDurationReached(uuid, charge);
+//                    chargeMap.remove(uuid);
+//                }
+//
+//            } else {
+//
+//                if (!chargeMap.containsKey(uuid))
+//                    continue;
+//
+//                if(isUserInGracePeriod(uuid)) continue;
+//
+//                int charge = chargeMap.get(uuid);
+//                chargeMap.remove(uuid);
+//                onChargeEnd(uuid, charge);
+//            }
+//        }
+//    }
+
+//    @EventHandler
+//    public void onPlayerRightClick(PlayerRightClickEvent event) {
+//        Player player = event.getPlayer();
+//        UUID uuid = player.getUniqueId();
+//        if(!isUser(uuid)) return;
+//        //Check if the player can use the skill
+//        if (!canUse(uuid, null)) return;
+//
+//        if (!chargeMap.containsKey(uuid)) {
+//            chargeMap.put(uuid, 1);
+//            chargeStartMap.put(uuid, System.currentTimeMillis());
+//            onChargeStart(uuid);
+//            onCharge(uuid, 1);
+//        }
+//    }
+//
+//    private boolean isUserInGracePeriod(UUID uuid) {
+//        if(!chargeStartMap.containsKey(uuid)) return false;
+//        return System.currentTimeMillis() - chargeStartMap.get(uuid) < CHARGE_GRACE_PERIOD;
+//    }
 }

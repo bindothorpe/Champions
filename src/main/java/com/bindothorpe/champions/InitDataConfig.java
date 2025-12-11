@@ -12,6 +12,8 @@ import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
+import com.bindothorpe.champions.events.interact.PlayerBlockListener;
+import com.bindothorpe.champions.events.interact.TestListener;
 import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
 import com.bindothorpe.champions.listeners.BuildListener;
 import com.bindothorpe.champions.listeners.PlayerConnectionListener;
@@ -68,10 +70,12 @@ public class InitDataConfig {
             }
         }
 
+        pm.registerEvents(new TestListener(), dc.getPlugin());
 
         pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());
         pm.registerEvents(new InteractListener(dc), dc.getPlugin());
+        pm.registerEvents(new PlayerBlockListener(dc), dc.getPlugin());
         pm.registerEvents(new BuildListener(dc), dc.getPlugin());
         pm.registerEvents(new ShopPlayerGui(dc), dc.getPlugin());
         pm.registerEvents(new CustomDamageListener(dc), dc.getPlugin());
