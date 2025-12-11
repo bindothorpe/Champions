@@ -13,7 +13,9 @@ import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.timer.Timer;
+import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Particle;
@@ -120,6 +122,14 @@ public class HoldPosition extends Skill implements ReloadableData {
 
     @Override
     public List<Component> getDescription(int skillLevel) {
-        return List.of();
+        return ComponentUtil.wrapComponentWithFormatting(
+                ComponentUtil.active()
+                .append(ComponentUtil.rightClick(true))
+                .append(Component.text("to hold your position, reducing incoming damage by ").color(NamedTextColor.GRAY))
+                .append(ComponentUtil.skillValuesBasedOnLevel((int) (BASE_DAMAGE_REDUCTION_PERCENTAGE * 100), (int) (DAMAGE_REDUCTION_PERCENTAGE_INCREASE_PER_LEVEL * 100), skillLevel, MAX_LEVEL, true, NamedTextColor.YELLOW))
+                .append(Component.text(", Slow 4 and no knockback for ").color(NamedTextColor.GRAY))
+                .append(ComponentUtil.skillValuesBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, skillLevel, MAX_LEVEL, NamedTextColor.YELLOW))
+                .append(Component.text(" seconds.").color(NamedTextColor.GRAY)),
+                35);
     }
 }

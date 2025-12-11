@@ -3,8 +3,11 @@ package com.bindothorpe.champions.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,15 +25,19 @@ public class ComponentUtil {
     }
 
     public static <T extends Number> Component skillValuesBasedOnLevel(T baseValue, T increasePerLevel, int level, int maxLevel, NamedTextColor highlightColor) {
+        return skillValuesBasedOnLevel(baseValue, increasePerLevel, level, maxLevel, false, highlightColor);
+    }
+
+    public static <T extends Number> Component skillValuesBasedOnLevel(T baseValue, T increasePerLevel, int level, int maxLevel, boolean isPercentile, NamedTextColor highlightColor) {
         TextComponent.Builder builder = Component.text();
         for (int i = 0; i < maxLevel; i++) {
             if (i > 0) {
                 builder.append(Component.text(" / ").color(NamedTextColor.GRAY));
             }
             if(baseValue instanceof Long || baseValue instanceof Integer) {
-                builder.append(Component.text(String.valueOf(calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+                builder.append(Component.text(String.format("%d%s",calculateBasedOnLevel(baseValue, increasePerLevel, i + 1), isPercentile ? "%" : "")).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
             } else {
-                builder.append(Component.text(String.format("%.1f", calculateBasedOnLevel(baseValue, increasePerLevel, i + 1))).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
+                builder.append(Component.text(String.format("%.1f%s", calculateBasedOnLevel(baseValue, increasePerLevel, i + 1), isPercentile ? "%" : "")).color(level == i + 1 ? highlightColor : NamedTextColor.GRAY));
             }
 
         }
@@ -136,6 +143,84 @@ public class ComponentUtil {
 
         // Return the combined component
         return chargedComponent.append(toChargeComponent);
+    }
+
+    /**
+     * Wraps a Component into multiple lines while preserving formatting
+     * @param component The component to wrap
+     * @param maxLength Maximum characters per line (excluding color codes)
+     * @return List of Components, one per line
+     */
+    public static List<Component> wrapComponentWithFormatting(Component component, int maxLength) {
+        List<Component> lines = new ArrayList<>();
+        List<StyledSegment> segments = flattenComponent(component);
+
+        TextComponent.Builder currentLine = Component.text();
+        int currentLength = 0;
+
+        for (StyledSegment segment : segments) {
+            String[] words = segment.text.split(" ", -1);
+
+            for (int i = 0; i < words.length; i++) {
+                String word = words[i];
+
+                // Add space before word if not at start of line
+                String toAdd = (currentLength > 0 && i > 0) ? " " + word : word;
+                int addLength = toAdd.length();
+
+                if (currentLength + addLength > maxLength && currentLength > 0) {
+                    // Line is full, save it and start new line
+                    lines.add(currentLine.build());
+                    currentLine = Component.text();
+                    currentLength = 0;
+                    toAdd = word; // Don't add leading space on new line
+                    addLength = word.length();
+                }
+
+                // Add the word with its style
+                currentLine.append(Component.text(toAdd, segment.style));
+                currentLength += addLength;
+            }
+        }
+
+        // Add the last line if it has content
+        Component lastLine = currentLine.build();
+        if (!lastLine.children().isEmpty() || (lastLine instanceof TextComponent && !((TextComponent) lastLine).content().isEmpty())) {
+            lines.add(lastLine);
+        }
+
+        return lines;
+    }
+
+    private static List<StyledSegment> flattenComponent(Component component) {
+        List<StyledSegment> segments = new ArrayList<>();
+        flattenRecursive(component, Style.empty(), segments);
+        return segments;
+    }
+
+    private static void flattenRecursive(Component component, Style inheritedStyle, List<StyledSegment> segments) {
+        Style currentStyle = inheritedStyle.merge(component.style());
+
+        if (component instanceof TextComponent) {
+            String content = ((TextComponent) component).content();
+            if (!content.isEmpty()) {
+                segments.add(new StyledSegment(content, currentStyle));
+            }
+        }
+
+        for (Component child : component.children()) {
+            flattenRecursive(child, currentStyle, segments);
+        }
+    }
+
+    private static class StyledSegment {
+        final String text;
+        final Style style;
+
+        public StyledSegment(String text, Style style) {
+            this.text = text;
+            this.style = style;
+        }
     }
 
 }
