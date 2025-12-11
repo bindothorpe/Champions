@@ -153,6 +153,10 @@ public class CustomDamageCommand implements Command {
     }
 
 
+    public Vector getDirection() {
+        return damagee.getLocation().toVector().subtract(attackLocation.toVector()).normalize();
+    }
+
     private Vector getKnockbackDirection() {
         return damagee.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
     }

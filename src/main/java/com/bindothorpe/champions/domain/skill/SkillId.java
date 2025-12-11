@@ -30,7 +30,9 @@ public enum SkillId {
     EVADE(SkillType.SWORD),
     BACK_STAB(SkillType.PASSIVE_B),
     ROPED_ARROW(SkillType.BOW),
-    RECALL(SkillType.PASSIVE_A), SMOKE_BOMB(SkillType.PASSIVE_A);
+    RECALL(SkillType.PASSIVE_A),
+    SMOKE_BOMB(SkillType.PASSIVE_A),
+    DEFENSIVE_STANCE(SkillType.SWORD), HOLD_POSITION(SkillType.AXE);
 
 
     private final SkillType skillType;

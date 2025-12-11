@@ -22,7 +22,7 @@ public class SlowStatusEffect extends StatusEffect {
         if (entity == null) return;
 
         if(isActive(uuid)) {
-            dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, (double) getHighestAmplifier(uuid) / 10D * -1, -1, false, false, this));
+            dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, (double) getHighestAmplifier(uuid) / 24D * -1, -1, false, false, this));
         } else {
             dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);
         }

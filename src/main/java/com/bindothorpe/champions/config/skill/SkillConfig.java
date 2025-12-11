@@ -169,6 +169,23 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.knight.riposte.damage_increase_per_level", 0.5);
         getFile().addDefault("skills.knight.riposte.block_window_duration", 1.0);
         getFile().addDefault("skills.knight.riposte.buff_duration", 1.0);
+        // Defensive Stance
+        getFile().addDefault("skills.knight.defensive_stance.max_level", 3);
+        getFile().addDefault("skills.knight.defensive_stance.level_up_cost", 1);
+        getFile().addDefault("skills.knight.defensive_stance.base_cooldown", 10.0);
+        getFile().addDefault("skills.knight.defensive_stance.cooldown_reduction_per_level", 2.0);
+        getFile().addDefault("skills.knight.defensive_stance.base_duration", 2.0);
+        getFile().addDefault("skills.knight.defensive_stance.duration_increase_per_level", 1.0);
+        getFile().addDefault("skills.knight.defensive_stance.blocking_angle", 120.0);
+        // Hold Position
+        getFile().addDefault("skills.knight.hold_position.max_level", 3);
+        getFile().addDefault("skills.knight.hold_position.level_up_cost", 1);
+        getFile().addDefault("skills.knight.hold_position.base_cooldown", 10.0);
+        getFile().addDefault("skills.knight.hold_position.cooldown_reduction_per_level", 2.0);
+        getFile().addDefault("skills.knight.hold_position.base_duration", 2.0);
+        getFile().addDefault("skills.knight.hold_position.duration_increase_per_level", 1.0);
+        getFile().addDefault("skills.knight.hold_position.base_damage_reduction_percentage", 0.10);
+        getFile().addDefault("skills.knight.hold_position.damage_reduction_percentage_increase_per_level", 0.10);
 
         // Mage
         // Passive

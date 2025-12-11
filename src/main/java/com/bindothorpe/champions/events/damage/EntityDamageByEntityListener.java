@@ -25,6 +25,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,14 +45,11 @@ public class EntityDamageByEntityListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player))
+        if (!(event.getDamager() instanceof LivingEntity damager))
             return;
 
-        if (!(event.getEntity() instanceof LivingEntity))
+        if (!(event.getEntity() instanceof LivingEntity damagee))
             return;
-
-        Player damager = (Player) event.getDamager();
-        LivingEntity damagee = (LivingEntity) event.getEntity();
 
         if ((lastHit.containsKey(damagee.getUniqueId()) && lastHit.get(damagee.getUniqueId()) + DELAY > System.currentTimeMillis())) {
             event.setCancelled(true);
@@ -61,16 +59,17 @@ public class EntityDamageByEntityListener implements Listener {
         if (event.isCancelled())
             return;
 
-        double damage = getDamageFromItemInHand(damager.getInventory().getItemInMainHand());
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, damage, damager.getLocation(), CustomDamageSource.ATTACK, null);
+        double damage = damager.getEquipment() == null ? 1 : getDamageFromItemInHand(damager.getEquipment().getItemInMainHand());
+
+        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, damagee, damager, damage, damager.getLocation(), CustomDamageSource.ATTACK, null);
         CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, damage, damager.getLocation(), CustomDamageSource.ATTACK);
 
         customDamageEvent.setCommand(customDamageCommand);
 
         Bukkit.getPluginManager().callEvent(customDamageEvent);
 
-        if(dc.getTeamManager().getTeamFromEntity(damager).equals(dc.getTeamManager().getTeamFromEntity(damagee))) {
+        if(!dc.getTeamManager().areEntitiesOnDifferentTeams(damager, damagee)) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }
@@ -84,9 +83,10 @@ public class EntityDamageByEntityListener implements Listener {
         customDamageCommand.execute();
 
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
+        System.out.println(customDamageCommand.getDamage());
     }
 
-    private double getDamageFromItemInHand(ItemStack itemInMainHand) {
+    private double getDamageFromItemInHand(@Nullable ItemStack itemInMainHand) {
         if(itemInMainHand == null) return 1.0;
 
         Material material = itemInMainHand.getType();
