@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -143,15 +142,14 @@ public class BuildManager {
 
         equipItems(uuid, build.getClassType());
 
-        setHealthForPlayer(uuid, build.getClassType());
-
+        setHealthAndAttackSpeedForPlayer(uuid, build.getClassType());
 
         dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, buildId);
 
         Bukkit.getPluginManager().callEvent(new EquipBuildEvent(build, uuid));
     }
 
-    private void setHealthForPlayer(UUID uuid, ClassType classType) {
+    private void setHealthAndAttackSpeedForPlayer(UUID uuid, ClassType classType) {
         Player player = Bukkit.getPlayer(uuid);
         if(player == null) return;
 
@@ -161,7 +159,14 @@ public class BuildManager {
         AttributeInstance maxHealthAttribute = player.getAttribute(Attribute.MAX_HEALTH);
 
         assert maxHealthAttribute != null;
-        maxHealthAttribute.setBaseValue(maxHealth);
+        maxHealthAttribute.setBaseValue(maxHealth);;
+
+        if(classType == null) {
+            Objects.requireNonNull(player.getAttribute(Attribute.ATTACK_SPEED)).setBaseValue(Objects.requireNonNull(player.getAttribute(Attribute.ATTACK_SPEED)).getDefaultValue());
+        } else {
+            Objects.requireNonNull(player.getAttribute(Attribute.ATTACK_SPEED)).setBaseValue(9999);
+        }
+
 
 
         // Optional: Set player's current health to their new max
@@ -186,10 +191,11 @@ public class BuildManager {
             player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
 
         player.getInventory().setItem(1, new ItemStack(Material.IRON_AXE));
-        if (classType == ClassType.RANGER || classType == ClassType.ASSASSIN)
+        if (classType == ClassType.RANGER || classType == ClassType.ASSASSIN) {
             player.getInventory().setItem(2, new ItemStack(Material.BOW));
             int arrowAmount = classType == ClassType.ASSASSIN ? 12 : 24;
             player.getInventory().setItem(8, new ItemStack(Material.ARROW, arrowAmount));
+        }
     }
 
     public void unequipBuildForPlayer(UUID uuid) {
@@ -211,7 +217,7 @@ public class BuildManager {
         }
 
 
-        setHealthForPlayer(uuid, null);
+        setHealthAndAttackSpeedForPlayer(uuid, null);
 
         dc.getPlayerManager().setSelectedBuildIdForPlayer(uuid, null);
         Bukkit.getPluginManager().callEvent(new UnequipBuildEvent(build, uuid));

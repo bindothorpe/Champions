@@ -95,7 +95,8 @@ public class ChatUtil {
         ERROR(Component.text("Error> ").color(NamedTextColor.RED)),
         PLUGIN(Component.text("Champions> ").color(NamedTextColor.GOLD)),
         DEBUG(Component.text("Debug> ").color(NamedTextColor.GREEN)),
-        MAP(Component.text("Map> ").color(NamedTextColor.LIGHT_PURPLE));
+        MAP(Component.text("Map> ").color(NamedTextColor.LIGHT_PURPLE)),
+        EFFECT(Component.text("Effect> ").color(NamedTextColor.BLUE));
 
         private final Component prefix;
 

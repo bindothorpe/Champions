@@ -33,6 +33,13 @@ public class TeamManager {
         return instance;
     }
 
+    public boolean areEntitiesOnDifferentTeams(Entity entity1, Entity entity2) {
+        TeamColor team1 = getTeamFromEntity(entity1);
+        TeamColor team2 = getTeamFromEntity(entity2);
+
+        return team1 != team2;
+    }
+
     public void addEntityToTeam(Entity entity, TeamColor teamColor) {
         Team team = teams.get(getTeamFromEntity(entity));
         if(team != null) {

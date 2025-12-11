@@ -328,4 +328,8 @@ public abstract class Skill implements Listener {
         if(skillType == SkillType.BOW && ItemUtil.isBow(itemStack.getType())) return true;
         return skillType == SkillType.AXE && ItemUtil.isAxe(itemStack.getType());
     }
+
+    protected String getConfigPath(@NotNull String attribute) {
+        return String.format("skills.%s.%s.%s", getClassType().toString().toLowerCase(), getId().toString().toLowerCase(), attribute);
+    }
 }

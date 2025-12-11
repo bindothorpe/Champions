@@ -1,15 +1,18 @@
 package com.bindothorpe.champions.events.interact;
 
 import com.bindothorpe.champions.DomainController;
+import io.papermc.paper.event.entity.EntityDamageItemEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
@@ -68,6 +71,20 @@ public class InteractListener implements Listener {
         event.setCancelled(true);
         pluginManager.callEvent(new PlayerDropItemWrapperEvent(event.getPlayer(), event.getItemDrop().getItemStack()));
         droppingPlayers.add(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if(!hasBuildEquipped(event.getPlayer())) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onDurabilityChange(PlayerItemDamageEvent event) {
+        if(!hasBuildEquipped(event.getPlayer())) return;
+
+        event.setCancelled(true);
     }
 
 
