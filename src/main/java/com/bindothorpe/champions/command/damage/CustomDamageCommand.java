@@ -44,7 +44,7 @@ public class CustomDamageCommand implements Command {
     }
 
     public CustomDamageCommand(DomainController dc, CustomDamageEvent event) {
-        this(dc, event.getDamagee(), (LivingEntity) event.getDamager(), event.getOriginalDamage(), event.getDamager().getLocation(), event.getSource());
+        this(dc, event.getDamagee(), (LivingEntity) event.getDamager(), event.getOriginalDamage(), event.getAttackLocation(), event.getSource());
     }
 
     @Override

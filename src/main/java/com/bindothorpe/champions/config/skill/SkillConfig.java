@@ -186,6 +186,12 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.knight.hold_position.duration_increase_per_level", 1.0);
         getFile().addDefault("skills.knight.hold_position.base_damage_reduction_percentage", 0.10);
         getFile().addDefault("skills.knight.hold_position.damage_reduction_percentage_increase_per_level", 0.10);
+        // Cleave
+        getFile().addDefault("skills.knight.cleave.max_level", 3);
+        getFile().addDefault("skills.knight.cleave.level_up_cost", 1);
+        getFile().addDefault("skills.knight.cleave.base_damage_percentage", 0.5);
+        getFile().addDefault("skills.knight.cleave.damage_percentage_increase_per_level", 0.25);
+        getFile().addDefault("skills.knight.cleave.range", 3);
 
         // Mage
         // Passive

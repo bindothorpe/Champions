@@ -145,4 +145,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
         projectile.getPersistentDataContainer().set(key, dataType, value);
     }
 
+    public Location getAttackLocation() {
+        return attackLocation;
+    }
 }
