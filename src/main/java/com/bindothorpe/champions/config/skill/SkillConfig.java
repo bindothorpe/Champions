@@ -36,6 +36,14 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.leap.leap_strength_increase_per_level", 0.2);
         getFile().addDefault("skills.assassin.leap.base_wall_kick_strength", 0.7);
         getFile().addDefault("skills.assassin.leap.wall_kick_strength_increase_per_level", 0.2);
+        // Leap
+        getFile().addDefault("skills.assassin.blink.max_level", 4);
+        getFile().addDefault("skills.assassin.blink.level_up_cost", 1);
+        getFile().addDefault("skills.assassin.blink.base_cooldown", 12.0);
+        getFile().addDefault("skills.assassin.blink.cooldown_reduction_per_level", 0.0);
+        getFile().addDefault("skills.assassin.blink.base_distance", 12.0);
+        getFile().addDefault("skills.assassin.blink.distance_increase_per_level", 3.0);
+        getFile().addDefault("skills.assassin.blink.recast_duration", 5.0);
         // Smoke Arrow
         getFile().addDefault("skills.assassin.smoke_arrow.max_level", 5);
         getFile().addDefault("skills.assassin.smoke_arrow.level_up_cost", 1);

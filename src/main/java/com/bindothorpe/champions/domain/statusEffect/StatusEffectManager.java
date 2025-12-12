@@ -53,4 +53,12 @@ public class StatusEffectManager {
             throw new IllegalArgumentException("Status effect " + type + " has not been registered yet");
         statusEffectMap.get(type).removeEntityWithSource(uuid, sourceKey);
     }
+
+    public boolean hasStatusEffect(StatusEffectType type, UUID uuid) {
+        StatusEffect effect = statusEffectMap.get(type);
+        if(effect == null)
+            throw new IllegalArgumentException("Status effect " + type + " has not been registered yet");
+
+        return statusEffectMap.get(type).getActiveUserUUIDs().contains(uuid);
+    }
 }

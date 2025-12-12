@@ -1,0 +1,143 @@
+package com.bindothorpe.champions.domain.skill.skills.assassin;
+
+import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.ReloadableData;
+import com.bindothorpe.champions.domain.skill.Skill;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
+import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.timer.Timer;
+import com.bindothorpe.champions.util.ChatUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class Blink extends Skill implements ReloadableData {
+
+    private final Map<UUID, Timer> recastTimerMap = new HashMap<>();
+    private final Map<UUID, Location> recastLocationMap = new HashMap<>();
+
+    private double BASE_DISTANCE;
+    private double DISTANCE_INCREASE_PER_LEVEL;
+    private double RECAST_DURATION;
+
+    public Blink(DomainController dc) {
+        super(dc, "Blink", SkillId.BLINK, SkillType.AXE, ClassType.ASSASSIN);
+    }
+
+    @EventHandler
+    public void onRightClick(PlayerRightClickEvent event) {
+        UUID uuid = event.getPlayer().getUniqueId();;
+        if(recastTimerMap.containsKey(uuid)) {
+            performDeBlink(uuid);
+            return;
+        }
+
+        if(!activate(event.getPlayer().getUniqueId(), event)) return;
+
+        performBlink(uuid);
+    }
+
+    private void performBlink(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+
+        if(player == null) return;
+
+        double maxDistance = calculateBasedOnLevel(BASE_DISTANCE, DISTANCE_INCREASE_PER_LEVEL, getSkillLevel(uuid));
+        double currentDistance = 0;
+
+        Location startingLocation = player.getLocation();
+        Location targetLocation = player.getLocation();
+
+        while(currentDistance <= maxDistance) {
+            Location location = startingLocation.clone().add(0, 0.2, 0).add(player.getLocation().getDirection().multiply(currentDistance));
+
+            //Exit the loop
+            if(!location.getBlock().isPassable() || !location.getBlock().getRelative(BlockFace.UP).isPassable()) break;
+
+            //Play particle at the location we are checking in this loop.
+
+            currentDistance += 1.0;
+            targetLocation = location;
+        }
+
+        Timer timeoutTimer = new Timer(dc.getPlugin(), RECAST_DURATION, () -> {
+            recastTimerMap.remove(uuid);
+            recastLocationMap.remove(uuid);
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.SKILL, Component.text("You cannot use ").color(NamedTextColor.GRAY)
+                    .append(Component.text("De-blink").color(NamedTextColor.YELLOW))
+                    .append(Component.text(" anymore.").color(NamedTextColor.GRAY)));
+        });
+
+        timeoutTimer.start();
+
+        recastTimerMap.put(uuid, timeoutTimer);
+        recastLocationMap.put(uuid, startingLocation);
+        player.teleport(targetLocation);
+        player.setFallDistance(0);
+    }
+
+    private void performDeBlink(UUID uuid) {
+        Timer timer = recastTimerMap.remove(uuid);
+        if(timer == null) return;
+
+        timer.stop();
+        recastTimerMap.remove(uuid);
+        Location location = recastLocationMap.remove(uuid);
+
+        Player player = Bukkit.getPlayer(uuid);
+        if(player == null) return;
+
+        player.teleport(location);
+        player.setFallDistance(0);
+        ChatUtil.sendSkillMessage(player, "De-blink", getSkillLevel(player));
+    }
+
+    @Override
+    protected boolean canUseHook(UUID uuid, Event event) {
+
+        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return false;
+
+        if(!rightClickEvent.isAxe()) return false;
+
+        if(dc.getStatusEffectManager().hasStatusEffect(StatusEffectType.SLOW, uuid)) return false;
+
+        return super.canUseHook(uuid, event);
+    }
+
+    @Override
+    public boolean onReload() {
+        try {
+            MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt(getConfigPath("max_level"));
+            LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt(getConfigPath("level_up_cost"));
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("base_cooldown"));
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("cooldown_reduction_per_level"));
+            BASE_DISTANCE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("base_distance"));
+            DISTANCE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("distance_increase_per_level"));
+            RECAST_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("recast_duration"));
+            dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
+            return true;
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning(String.format("Failed to reload %s.", getName()));
+            return false;
+        }
+    }
+
+    @Override
+    public List<Component> getDescription(int skillLevel) {
+        return List.of();
+    }
+}
