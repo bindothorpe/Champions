@@ -6,24 +6,26 @@ import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Blink extends Skill implements ReloadableData {
 
@@ -68,8 +70,6 @@ public class Blink extends Skill implements ReloadableData {
             //Exit the loop
             if(!location.getBlock().isPassable() || !location.getBlock().getRelative(BlockFace.UP).isPassable()) break;
 
-            //Play particle at the location we are checking in this loop.
-
             currentDistance += 1.0;
             targetLocation = location;
         }
@@ -87,7 +87,11 @@ public class Blink extends Skill implements ReloadableData {
         recastTimerMap.put(uuid, timeoutTimer);
         recastLocationMap.put(uuid, startingLocation);
         player.teleport(targetLocation);
+
+        spawnParticleLine(startingLocation, player.getLocation());
+
         player.setFallDistance(0);
+        dc.getSoundManager().playSound(player.getLocation(), CustomSound.SKILL_BLINK);
     }
 
     private void performDeBlink(UUID uuid) {
@@ -101,9 +105,32 @@ public class Blink extends Skill implements ReloadableData {
         Player player = Bukkit.getPlayer(uuid);
         if(player == null) return;
 
+        spawnParticleLine(player.getLocation(), location);
+
         player.teleport(location);
         player.setFallDistance(0);
         ChatUtil.sendSkillMessage(player, "De-blink", getSkillLevel(player));
+        dc.getSoundManager().playSound(player.getLocation(), CustomSound.SKILL_BLINK);
+    }
+
+    private void spawnParticleLine(@NotNull Location startLocation, @NotNull Location endLocation) {
+        if(startLocation.getWorld() != endLocation.getWorld()) return;
+
+        World world = startLocation.getWorld();
+
+        Set<Vector> points = ShapeUtil.line(startLocation.toVector(), endLocation.toVector(), 0.5);
+
+        for(Vector point : points) {
+            startLocation.getWorld().spawnParticle(
+                    Particle.LARGE_SMOKE,
+                    new Location(world, point.getX(), point.getY(), point.getZ()),
+                    3,      // spawn 3 particles for a thicker cloud
+                    0.1,    // slight X spread
+                    0.1,    // slight Y spread
+                    0.1,    // slight Z spread
+                    0.0     // no velocity
+            );
+        }
     }
 
     @Override

@@ -184,4 +184,37 @@ public class ShapeUtil {
 
         return set;
     }
+
+    /**
+     * Creates a line between two points with custom density
+     *
+     * @param start the starting point
+     * @param end the ending point
+     * @param step the distance between points (smaller = more dense)
+     * @return a set of vectors representing points along the line
+     */
+    public static Set<Vector> line(Vector start, Vector end, double step) {
+        Set<Vector> set = new HashSet<>();
+
+        Vector direction = end.clone().subtract(start);
+        double distance = direction.length();
+
+        if (distance == 0) {
+            set.add(start.clone());
+            return set;
+        }
+
+        direction.normalize();
+
+        // Add points along the line
+        for (double i = 0; i <= distance; i += step) {
+            Vector point = start.clone().add(direction.clone().multiply(i));
+            set.add(point);
+        }
+
+        // Always include the end point
+        set.add(end.clone());
+
+        return set;
+    }
 }
