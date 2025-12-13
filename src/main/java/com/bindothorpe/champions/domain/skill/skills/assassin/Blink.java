@@ -9,9 +9,14 @@ import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
+import com.bindothorpe.champions.events.update.UpdateEvent;
+import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.ShapeUtil;
+import com.bindothorpe.champions.util.actionBar.ActionBarPriority;
+import com.bindothorpe.champions.util.actionBar.ActionBarUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -92,6 +97,28 @@ public class Blink extends Skill implements ReloadableData {
 
         player.setFallDistance(0);
         dc.getSoundManager().playSound(player.getLocation(), CustomSound.SKILL_BLINK);
+    }
+
+    @EventHandler
+    public void onUpdate(UpdateEvent event) {
+        if(!event.getUpdateType().equals(UpdateType.TICK)) return;
+
+        for(UUID uuid : recastTimerMap.keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if(player == null) continue;
+
+            double seconds = recastTimerMap.get(uuid).getTimeLeftInSeconds();
+            double percentage = recastTimerMap.get(uuid).getPercentage();
+
+            ActionBarUtil.sendMessage(
+                    player,
+                    ComponentUtil.recastDurationRemaining(
+                        "De-blink",
+                        percentage,
+                        seconds),
+                    ActionBarPriority.LOW);
+        }
+
     }
 
     private void performDeBlink(UUID uuid) {

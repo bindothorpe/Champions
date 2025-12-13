@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,6 +101,58 @@ public class ComponentUtil {
                 .append(Component.text(String.format("%.1fs", cooldownRemainingInSeconds)).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false));
     }
 
+    public static Component recastDurationRemaining(String skillName, double durationRemainingPercentage, double durationRemainingInSeconds) {
+        return recastDurationRemaining(skillName, durationRemainingPercentage, durationRemainingInSeconds, 40, "|");
+    }
+
+    public static Component recastDurationRemaining(String skillName, double durationRemainingPercentage, double durationRemainingInSeconds, int width, String symbol) {
+        int completedWidth = (int) (durationRemainingPercentage * width);
+        int remainingWidth = width - completedWidth;
+
+        String durationCompleted = String.join("", Collections.nCopies(completedWidth, symbol));
+        String durationRemaining = String.join("", Collections.nCopies(remainingWidth, symbol));
+
+        return Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                .append(Component.text(" "))
+                .append(Component.text(durationCompleted).color(NamedTextColor.RED).decoration(TextDecoration.BOLD, false))
+                .append(Component.text(durationRemaining).color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, false))
+                .append(Component.text(" ").decoration(TextDecoration.BOLD, false))
+                .append(Component.text(String.format("%.1fs", durationRemainingInSeconds)).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false));
+    }
+
+    public static Component skillCharges(String skillName, int currentCharges, int maxCharges, double cooldownPercentage) {
+        return skillCharges(skillName, currentCharges, maxCharges, cooldownPercentage, NamedTextColor.YELLOW);
+    }
+
+    public static Component skillCharges(String skillName, int currentCharges, int maxCharges, double cooldownPercentage, NamedTextColor highlightColor) {
+
+        Component component;
+
+        if(skillName != null) {
+            component = Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+                    .append(Component.text(" ").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY))
+                    .append(Component.text("‹").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY));
+        } else {
+            component = Component.text("‹").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY);
+        }
+
+        for(int charge = 1; charge <= maxCharges; charge++) {
+            component = component.append(Component.text("◆").decoration(TextDecoration.BOLD, false).color(charge <= currentCharges ? highlightColor : NamedTextColor.GRAY));
+            if(charge != maxCharges) {
+                component = component.append(Component.text(" · ").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY));
+            }
+        }
+
+        component = component.append(Component.text("›").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY));
+
+        if(cooldownPercentage != -1) {
+            component = component.append(Component.text(" "))
+                    .append(chargeBar(cooldownPercentage, 10, "|").decoration(TextDecoration.BOLD, false));
+        }
+
+        return component;
+    }
+
     public static Component skillCharge(String skillName, boolean showPercentage, int charge, int maxCharge, int width, String symbol) {
         Component component = Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
                 .append(Component.text(" ").decoration(TextDecoration.BOLD, false)
@@ -135,6 +188,26 @@ public class ComponentUtil {
 
         // Generate the charged and toCharge strings
         String charged = String.join("", Collections.nCopies(adjustedCharge, symbol));
+        String toCharge = String.join("", Collections.nCopies(remainingCharge, symbol));
+
+        // Create the components
+        Component chargedComponent = Component.text(charged).color(NamedTextColor.YELLOW);
+        Component toChargeComponent = Component.text(toCharge).color(NamedTextColor.GRAY);
+
+        // Return the combined component
+        return chargedComponent.append(toChargeComponent);
+    }
+
+    public static Component chargeBar(double chargePercentage, int width, String symbol) {
+        int completed = (int) (width * chargePercentage);
+
+        int remainingCharge = width - completed;
+
+        // Ensure that remainingCharge is not less than zero
+        remainingCharge = Math.max(remainingCharge, 0);
+
+        // Generate the charged and toCharge strings
+        String charged = String.join("", Collections.nCopies(completed, symbol));
         String toCharge = String.join("", Collections.nCopies(remainingCharge, symbol));
 
         // Create the components

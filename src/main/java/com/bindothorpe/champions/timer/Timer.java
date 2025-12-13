@@ -16,7 +16,7 @@ public class Timer {
     private final double waitTime;
     private final Runnable onTimeout;
 
-    private float startTimeInMillis;
+    private long startTimeInMillis;
     private int taskId;
     private boolean isRunning = false;
 
@@ -74,5 +74,31 @@ public class Timer {
         if(!isRunning) return -1;
 
         return startTimeInMillis + (waitTime * 1000L) - System.currentTimeMillis();
+    }
+
+    public double getTimeLeftInSeconds() {
+        if(!isRunning) return -1;
+
+        return (startTimeInMillis + (waitTime * 1000L) - System.currentTimeMillis()) / 1000D;
+    }
+
+    /**
+     * Gets the percentage of the timer that has elapsed.
+     * <p>
+     * This method calculates how far the timer has progressed from start to completion,
+     * returning a value between 0.0 (just started) and 1.0 (completed or exceeded).
+     *
+     * @return the elapsed percentage as a double between 0.0 and 1.0, or 0.0 if the timer is not running
+     */
+    public double getPercentage() {
+        if(!isRunning) return 0.0;
+
+        double elapsed = System.currentTimeMillis() - startTimeInMillis;
+        double totalTime = waitTime * 1000L;
+        return Math.min(elapsed / totalTime, 1.0);
+    }
+
+    public boolean isRunning() {
+        return isRunning;
     }
 }

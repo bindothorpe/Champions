@@ -11,6 +11,8 @@ import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.ItemUtil;
+import com.bindothorpe.champions.util.actionBar.ActionBarPriority;
+import com.bindothorpe.champions.util.actionBar.ActionBarUtil;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import io.papermc.paper.event.player.PlayerPickItemEvent;
 import net.kyori.adventure.text.Component;
@@ -237,7 +239,7 @@ public abstract class Skill implements Listener {
         return new NamespacedKey(dc.getPlugin(), String.format("%s_%s", playerUUID, getId()));
     }
 
-    private void clearActionBar(Player player) {
+    public void clearActionBar(Player player) {
         ChatUtil.sendActionBarMessage(player, Component.text(""));
     }
 
@@ -273,11 +275,12 @@ public abstract class Skill implements Listener {
             double cooldownReminingInSeconds = getCooldownRemaining(uuid);
             double cooldownPercentage = dc.getCooldownManager().getCooldownPercentage(uuid, this);
 
-            ChatUtil.sendActionBarMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds));
+            ActionBarUtil.sendMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds), ActionBarPriority.MEDIUM);
+//            ChatUtil.sendActionBarMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds));
         }
     }
 
-    private boolean canDisplayOnSkillType() {
+    public boolean canDisplayOnSkillType() {
         return skillType == SkillType.SWORD || skillType == SkillType.AXE || skillType == SkillType.BOW;
     }
 
@@ -321,7 +324,7 @@ public abstract class Skill implements Listener {
         throw new UnsupportedOperationException("Unsupported number type: " + baseValue.getClass());
     }
 
-    private boolean isItemStackOfSkillType(ItemStack itemStack) {
+    public boolean isItemStackOfSkillType(ItemStack itemStack) {
         if(itemStack == null) return false;
 
         if(skillType == SkillType.SWORD && ItemUtil.isSword(itemStack.getType())) return true;
