@@ -29,4 +29,8 @@ public class UpdateEvent extends Event {
     public static HandlerList getHandlerList() {
         return HANDLERS_LIST;
     }
+
+    public boolean isTick() {
+        return updateType.equals(UpdateType.TICK);
+    }
 }

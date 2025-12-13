@@ -27,6 +27,11 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.evade.cooldown_reduction_per_level", 1.0);
         getFile().addDefault("skills.assassin.evade.cooldown_on_success", 1.0);
         getFile().addDefault("skills.assassin.evade.active_duration", 1.0);
+        // Claw
+        getFile().addDefault("skills.assassin.claw.max_level", 1);
+        getFile().addDefault("skills.assassin.claw.level_up_cost", 2);
+        getFile().addDefault("skills.assassin.claw.base_cooldown", 10.0);
+        getFile().addDefault("skills.assassin.claw.cooldown_reduction_per_level", 0.0);
         // Leap
         getFile().addDefault("skills.assassin.leap.max_level", 3);
         getFile().addDefault("skills.assassin.leap.level_up_cost", 1);
@@ -130,6 +135,8 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.brute.head_butt.launch_strength_increase_per_level", 0.3);
         getFile().addDefault("skills.brute.head_butt.base_impact_launch_strength", 1.5);
         getFile().addDefault("skills.brute.head_butt.impact_launch_strength_increase_per_level", 0.5);
+        getFile().addDefault("skills.brute.head_butt.base_impact_stun_duration", 0.5);
+        getFile().addDefault("skills.brute.head_butt.impact_stun_duration_increase_per_level", 0.5);
         // Trample
         getFile().addDefault("skills.brute.trample.max_level", 3);
         getFile().addDefault("skills.brute.trample.level_up_cost", 1);

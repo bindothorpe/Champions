@@ -1,5 +1,6 @@
 package com.bindothorpe.champions.events.interact;
 
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -12,9 +13,14 @@ public abstract class PlayerClickEvent extends Event implements Cancellable {
     private boolean cancelled;
 
     private final Player player;
+    private final LivingEntity clickedEntity;
 
-    public PlayerClickEvent(Player player) {
+    public PlayerClickEvent(Player player, LivingEntity clickedEntity) {
         this.player = player;
+        this.clickedEntity = clickedEntity;
+    }
+    public PlayerClickEvent(Player player) {
+        this(player, null);
     }
 
     public boolean isSword() {
@@ -52,4 +58,7 @@ public abstract class PlayerClickEvent extends Event implements Cancellable {
         return HANDLERS_LIST;
     }
 
+    public LivingEntity getClickedEntity() {
+        return clickedEntity;
+    }
 }

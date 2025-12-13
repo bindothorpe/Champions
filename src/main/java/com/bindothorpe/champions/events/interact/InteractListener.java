@@ -3,16 +3,14 @@ package com.bindothorpe.champions.events.interact;
 import com.bindothorpe.champions.DomainController;
 import io.papermc.paper.event.entity.EntityDamageItemEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +51,18 @@ public class InteractListener implements Listener {
                 droppingPlayers.remove(playerId);
             });
         }
+    }
+
+    @EventHandler
+    public void onInteractWithEntity(PlayerInteractAtEntityEvent event) {
+        if(!hasBuildEquipped(event.getPlayer())) return;
+
+        if(!(event.getRightClicked() instanceof LivingEntity clickedEntity)) return;
+
+        if(!event.getHand().equals(EquipmentSlot.HAND)) return;
+
+        event.setCancelled(true);
+        pluginManager.callEvent(new PlayerRightClickEvent(event.getPlayer(), clickedEntity));
     }
 
     @EventHandler

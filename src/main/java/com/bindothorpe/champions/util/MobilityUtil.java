@@ -72,4 +72,8 @@ public class MobilityUtil {
     public static Vector directionTo(@NotNull Vector from, @NotNull Vector to) {
         return to.subtract(from).normalize();
     }
+
+    public static double distanceTo(@NotNull Location from, @NotNull Location to) {
+        return from.distance(to);
+    }
 }
