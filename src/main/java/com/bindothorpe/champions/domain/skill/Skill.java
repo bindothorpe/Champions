@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerChangedMainHandEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -183,6 +184,11 @@ public abstract class Skill implements Listener {
 
     protected boolean isUser(UUID uuid) {
         return users.containsKey(uuid);
+    }
+
+    protected boolean isUser(@Nullable Player player) {
+        if(player == null) return false;
+        return isUser(player.getUniqueId());
     }
 
     public SkillType getSkillType() {
