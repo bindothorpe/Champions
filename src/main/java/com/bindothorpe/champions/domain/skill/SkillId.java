@@ -38,7 +38,7 @@ public enum SkillId {
     BLINK(SkillType.AXE),
     FLASH(SkillType.AXE),
     CLAW(SkillType.SWORD),
-    QUICK_STEP(SkillType.PASSIVE_B);
+    QUICK_STEP(SkillType.PASSIVE_B), ISOLATION(SkillType.PASSIVE_B);
 
 
     private final SkillType skillType;

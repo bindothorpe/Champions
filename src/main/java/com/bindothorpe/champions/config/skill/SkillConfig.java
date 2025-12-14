@@ -24,6 +24,11 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.quick_step.max_level", 1);
         getFile().addDefault("skills.assassin.quick_step.level_up_cost", 2);
         getFile().addDefault("skills.assassin.quick_step.launch_strength", 1.2);
+        // Quick_step Step
+        getFile().addDefault("skills.assassin.isolation.max_level", 1);
+        getFile().addDefault("skills.assassin.isolation.level_up_cost", 2);
+        getFile().addDefault("skills.assassin.isolation.radius", 3.0);
+        getFile().addDefault("skills.assassin.isolation.damage", 2.0);
         // Evade
         getFile().addDefault("skills.assassin.evade.max_level", 1);
         getFile().addDefault("skills.assassin.evade.level_up_cost", 2);
