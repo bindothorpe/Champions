@@ -149,16 +149,16 @@ public class WolfsPounce extends ChargeSkill implements ReloadableData {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.level_up_cost");
-            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_cooldown");
-            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.cooldown_reduction_per_level");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.cooldown_reduction_per_level");
             BASE_MAX_CHARGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_max_charge");
             MAX_CHARGE_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_charge_reduction_per_level");
-            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_max_charge_duration");
-            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.max_charge_duration_increase_per_level");
-            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_damage");
-            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.damage_increase_per_level");
-            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.base_launch_strength");
-            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.ranger.wolfs_pounce.launch_strength_increase_per_level");
+            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.base_max_charge_duration");
+            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.max_charge_duration_increase_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.damage_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.ranger.wolfs_pounce.launch_strength_increase_per_level");
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
             return true;
         } catch (Exception e) {

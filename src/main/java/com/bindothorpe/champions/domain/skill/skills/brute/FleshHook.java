@@ -99,18 +99,18 @@ public class FleshHook extends ChargeSkill implements ReloadableData {
         try {
             MAX_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.max_level");
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.level_up_cost");
-            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_cooldown");
-            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.cooldown_reduction_per_level");
+            BASE_COOLDOWN = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.base_cooldown");
+            COOLDOWN_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.cooldown_reduction_per_level");
             BASE_MAX_CHARGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_max_charge");
             MAX_CHARGE_REDUCTION_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.max_charge_reduction_per_level");
-            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_max_charge_duration");
-            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.max_charge_duration_increase_per_level");
-            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_damage");
-            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.damage_increase_per_level");
-            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_launch_strength");
-            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.launch_strength_increase_per_level");
-            BASE_PULL_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.base_pull_strength");
-            PULL_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt("skills.brute.flesh_hook.pull_strength_increase_per_level");
+            BASE_MAX_CHARGE_DURATION = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.base_max_charge_duration");
+            MAX_CHARGE_DURATION_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.max_charge_duration_increase_per_level");
+            BASE_DAMAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.base_damage");
+            DAMAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.damage_increase_per_level");
+            BASE_LAUNCH_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.base_launch_strength");
+            LAUNCH_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.launch_strength_increase_per_level");
+            BASE_PULL_STRENGTH = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.base_pull_strength");
+            PULL_STRENGTH_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble("skills.brute.flesh_hook.pull_strength_increase_per_level");
 
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
             return true;
