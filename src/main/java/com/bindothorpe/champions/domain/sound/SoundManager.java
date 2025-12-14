@@ -76,6 +76,32 @@ public class SoundManager {
         }
     }
 
+    public void playSound(Player player, Location location, CustomSound sound, float pitchOverride) {
+        if (player == null) {
+            return;
+        }
+
+        List<Sound> sounds = sound.getSounds();
+        List<Float> volumes = sound.getVolumes();
+        List<Float> pitches = sound.getPitches();
+        List<Double> delays = sound.getDelays();
+
+        for (int i = 0; i < sounds.size(); i++) {
+            if (delays == null || delays.isEmpty()) {
+                float pitch = pitches.get(i);
+                player.playSound(location, sounds.get(i), volumes.get(i), pitchOverride);
+            } else {
+                int finalI = i;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.playSound(location, sounds.get(finalI), volumes.get(finalI), pitchOverride);
+                    }
+                }.runTaskLater(dc.getPlugin(), (long) (delays.get(i) * 20L));
+            }
+        }
+    }
+
     /**
      * Plays a sound for the player
      * @param player The player that should hear the sound
@@ -87,6 +113,10 @@ public class SoundManager {
 
     public void playSound(Player player, CustomSound sound, double pitchMultiplier) {
         playSound(player, player.getLocation(), sound, pitchMultiplier);
+    }
+
+    public void playSound(Player player, CustomSound sound, float pitchOverride) {
+        playSound(player, player.getLocation(), sound, pitchOverride);
     }
 
 }

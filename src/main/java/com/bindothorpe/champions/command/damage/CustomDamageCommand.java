@@ -6,17 +6,9 @@ import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import org.bukkit.EntityEffect;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class CustomDamageCommand implements Command {
 
@@ -57,13 +49,8 @@ public class CustomDamageCommand implements Command {
         double newHealth = damagee.getHealth() - (overwriteDamage == Double.MIN_VALUE ? getFinalDamage() : overwriteDamage);
         damagee.setHealth(newHealth > 0 ? newHealth : 0);
 
-        // Knock back the entity
-        if(overwriteDirection == null) {
-            overwriteDirection = getKnockbackDirection();
-        }
+        damagee.setVelocity(getFinalKnockbackVector(damagee));
 
-        Vector newVelocity = damagee.getVelocity().add(overwriteDirection.multiply(overwriteForce == Double.MIN_VALUE ? getFinalKnockback() : overwriteForce));
-        damagee.setVelocity(newVelocity);
 
         if(getDamage() > 0) {
             // Play the damage animation
@@ -79,6 +66,24 @@ public class CustomDamageCommand implements Command {
 
     public double getDamage() {
         return overwriteDamage == Double.MIN_VALUE ? getFinalDamage() : overwriteDamage;
+    }
+
+    private Vector getFinalKnockbackVector(LivingEntity damagee) {
+        if(overwriteDirection == null) {
+            overwriteDirection = getKnockbackDirection();
+        }
+
+        double force = overwriteForce == Double.MIN_VALUE ? getFinalKnockback() : overwriteForce;
+
+        // Separate horizontal and vertical components
+        Vector horizontal = overwriteDirection.clone().setY(0).normalize();
+        double verticalComponent = overwriteDirection.getY();
+
+        // Apply force only to horizontal, keep vertical as-is
+        Vector knockback = horizontal.multiply(force).setY(verticalComponent * (Math.min(ORIGINAL_KNOCKBACK, force)));
+
+        // Add to existing velocity
+        return damagee.getVelocity().add(knockback);
     }
 
     public double getForce() {

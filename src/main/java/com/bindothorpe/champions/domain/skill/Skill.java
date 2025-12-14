@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class Skill implements Listener {
 
@@ -210,6 +211,13 @@ public abstract class Skill implements Listener {
 
     protected Set<UUID> getUsers() {
         return users.keySet();
+    }
+
+    protected Set<Player> getOnlineAlivePlayerUsers() {
+        return users.keySet().stream()
+                .map((Bukkit::getPlayer))
+                .filter(player -> player != null && player.isOnline() && !player.isDead())
+                .collect(Collectors.toSet());
     }
 
     @EventHandler

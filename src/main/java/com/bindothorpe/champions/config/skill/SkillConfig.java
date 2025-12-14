@@ -158,6 +158,16 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.brute.trample.trample_delay_in_milliseconds", 500);
         getFile().addDefault("skills.brute.head_butt.base_damage", 0.5);
         getFile().addDefault("skills.brute.head_butt.damage_increase_per_level", 0.5);
+        // Trample
+        getFile().addDefault("skills.brute.stampede.max_level", 3);
+        getFile().addDefault("skills.brute.stampede.level_up_cost", 1);
+        getFile().addDefault("skills.brute.stampede.base_sprint_duration_required", 4.0);
+        getFile().addDefault("skills.brute.stampede.sprint_duration_required_decrease_per_level", 1.0);
+        getFile().addDefault("skills.brute.stampede.max_speed_stacks", 2);
+        getFile().addDefault("skills.brute.stampede.speed_increase_per_stack", 1.0);
+        getFile().addDefault("skills.brute.stampede.knockback_increase_per_stack", 0.5);
+        getFile().addDefault("skills.brute.stampede.base_damage", 0.0);
+        getFile().addDefault("skills.brute.stampede.damage_increase_per_level", 0.25);
 
         // Knight
         // Bulls Charge
