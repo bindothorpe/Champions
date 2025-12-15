@@ -347,6 +347,7 @@ public abstract class Skill implements Listener {
         return skillType == SkillType.AXE && ItemUtil.isAxe(itemStack.getType());
     }
 
+
     protected String getConfigPath(@NotNull String attribute) {
         return String.format("skills.%s.%s.%s", getClassType().toString().toLowerCase(), getId().toString().toLowerCase(), attribute);
     }

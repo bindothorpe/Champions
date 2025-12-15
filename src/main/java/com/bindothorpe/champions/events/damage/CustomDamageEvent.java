@@ -26,7 +26,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private boolean cancelled;
     private CustomDamageCommand command;
 
-    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, Projectile projectile, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, Projectile projectile, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString, boolean createCommand) {
         this.dc = dc;
         this.damagee = entity;
         this.damager = hitBy;
@@ -36,6 +36,13 @@ public class CustomDamageEvent extends Event implements Cancellable {
         this.source = source;
         this.damageSourceString = damageSourceString;
         this.cancelled = false;
+        if(createCommand) {
+            this.command = new CustomDamageCommand(this.dc, this);
+        }
+    }
+
+    public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, Projectile projectile, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {
+        this(dc, entity, hitBy, projectile, originalDamage, attackLocation, source, damageSourceString, false);
     }
 
     public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString) {

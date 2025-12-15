@@ -306,11 +306,7 @@ public class EntityStatusManager {
             if (e == null)
                 return null;
 
-            //If the entity is not a player, return null
-            if (!(e instanceof Player))
-                return null;
-
-            Player player = (Player) e;
+            if(!(e instanceof Player player)) return null;
             float defaultMovementSpeed = 0.2f;
 
             //Set the walking speed of the player

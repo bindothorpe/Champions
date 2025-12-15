@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.item;
 import com.bindothorpe.champions.DomainController;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -49,6 +50,7 @@ public abstract class GameItem {
         item = owner.getWorld().dropItem(startingLocation, new ItemStack(material));
         item.setVelocity(direction.multiply(strength));
         this.id = item.getUniqueId();
+        onSpawn();
         return id;
     }
 
@@ -76,6 +78,9 @@ public abstract class GameItem {
     public abstract void onCollide(Entity entity);
     public abstract void onCollideWithBlock(Block block);
 
+    public void onSpawn() {
+
+    }
     public abstract void onDespawn();
 
     public Item getItem() {
@@ -108,6 +113,10 @@ public abstract class GameItem {
 
     public void setBlockCollisionMode(BlockCollisionMode blockCollisionMode) {
         this.blockCollisionMode = blockCollisionMode;
+    }
+
+    public NamespacedKey getNamespacedKey() {
+        return new NamespacedKey(dc.getPlugin(), String.format("item:%s:%s", material.toString(), getOwner().getName()));
     }
 
 }

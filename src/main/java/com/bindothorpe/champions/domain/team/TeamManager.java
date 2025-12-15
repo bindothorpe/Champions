@@ -9,8 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class TeamManager {
 
@@ -100,5 +99,24 @@ public class TeamManager {
                 teams.put(color, scoreboard.getTeam(color.name()));
             }
         }
+    }
+
+    public List<Player> getPlayersOnTeamOfEntity(Entity entity) {
+        return getPlayersOnTeam(getTeamFromEntity(entity));
+    }
+
+        public List<Player> getPlayersOnTeam(TeamColor color) {
+        List<Player> players = new ArrayList<>();
+        if(color == null) return players;
+        if(!teams.containsKey(color)) return players;
+
+        teams.get(color).getEntries().forEach((uuidString) -> {
+            UUID uuid = UUID.fromString(uuidString);
+            Player player = Bukkit.getPlayer(uuid);
+            if(player == null) return;
+            players.add(player);
+        });
+
+        return players;
     }
 }

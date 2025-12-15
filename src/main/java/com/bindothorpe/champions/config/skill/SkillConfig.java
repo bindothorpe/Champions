@@ -351,6 +351,24 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.ranger.magnetic_pull.base_cooldown", 10.0);
         getFile().addDefault("skills.ranger.magnetic_pull.cooldown_reduction_per_level", 2.5);
         getFile().addDefault("skills.ranger.magnetic_pull.arrow_speed_mult", 2.0);
+        // Lotus Trap
+        getFile().addDefault("skills.ranger.lotus_trap.max_level", 3);
+        getFile().addDefault("skills.ranger.lotus_trap.level_up_cost", 1);
+        getFile().addDefault("skills.ranger.lotus_trap.base_cooldown", 15.0);
+        getFile().addDefault("skills.ranger.lotus_trap.cooldown_reduction_per_level", 2.5);
+        getFile().addDefault("skills.ranger.lotus_trap.base_charge_count", 2);
+        getFile().addDefault("skills.ranger.lotus_trap.charge_count_increase_per_level", 1);
+        getFile().addDefault("skills.ranger.lotus_trap.base_damage", 6);
+        getFile().addDefault("skills.ranger.lotus_trap.damage_increase_per_level", 2);
+        getFile().addDefault("skills.ranger.lotus_trap.base_duration", 60);
+        getFile().addDefault("skills.ranger.lotus_trap.duration_increase_per_level", 15);
+        getFile().addDefault("skills.ranger.lotus_trap.activation_duration", 1);
+        getFile().addDefault("skills.ranger.lotus_trap.trigger_delay", 1);
+        getFile().addDefault("skills.ranger.lotus_trap.base_slow", 0.2);
+        getFile().addDefault("skills.ranger.lotus_trap.slow_increase_per_level", 0.05);
+        getFile().addDefault("skills.ranger.lotus_trap.detection_radius", 1.0);
+        getFile().addDefault("skills.ranger.lotus_trap.explosion_radius", 2.0);
+        getFile().addDefault("skills.ranger.lotus_trap.launch_strength", 0.4);
         // Silk Arrow
         getFile().addDefault("skills.ranger.silk_arrow.max_level", 1);
         getFile().addDefault("skills.ranger.silk_arrow.level_up_cost", 2);
