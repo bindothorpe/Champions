@@ -2,8 +2,10 @@ package com.bindothorpe.champions.events.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
+import com.bindothorpe.champions.command.death.CustomDeathCommand;
 import com.bindothorpe.champions.domain.combat.DamageLog;
 import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.events.death.CustomDeathEvent;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ItemUtil;
 import io.papermc.paper.event.entity.EntityKnockbackEvent;
@@ -183,17 +185,31 @@ public class EntityDamageByEntityListener implements Listener {
 
         if(!dc.getPlayerManager().hasBuildSelected(event.getPlayer().getUniqueId())) return;
 
-        event.setShouldDropExperience(false);
-        event.setKeepInventory(true);
-        event.getDrops().clear();
+        event.setCancelled(true);
 
-        if(lastMessageMap.containsKey(event.getPlayer().getUniqueId()) && System.currentTimeMillis() - lastMessageMap.get(event.getPlayer().getUniqueId()) <= 10L) {
-            event.setShowDeathMessages(false);
-            return;
-        }
-        event.deathMessage(ChatUtil.Prefix.GAME.component().append(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(event.getPlayer().getUniqueId()))));
-        lastMessageMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
-        System.out.println(System.currentTimeMillis());
+        Player player = event.getPlayer();
+        CustomDeathEvent customDeathEvent = new CustomDeathEvent(player);
+        customDeathEvent.setDeathMessage(CustomDamageCommand.getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(player.getUniqueId())));
+        if(player.getRespawnLocation() == null) customDeathEvent.setRespawnLocation(player.getWorld().getSpawnLocation());
+        customDeathEvent.callEvent();
+        System.out.println("Custom death event is called from EntityDamageByEntityListener#onPlayerDeath");
+
+        if(customDeathEvent.isCancelled()) return;
+
+        CustomDeathCommand customDeathCommand = new CustomDeathCommand(customDeathEvent);
+
+        customDeathCommand.execute();
+//        event.setShouldDropExperience(false);
+//        event.setKeepInventory(true);
+//        event.getDrops().clear();
+//
+//        if(lastMessageMap.containsKey(event.getPlayer().getUniqueId()) && System.currentTimeMillis() - lastMessageMap.get(event.getPlayer().getUniqueId()) <= 10L) {
+//            event.setShowDeathMessages(false);
+//            return;
+//        }
+//        event.deathMessage(ChatUtil.Prefix.GAME.component().append(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(event.getPlayer().getUniqueId()))));
+//        lastMessageMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
+//        System.out.println(System.currentTimeMillis());
 
     }
 
