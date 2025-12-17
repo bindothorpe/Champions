@@ -2,10 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
@@ -114,17 +111,22 @@ public class SmokeBomb extends Skill implements ReloadableData {
 
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
 
-        if(!(event instanceof PlayerDropItemWrapperEvent playerDropEvent)) return false;
+        if(!(event instanceof PlayerDropItemWrapperEvent playerDropEvent)) return AttemptResult.FALSE;
 
-        if(playerDropEvent.getPlayer() == null) return false;
+        if(playerDropEvent.getPlayer() == null) return AttemptResult.FALSE;
 
-        if(!playerDropEvent.isWeapon()) return false;
+        if(!playerDropEvent.isWeapon()) return AttemptResult.FALSE;
 
         if(playerDropEvent.getPlayer().isInWater()){
-            //TODO: Optionally let the player know they cant use it in water
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("You cannot use ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(" while in water.", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
         }
 
         return super.canUseHook(uuid, event);

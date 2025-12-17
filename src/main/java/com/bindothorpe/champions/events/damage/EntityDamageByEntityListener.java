@@ -199,53 +199,6 @@ public class EntityDamageByEntityListener implements Listener {
         CustomDeathCommand customDeathCommand = new CustomDeathCommand(customDeathEvent);
 
         customDeathCommand.execute();
-//        event.setShouldDropExperience(false);
-//        event.setKeepInventory(true);
-//        event.getDrops().clear();
-//
-//        if(lastMessageMap.containsKey(event.getPlayer().getUniqueId()) && System.currentTimeMillis() - lastMessageMap.get(event.getPlayer().getUniqueId()) <= 10L) {
-//            event.setShowDeathMessages(false);
-//            return;
-//        }
-//        event.deathMessage(ChatUtil.Prefix.GAME.component().append(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(event.getPlayer().getUniqueId()))));
-//        lastMessageMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
-//        System.out.println(System.currentTimeMillis());
-
-    }
-
-
-
-
-    public static Component getCustomDeathMessage(DomainController dc, DamageLog damageLog) {
-
-        Player player = Bukkit.getPlayer(damageLog.receiver());
-
-        if(player == null) return null;
-
-        if(damageLog.attacker() == null) {
-            return Component.text(player.getName()).color(dc.getTeamManager().getTeamFromEntity(player).getTextColor())
-                    .append(Component.text(" died.").color(NamedTextColor.GRAY));
-        }
-
-        Player attacker = Bukkit.getPlayer(damageLog.attacker());
-
-        if(attacker == null) return null;
-
-        Component message = Component.text(player.getName()).color(dc.getTeamManager().getTeamFromEntity(player).getTextColor())
-                .append(Component.text(" was killed by ").color(NamedTextColor.GRAY))
-                .append(Component.text(attacker.getName()).color(dc.getTeamManager().getTeamFromEntity(attacker).getTextColor()));
-
-
-
-        if(damageLog.damageSourceString() == null) {
-            message = message.append(Component.text(".").color(NamedTextColor.GRAY));
-        } else {
-            message = message.append(Component.text(" using ").color(NamedTextColor.GRAY)
-                    .append(Component.text(damageLog.damageSourceString()).color(NamedTextColor.YELLOW))
-                    .append(Component.text(".").color(NamedTextColor.GRAY)));
-        }
-
-        return message;
     }
 
 }

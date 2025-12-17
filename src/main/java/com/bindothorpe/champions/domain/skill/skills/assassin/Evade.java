@@ -51,8 +51,7 @@ public class Evade extends Skill implements ReloadableData {
 
         UUID uuid = player.getUniqueId();
 
-        if(!isUser(uuid)) return;
-        if(!canUse(uuid, event)) return;
+        if(!canUse(uuid, event).result()) return;
 
         if(activeBlockingUsersStartTimeMap.containsKey(player.getUniqueId())) return;
         activeBlockingUsersStartTimeMap.put(player.getUniqueId(), System.currentTimeMillis());

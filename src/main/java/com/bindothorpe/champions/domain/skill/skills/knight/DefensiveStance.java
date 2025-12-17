@@ -35,7 +35,7 @@ public class DefensiveStance extends Skill implements ReloadableData {
 
     @EventHandler
     public void onStartBlocking(PlayerStartBlockingEvent event) {
-        if(!canUse(event.getPlayer().getUniqueId(), event)) return;
+        if(!canUse(event.getPlayer().getUniqueId(), event).result()) return;
 
         activeBlockingSet.add(event.getPlayer().getUniqueId());
         ChatUtil.sendMessage(event.getPlayer(), ChatUtil.Prefix.SKILL, Component.text("You started ").color(NamedTextColor.GRAY).append(Component.text(getName()).color(NamedTextColor.YELLOW)).append(Component.text(".")));

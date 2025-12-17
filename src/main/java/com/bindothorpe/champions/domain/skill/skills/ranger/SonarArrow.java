@@ -2,10 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -244,24 +241,27 @@ public class SonarArrow extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if (!(event instanceof PlayerLeftClickEvent))
-            return false;
-
-        PlayerLeftClickEvent e = (PlayerLeftClickEvent) event;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if (!(event instanceof PlayerLeftClickEvent e))
+            return AttemptResult.FALSE;
 
 
         if (dc.getTeamManager().getTeamFromEntity(e.getPlayer()) == null) {
-            return false;
+            return AttemptResult.FALSE;
         }
 
 
         if (!e.isBow())
-            return false;
-
+            return AttemptResult.FALSE;
 
         if (primed.contains(uuid))
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("You have already primed ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(".", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
 
 
         return super.canUseHook(uuid, event);

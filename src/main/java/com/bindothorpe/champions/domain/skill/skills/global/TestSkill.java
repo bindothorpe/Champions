@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.global;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.AttemptResult;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
@@ -44,10 +45,10 @@ public class TestSkill extends Skill {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return false;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return AttemptResult.FALSE;
 
-        if(rightClickEvent.isSword()) return false;
+        if(rightClickEvent.isSword()) return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }

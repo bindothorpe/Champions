@@ -102,7 +102,7 @@ public abstract class ChargeSkill extends Skill {
         UUID uuid = event.getPlayer().getUniqueId();
 
         if(!isUser(uuid)) return;
-        if (!canUse(uuid, event)) return;
+        if (!canUse(uuid, event).result()) return;
         if (!chargeMap.containsKey(uuid)) {
             chargeMap.put(uuid, 1);
             onChargeStart(uuid);
@@ -137,7 +137,7 @@ public abstract class ChargeSkill extends Skill {
             if(EntityUtil.isPlayerBlocking(player)) {
 
                 // If the player can not use it, continue to the next iteration
-                if(!canUse(uuid, event)) continue;
+                if(!canUse(uuid, event).result()) continue;
 
 
                 if (!chargeMap.containsKey(uuid)) {

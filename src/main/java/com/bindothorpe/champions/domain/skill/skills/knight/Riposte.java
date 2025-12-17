@@ -48,8 +48,7 @@ public class Riposte extends Skill implements ReloadableData {
 
         UUID uuid = player.getUniqueId();
 
-        if(!isUser(uuid)) return;
-        if(!canUse(uuid, event)) return;
+        if(!canUse(uuid, event).result()) return;
 
         startBlockingAttack(player);
     }
@@ -115,8 +114,7 @@ public class Riposte extends Skill implements ReloadableData {
 
         } else {
             // Try to start
-            if(!isUser(uuid)) return;
-            if(!canUse(uuid, event)) return;
+            if(!canUse(uuid, event).result()) return;
             startBlockingAttack(player);
         }
     }

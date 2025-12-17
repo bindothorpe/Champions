@@ -3,10 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.brute;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
@@ -194,17 +191,21 @@ public class HeadButt extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if (!(event instanceof PlayerRightClickEvent))
-            return false;
-
-        PlayerRightClickEvent playerRightClickEvent = (PlayerRightClickEvent) event;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if (!(event instanceof PlayerRightClickEvent playerRightClickEvent))
+            return AttemptResult.FALSE;
 
         if (!playerRightClickEvent.isAxe())
-            return false;
+            return AttemptResult.FALSE;
 
         if (playerRightClickEvent.getPlayer().isOnGround())
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("Cannot use ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(" while grounded.", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
 
         return super.canUseHook(uuid, event);
     }

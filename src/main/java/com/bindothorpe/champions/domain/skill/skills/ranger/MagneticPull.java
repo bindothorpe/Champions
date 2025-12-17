@@ -2,14 +2,13 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ItemUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -208,18 +207,23 @@ public class MagneticPull extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if(!(event instanceof PlayerDropItemEvent))
-            return false;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if(!(event instanceof PlayerDropItemEvent dropItemEvent))
+            return AttemptResult.FALSE;
 
-        PlayerDropItemEvent dropItemEvent = (PlayerDropItemEvent) event;
         ItemStack item = dropItemEvent.getItemDrop().getItemStack();
 
         if(!ItemUtil.isWeapon(item))
-            return false;
+            return AttemptResult.FALSE;
 
         if(playerArrowsMap.get(uuid) == null || playerArrowsMap.get(uuid).isEmpty())
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("Cannot use ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(" if there are not arrows.", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
 
         return super.canUseHook(uuid, event);
     }

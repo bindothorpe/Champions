@@ -2,10 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.knight;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
@@ -41,12 +38,12 @@ public class BullsCharge extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
         if (!(event instanceof PlayerRightClickEvent playerRightClickEvent))
-            return false;
+            return AttemptResult.FALSE;
 
         if (!playerRightClickEvent.isAxe())
-            return false;
+            return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }

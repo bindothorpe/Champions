@@ -2,11 +2,9 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
@@ -100,20 +98,43 @@ public class Flash extends Skill implements ReloadableData {
 
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return false;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return AttemptResult.FALSE;
 
-        if(!rightClickEvent.isAxe()) return false;
+        if(!rightClickEvent.isAxe()) return AttemptResult.FALSE;
+
+
+        if(rightClickEvent.getPlayer().isInWater()){
+            return new AttemptResult(
+                    false,
+                    Component.text("You cannot use ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(" while in water.", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
+        }
+
+        if(dc.getStatusEffectManager().hasStatusEffect(StatusEffectType.SLOW, uuid)){
+            return new AttemptResult(
+                    false,
+                    Component.text("Cannot use ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(" while slowed,")),
+                    ChatUtil.Prefix.SKILL);
+        }
 
         flashCharges.computeIfAbsent(uuid, k -> calculateBasedOnLevel(BASE_CHARGE_COUNT, CHARGE_COUNT_INCREASE_PER_LEVEL, getSkillLevel(uuid)));
 
         if(flashCharges.get(uuid) == 0) {
-            ChatUtil.sendMessage(rightClickEvent.getPlayer(), ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use ").color(NamedTextColor.GRAY)
-                    .append(Component.text(getName()).color(NamedTextColor.YELLOW))
-                    .append(Component.text(" for ").color(NamedTextColor.GRAY))
-                    .append(Component.text(String.format(Locale.US, "%.1f", timerMap.get(uuid).getTimeLeftInSeconds())).color(NamedTextColor.YELLOW))
-                    .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("You cannot use ").color(NamedTextColor.GRAY)
+                            .append(Component.text(getName()).color(NamedTextColor.YELLOW))
+                            .append(Component.text(" for ").color(NamedTextColor.GRAY))
+                            .append(Component.text(String.format(Locale.US, "%.1f", timerMap.get(uuid).getTimeLeftInSeconds())).color(NamedTextColor.YELLOW))
+                            .append(Component.text(" seconds").color(NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.COOLDOWN
+                    );
         }
 
         return super.canUseHook(uuid, event);

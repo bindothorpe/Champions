@@ -26,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedMainHandEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -124,8 +125,12 @@ public abstract class Skill implements Listener {
         if (player == null)
             return false;
 
-        if (!canUse(uuid, event))
+        AttemptResult attempt = canUse(uuid, event);
+
+        if (!attempt.result()) {
+            if(attempt.message() != null) ChatUtil.sendMessage(player, attempt.prefix(), attempt.message());
             return false;
+        }
 
         SkillUseEvent skillUseEvent = new SkillUseEvent(player, getId(), users.get(uuid));
         Bukkit.getPluginManager().callEvent(skillUseEvent);
@@ -142,33 +147,35 @@ public abstract class Skill implements Listener {
         return true;
     }
 
-    protected boolean canUse(UUID uuid, Event event) {
+    protected AttemptResult canUse(UUID uuid, Event event) {
 
         if (!users.containsKey(uuid))
-            return false;
+            return new AttemptResult(false);
 
-        if(!canUseHook(uuid, event)) {
-            return false;
+        Player player = Bukkit.getPlayer(uuid);
+
+        if (player == null)
+            return new AttemptResult(false);
+
+        AttemptResult attempt = canUseHook(uuid, event);
+
+        if(!attempt.result()) {
+            return attempt;
         }
 
         if (isOnCooldown(uuid)) {
             double cooldownRemaining = getCooldownRemaining(uuid);
-            Player player = Bukkit.getPlayer(uuid);
-
-            if (player == null)
-                return false;
-
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use ").color(NamedTextColor.GRAY)
+            return new AttemptResult(false,
+                    Component.text("You cannot use ").color(NamedTextColor.GRAY)
                     .append(Component.text(this.name).color(NamedTextColor.YELLOW))
                     .append(Component.text(" for ").color(NamedTextColor.GRAY))
                     .append(Component.text(String.format(Locale.US, "%.1f", cooldownRemaining)).color(NamedTextColor.YELLOW))
-                    .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
-
-            return false;
+                    .append(Component.text(" seconds").color(NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.COOLDOWN);
         }
 
 
-        return true;
+        return new AttemptResult(true);
     }
 
     public boolean isOnCooldown(UUID uuid) {
@@ -179,8 +186,8 @@ public abstract class Skill implements Listener {
         return dc.getCooldownManager().getCooldownRemaining(uuid, this);
     }
 
-    protected boolean canUseHook(UUID uuid, Event event) {
-        return true;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        return new AttemptResult(true);
     }
 
     protected boolean isUser(UUID uuid) {

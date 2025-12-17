@@ -3,10 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.item.items.IceOrbItem;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
@@ -48,12 +45,12 @@ public class IcePrison extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
         if (!(event instanceof PlayerRightClickEvent playerRightClickEvent))
-            return false;
+            return AttemptResult.FALSE;
 
         if (!playerRightClickEvent.isAxe())
-            return false;
+            return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }

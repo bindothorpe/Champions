@@ -4,10 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -92,11 +89,11 @@ public class HoldPosition extends Skill implements ReloadableData {
 
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
 
-        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return false;
+        if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return AttemptResult.FALSE;
 
-        if(!rightClickEvent.isAxe()) return false;
+        if(!rightClickEvent.isAxe()) return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }

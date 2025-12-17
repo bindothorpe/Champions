@@ -13,7 +13,15 @@ import java.util.function.Function;
 
 public class ChatUtil {
     public static void sendMessage(Player player, Prefix prefix, Component message) {
-        player.sendMessage(prefix.component().append(message));
+        if(prefix == null) {
+            player.sendMessage(message);
+        } else {
+            player.sendMessage(prefix.component().append(message));
+        }
+    }
+
+    public static void sendMessage(Player player, Component message) {
+        sendMessage(player, null, message);
     }
 
     public static void sendActionBarMessage(Player player, Component message) {

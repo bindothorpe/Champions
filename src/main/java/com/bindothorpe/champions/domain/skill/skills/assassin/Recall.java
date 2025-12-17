@@ -2,10 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerDropItemWrapperEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -61,18 +58,13 @@ public class Recall extends Skill implements ReloadableData {
 
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
 
-        if(!(event instanceof PlayerDropItemWrapperEvent playerDropEvent)) return false;
+        if(!(event instanceof PlayerDropItemWrapperEvent playerDropEvent)) return AttemptResult.FALSE;
 
-        if(playerDropEvent.getPlayer() == null) return false;
+        if(playerDropEvent.getPlayer() == null) return AttemptResult.FALSE;
 
-        if(!playerDropEvent.isWeapon()) return false;
-
-        if(playerDropEvent.getPlayer().isInWater()){
-            //TODO: Optionally let the player know they cant use it in water
-            return false;
-        }
+        if(!playerDropEvent.isWeapon()) return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }

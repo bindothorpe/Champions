@@ -2,16 +2,15 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
+import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -116,22 +115,22 @@ public class SmokeArrow extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if (!(event instanceof PlayerLeftClickEvent))
-            return false;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if (!(event instanceof PlayerLeftClickEvent e))
+            return AttemptResult.FALSE;
 
-        PlayerLeftClickEvent e = (PlayerLeftClickEvent) event;
-
-
-        if (dc.getTeamManager().getTeamFromEntity(e.getPlayer()) == null) {
-            return false;
-        }
 
         if (!e.isBow())
-            return false;
+            return AttemptResult.FALSE;
 
         if (primed.contains(uuid))
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("You have already primed ", NamedTextColor.GRAY)
+                            .append(Component.text(getName(), NamedTextColor.YELLOW))
+                            .append(Component.text(".", NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.SKILL
+            );
 
         return super.canUseHook(uuid, event);
     }

@@ -2,10 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ComponentUtil;
@@ -122,7 +119,7 @@ public class Explosion extends Skill implements ReloadableData {
     }
 
     private void onSecondRightClick(UUID uuid, Event e) {
-        if(!canUseHook(uuid, e))
+        if(!canUseHook(uuid, e).result())
             return;
 
         ArmorStand explosionOrb = explosionOrbsMap.get(uuid);
@@ -148,18 +145,17 @@ public class Explosion extends Skill implements ReloadableData {
         location.getWorld().spawnParticle(Particle.EXPLOSION, location, 1, 0, 0, 0, 0, null, true);
     }
 
+    //TODO: Replace PlayerInteractEvent with PlayerRightClickEvent
     @Override
-    protected boolean canUseHook(UUID uuid, Event e) {
-        if(!(e instanceof PlayerInteractEvent))
-            return false;
-
-        PlayerInteractEvent event = (PlayerInteractEvent) e;
+    protected AttemptResult canUseHook(UUID uuid, Event e) {
+        if(!(e instanceof PlayerInteractEvent event))
+            return AttemptResult.FALSE;
 
         if (!Objects.equals(event.getHand(), EquipmentSlot.HAND))
-            return false;
+            return AttemptResult.FALSE;
 
         if(!event.getPlayer().getInventory().getItemInMainHand().getType().toString().contains("_AXE"))
-            return false;
+            return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, e);
     }

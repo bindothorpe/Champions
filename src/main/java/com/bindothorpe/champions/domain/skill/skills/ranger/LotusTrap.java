@@ -4,10 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.item.items.LotusStrapItem;
-import com.bindothorpe.champions.domain.skill.ReloadableData;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerDropItemWrapperEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -84,18 +81,21 @@ public class LotusTrap extends Skill implements ReloadableData {
     }
 
     @Override
-    protected boolean canUseHook(UUID uuid, Event event) {
-        if(!(event instanceof PlayerDropItemWrapperEvent dropItemEvent)) return false;
+    protected AttemptResult canUseHook(UUID uuid, Event event) {
+        if(!(event instanceof PlayerDropItemWrapperEvent dropItemEvent)) return AttemptResult.FALSE;
 
         trapCharges.computeIfAbsent(uuid, k -> calculateBasedOnLevel(BASE_CHARGE_COUNT, CHARGE_COUNT_INCREASE_PER_LEVEL, getSkillLevel(uuid)));
 
         if(trapCharges.get(uuid) == 0) {
-            ChatUtil.sendMessage(dropItemEvent.getPlayer(), ChatUtil.Prefix.COOLDOWN, Component.text("You cannot use ").color(NamedTextColor.GRAY)
-                    .append(Component.text(getName()).color(NamedTextColor.YELLOW))
-                    .append(Component.text(" for ").color(NamedTextColor.GRAY))
-                    .append(Component.text(String.format(Locale.US, "%.1f", timerMap.get(uuid).getTimeLeftInSeconds())).color(NamedTextColor.YELLOW))
-                    .append(Component.text(" seconds").color(NamedTextColor.GRAY)));
-            return false;
+            return new AttemptResult(
+                    false,
+                    Component.text("You cannot use ").color(NamedTextColor.GRAY)
+                            .append(Component.text(getName()).color(NamedTextColor.YELLOW))
+                            .append(Component.text(" for ").color(NamedTextColor.GRAY))
+                            .append(Component.text(String.format(Locale.US, "%.1f", timerMap.get(uuid).getTimeLeftInSeconds())).color(NamedTextColor.YELLOW))
+                            .append(Component.text(" seconds").color(NamedTextColor.GRAY)),
+                    ChatUtil.Prefix.COOLDOWN
+            );
         }
 
         return super.canUseHook(uuid, event);
