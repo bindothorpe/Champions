@@ -2,12 +2,19 @@ package com.bindothorpe.champions.command.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.Command;
+import com.bindothorpe.champions.command.death.CustomDeathCommand;
+import com.bindothorpe.champions.domain.combat.DamageLog;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.events.death.CustomDeathEvent;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class CustomDamageCommand implements Command {
@@ -45,8 +52,16 @@ public class CustomDamageCommand implements Command {
             throw new IllegalStateException("This command has already been executed");
         }
 
+
+        if(damagee.isDead()) return;
         // Damage the entity
         double newHealth = damagee.getHealth() - (overwriteDamage == Double.MIN_VALUE ? getFinalDamage() : overwriteDamage);
+
+        if(newHealth <= 0 && damagee instanceof Player) {
+            handleCustomDeathEvent();
+            return;
+        }
+
         damagee.setHealth(newHealth > 0 ? newHealth : 0);
 
         damagee.setVelocity(getFinalKnockbackVector(damagee));
@@ -62,6 +77,21 @@ public class CustomDamageCommand implements Command {
         }
 
         hasExecuted = true;
+    }
+
+    private void handleCustomDeathEvent() {
+        Player player = (Player) damagee;
+        CustomDeathEvent customDeathEvent = new CustomDeathEvent(player);
+        customDeathEvent.setDeathMessage(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(player.getUniqueId())));
+        if(player.getRespawnLocation() == null) customDeathEvent.setRespawnLocation(player.getWorld().getSpawnLocation());
+        customDeathEvent.callEvent();
+        System.out.println("Custom death event is called");
+
+        if(customDeathEvent.isCancelled()) return;
+
+        CustomDeathCommand customDeathCommand = new CustomDeathCommand(customDeathEvent);
+
+        customDeathCommand.execute();
     }
 
     public double getDamage() {
@@ -172,5 +202,37 @@ public class CustomDamageCommand implements Command {
 
     public boolean shouldSuppressHitSound() {
         return suppressHitSound;
+    }
+
+    public static Component getCustomDeathMessage(DomainController dc, DamageLog damageLog) {
+
+        Player player = Bukkit.getPlayer(damageLog.receiver());
+
+        if(player == null) return null;
+
+        if(damageLog.attacker() == null) {
+            return Component.text(player.getName()).color(dc.getTeamManager().getTeamFromEntity(player).getTextColor())
+                    .append(Component.text(" died.").color(NamedTextColor.GRAY));
+        }
+
+        Player attacker = Bukkit.getPlayer(damageLog.attacker());
+
+        if(attacker == null) return null;
+
+        Component message = Component.text(player.getName()).color(dc.getTeamManager().getTeamFromEntity(player).getTextColor())
+                .append(Component.text(" was killed by ").color(NamedTextColor.GRAY))
+                .append(Component.text(attacker.getName()).color(dc.getTeamManager().getTeamFromEntity(attacker).getTextColor()));
+
+
+
+        if(damageLog.damageSourceString() == null) {
+            message = message.append(Component.text(".").color(NamedTextColor.GRAY));
+        } else {
+            message = message.append(Component.text(" using ").color(NamedTextColor.GRAY)
+                    .append(Component.text(damageLog.damageSourceString()).color(NamedTextColor.YELLOW))
+                    .append(Component.text(".").color(NamedTextColor.GRAY)));
+        }
+
+        return message;
     }
 }

@@ -64,13 +64,4 @@ public class CustomDamageListener implements Listener {
 
         dc.getCombatLogger().logDamageDealt(player.getUniqueId());
     }
-
-    @EventHandler
-    public void onDeath(PlayerDeathEvent event) {
-        if(event.isCancelled()) return;
-
-        if(!dc.getPlayerManager().hasBuildSelected(event.getPlayer().getUniqueId())) return;
-
-
-    }
 }

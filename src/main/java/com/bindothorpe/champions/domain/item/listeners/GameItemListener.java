@@ -17,6 +17,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ItemMergeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,11 @@ public class GameItemListener implements Listener {
 
     public GameItemListener(DomainController dc) {
         this.dc = dc;
+    }
+
+    @EventHandler
+    public void onItemMerge(ItemMergeEvent event) {
+        if(dc.getGameItemManager().isGameItem(event.getEntity())) event.setCancelled(true);
     }
 
     @EventHandler

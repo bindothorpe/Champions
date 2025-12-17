@@ -38,9 +38,12 @@ public class EntityDamageByEntityListener implements Listener {
 
     private final Map<UUID, Long> lastHit;
 
+    private final Map<UUID, Long> lastMessageMap = new HashMap<>();
+
     public EntityDamageByEntityListener(DomainController dc) {
         this.dc = dc;
         this.lastHit = new HashMap<>();
+        dc.getPlugin().getLogger().info("EntityDamageByEntityListener registered");
     }
 
     @EventHandler
@@ -74,8 +77,12 @@ public class EntityDamageByEntityListener implements Listener {
             event.setCancelled(true);
         }
 
-        if (customDamageEvent.isCancelled())
+        if (customDamageEvent.isCancelled()) {
+            System.out.println("custom damage event was cancelled.");
             return;
+        }
+
+        System.out.println("Custom damage event is succesfully passed");
 
 
         event.setCancelled(true);
@@ -83,7 +90,6 @@ public class EntityDamageByEntityListener implements Listener {
         customDamageCommand.execute();
 
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
-        System.out.println(customDamageCommand.getDamage());
     }
 
     private double getDamageFromItemInHand(@Nullable ItemStack itemInMainHand) {
@@ -181,7 +187,14 @@ public class EntityDamageByEntityListener implements Listener {
         event.setKeepInventory(true);
         event.getDrops().clear();
 
+        if(lastMessageMap.containsKey(event.getPlayer().getUniqueId()) && System.currentTimeMillis() - lastMessageMap.get(event.getPlayer().getUniqueId()) <= 10L) {
+            event.setShowDeathMessages(false);
+            return;
+        }
         event.deathMessage(ChatUtil.Prefix.GAME.component().append(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(event.getPlayer().getUniqueId()))));
+        lastMessageMap.put(event.getPlayer().getUniqueId(), System.currentTimeMillis());
+        System.out.println(System.currentTimeMillis());
+
     }
 
 

@@ -9,15 +9,19 @@ import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.ShapeUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.joml.AxisAngle4f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.Set;
 
@@ -34,8 +38,12 @@ public class LotusStrapItem extends GameItem {
     private final double explosionRadius;
     private final double explosionDamage;
     private final double slowModifier;
+    private final boolean showRemainingDuration;
 
-    public LotusStrapItem(DomainController dc, Player owner, double collisionRadius, double activeDuration, double activateDelay, double triggerDelay, double explosionRadius, double explosionDamage, double slowModifier) {
+    private TextDisplay textDisplay;
+    private BlockDisplay blockDisplay;
+
+    public LotusStrapItem(DomainController dc, Player owner, double collisionRadius, double activeDuration, double activateDelay, double triggerDelay, double explosionRadius, double explosionDamage, double slowModifier, boolean showRemainingDuration) {
         super(dc, Material.SPORE_BLOSSOM, -1, owner, collisionRadius, 0.15, BlockCollisionMode.TOP_ONLY);
         this.activateDelay = activateDelay;
         timeoutTimer = new Timer(dc.getPlugin(), activeDuration,
@@ -44,69 +52,97 @@ public class LotusStrapItem extends GameItem {
         this.triggerDelay = triggerDelay;
         this.explosionDamage = explosionDamage;
         this.slowModifier = slowModifier;
+        this.showRemainingDuration = showRemainingDuration;
+    }
+
+    public LotusStrapItem(DomainController dc, Player owner, double collisionRadius, double activeDuration, double activateDelay, double triggerDelay, double explosionRadius, double explosionDamage, double slowModifier) {
+        this(dc, owner, collisionRadius, activeDuration, activateDelay, triggerDelay, explosionRadius,explosionDamage, slowModifier, false);
+    }
+
+    private void handleTrail() {
+        Location loc = getItem().getLocation();
+        getItem().getWorld().spawnParticle(
+                Particle.DUST,
+                dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()),
+                null,
+                loc.x(),
+                loc.y(),
+                loc.z(),
+                1,     // count
+                0.0,   // offsetX - random spread in X direction
+                0.0,   // offsetY - random spread in Y direction
+                0.0,   // offsetZ - random spread in Z direction
+                0.0,  // extra (speed) - gives particles initial velocity
+                new Particle.DustOptions(Color.FUCHSIA, 1));
+    }
+
+    private void spawnLargeCircleParticles() {
+        largeCirclePoints().forEach(
+                point -> getItem().getWorld().spawnParticle(Particle.DUST, getItem().getLocation().clone().add(point), 1, new Particle.DustOptions(Color.FUCHSIA, 1))
+        );
+        for(Entity entity : getItem().getNearbyEntities(explosionRadius, explosionRadius, explosionRadius)) {
+            if(!(entity instanceof LivingEntity livingEntity)) continue;
+            if(!dc.getTeamManager().areEntitiesOnDifferentTeams(livingEntity, getOwner())) continue;
+            dc.getEntityStatusManager().addEntityStatus(livingEntity.getUniqueId(),
+                    new EntityStatus(
+                            EntityStatusType.MOVEMENT_SPEED,
+                            -slowModifier,
+                            triggerDelay,
+                            false,
+                            false,
+                            this
+                    ));
+            dc.getEntityStatusManager().updateEntityStatus(livingEntity.getUniqueId(), EntityStatusType.MOVEMENT_SPEED);
+        }
+    }
+
+    private void spawnSmallCircleParticles() {
+        circlePoints().forEach(
+                point -> {
+                    Location loc = getItem().getLocation().add(point);
+                    getItem().getWorld().spawnParticle(
+                            Particle.DUST,
+                            dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()),
+                            null,
+                            loc.x(),
+                            loc.y(),
+                            loc.z(),
+                            1,     // count
+                            0.0,   // offsetX - random spread in X direction
+                            0.0,   // offsetY - random spread in Y direction
+                            0.0,   // offsetZ - random spread in Z direction
+                            0.0,  // extra (speed) - gives particles initial velocity
+                            new Particle.DustOptions(Color.FUCHSIA, 1));
+                }
+        );
+
     }
 
     @Override
     public void onTickUpdate() {
         if(!isActive) {
-            Location loc = getItem().getLocation();
-            getItem().getWorld().spawnParticle(
-                    Particle.DUST,
-                    dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()),
-                    null,
-                    loc.x(),
-                    loc.y(),
-                    loc.z(),
-                    1,     // count
-                    0.0,   // offsetX - random spread in X direction
-                    0.0,   // offsetY - random spread in Y direction
-                    0.0,   // offsetZ - random spread in Z direction
-                    0.0,  // extra (speed) - gives particles initial velocity
-                    new Particle.DustOptions(Color.FUCHSIA, 1));
+            handleTrail();
             return;
         }
 
         if(isTriggered) {
-            largeCirclePoints().forEach(
-                    point -> getItem().getWorld().spawnParticle(Particle.DUST, getItem().getLocation().clone().add(point), 1, new Particle.DustOptions(Color.FUCHSIA, 1))
-            );
-            for(Entity entity : getItem().getNearbyEntities(explosionRadius, explosionRadius, explosionRadius)) {
-                if(!(entity instanceof LivingEntity livingEntity)) continue;
-                if(!dc.getTeamManager().areEntitiesOnDifferentTeams(livingEntity, getOwner())) continue;
-                dc.getEntityStatusManager().addEntityStatus(livingEntity.getUniqueId(),
-                        new EntityStatus(
-                                EntityStatusType.MOVEMENT_SPEED,
-                                -slowModifier,
-                                triggerDelay,
-                                false,
-                                false,
-                                this
-                        ));
-                dc.getEntityStatusManager().updateEntityStatus(livingEntity.getUniqueId(), EntityStatusType.MOVEMENT_SPEED);
-            }
+            spawnLargeCircleParticles();
         } else {
-            circlePoints().forEach(
-                    point -> {
-                        Location loc = getItem().getLocation().add(point);
-                        getItem().getWorld().spawnParticle(
-                                Particle.DUST,
-                                dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()),
-                                null,
-                                loc.x(),
-                                loc.y(),
-                                loc.z(),
-                                1,     // count
-                                0.0,   // offsetX - random spread in X direction
-                                0.0,   // offsetY - random spread in Y direction
-                                0.0,   // offsetZ - random spread in Z direction
-                                0.0,  // extra (speed) - gives particles initial velocity
-                                new Particle.DustOptions(Color.FUCHSIA, 1));
-                    }
-                    );
-
+            spawnSmallCircleParticles();
+            if(showRemainingDuration) updateTimer();
         }
 
 
+    }
+
+    private void updateTimer() {
+        if(textDisplay == null) return;
+        if(timeoutTimer.getTimeLeftInSeconds() <= 0) {
+            textDisplay.remove();
+            textDisplay = null;
+        } else {
+            textDisplay.text(Component.text(String.format("%.1fs", timeoutTimer.getTimeLeftInSeconds()), NamedTextColor.GRAY));
+        }
     }
 
     private Set<Vector> circlePoints() {
@@ -161,6 +197,38 @@ public class LotusStrapItem extends GameItem {
                             new Particle.DustOptions(Color.FUCHSIA, 2)
                     );
                     isActive = true;
+                    if(showRemainingDuration) {
+                        textDisplay = getItem().getWorld().spawn(
+                                getItem().getLocation().clone().add(0, 0.5, 0),
+                                TextDisplay.class,
+                                entity -> {
+                                    entity.setBillboard(Display.Billboard.CENTER);
+                                    entity.setVisibleByDefault(false);
+                                    dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()).forEach(player -> player.showEntity(dc.getPlugin(), entity));
+                                }
+                                );
+                    }
+
+                    if(true) {
+                        getItem().setVisibleByDefault(false);
+                        blockDisplay = getItem().getWorld().spawn(getItem().getLocation(),
+                                BlockDisplay.class,
+                                entity -> {
+//                                    entity.setVisibleByDefault(false);
+//                                    dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner()).forEach(player -> player.showEntity(dc.getPlugin(), entity));
+                                    entity.setBlock(Material.SPORE_BLOSSOM.createBlockData());
+                                     entity.setTransformationMatrix(
+                                             new Matrix4f()
+                                                     .scale(2) // scale up by a factor of 2 on all axes
+                                                     .rotateXYZ(
+                                                             (float) Math.toRadians(180), // rotate -45 degrees on the X axis
+                                                             0,
+                                                             0
+                                                     )
+                                     );
+                                });
+                    }
+
                     timeoutTimer.start();
                 });
         timer.start();
@@ -168,6 +236,20 @@ public class LotusStrapItem extends GameItem {
 
     @Override
     public void onDespawn() {
+
+        timer.stop();
+        timeoutTimer.stop();
+
+        if(textDisplay != null) {
+            textDisplay.remove();
+            textDisplay = null;
+        }
+
+//        if(blockDisplay != null) {
+//            blockDisplay.remove();
+//            blockDisplay = null;
+//        }
+
         if(!isTriggered) return;
         // Spawn explosion particles in a 2-block radius sphere
         Set<Vector> spherePoints = ShapeUtil.circle(getEntityCollisionRadius(), false, 64, false);
@@ -221,7 +303,6 @@ public class LotusStrapItem extends GameItem {
                 1.0,   // Fast speed for explosion effect
                 new Particle.DustOptions(Color.FUCHSIA, 2f)
         );
-
 
         if(!(getOwner() instanceof LivingEntity ownerLiving)) return;
 

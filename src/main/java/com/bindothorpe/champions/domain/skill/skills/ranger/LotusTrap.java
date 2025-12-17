@@ -71,7 +71,8 @@ public class LotusTrap extends Skill implements ReloadableData {
                 TRIGGER_DELAY,
                 EXPLOSION_RADIUS,
                 calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid)),
-                calculateBasedOnLevel(BASE_SLOW, SLOW_INCREASE_PER_LEVEL, getSkillLevel(uuid))
+                calculateBasedOnLevel(BASE_SLOW, SLOW_INCREASE_PER_LEVEL, getSkillLevel(uuid)),
+                true
                 );
 
         dc.getGameItemManager().spawnGameItem(
