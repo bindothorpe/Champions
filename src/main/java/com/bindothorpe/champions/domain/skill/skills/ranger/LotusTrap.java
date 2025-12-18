@@ -3,7 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.item.GameItem;
-import com.bindothorpe.champions.domain.item.items.LotusStrapItem;
+import com.bindothorpe.champions.domain.item.items.LotusTrapItem;
 import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerDropItemWrapperEvent;
@@ -59,7 +59,7 @@ public class LotusTrap extends Skill implements ReloadableData {
 
         trapCharges.put(uuid, trapCharges.get(uuid) - 1);
 
-        GameItem item = new LotusStrapItem(
+        GameItem item = new LotusTrapItem(
                 dc,
                 event.getPlayer(),
                 DETECTION_RADIUS,

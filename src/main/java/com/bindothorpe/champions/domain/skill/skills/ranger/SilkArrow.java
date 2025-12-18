@@ -3,10 +3,9 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
-import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
+import com.bindothorpe.champions.domain.skill.subSkills.PrimeArrowSkill;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
-import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,21 +14,16 @@ import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class SilkArrow extends Skill implements ReloadableData {
+public class SilkArrow extends PrimeArrowSkill implements ReloadableData {
 
     private static double DURATION = 10.0D;
 
-    private final Set<UUID> primed = new HashSet<>();
-    private final Set<Arrow> particleTrail = new HashSet<>();
     private final Map<Arrow, Location> lastLocation = new HashMap<>();
 
 
@@ -38,48 +32,18 @@ public class SilkArrow extends Skill implements ReloadableData {
     }
 
     @EventHandler
-    public void onPlayerLeftClick(PlayerLeftClickEvent event) {
-        boolean success = activate(event.getPlayer().getUniqueId(), event);
-
-        if (!success) {
-            return;
-        }
-
-        primed.add(event.getPlayer().getUniqueId());
-    }
-
-    @EventHandler
-    public void onArrowLaunch(ProjectileLaunchEvent event) {
-        if (!(event.getEntity() instanceof Arrow arrow))
-            return;
-
-        if (!(arrow.getShooter() instanceof Player player))
-            return;
-
-        if (!primed.contains(player.getUniqueId()))
-            return;
-
-
-        arrow.setMetadata("silk", new FixedMetadataValue(dc.getPlugin(), true));
-        primed.remove(player.getUniqueId());
-
-        particleTrail.add(arrow);
-
-    }
-
-    @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof Arrow arrow))
             return;
 
-        if (!arrow.hasMetadata("silk"))
+        if (!isArrowOfSkill(arrow))
             return;
 
         if(!(arrow.getShooter() instanceof Player player)) {
             return;
         }
 
-        particleTrail.remove(arrow);
+        arrows.remove(arrow);
 
         performSilk(player, arrow, event.getHitEntity());
 
@@ -110,7 +74,7 @@ public class SilkArrow extends Skill implements ReloadableData {
         if (event.getUpdateType() != UpdateType.TICK)
             return;
 
-        for (Arrow arrow : particleTrail) {
+        for (Arrow arrow : arrows) {
             Location currentLoc = arrow.getLocation();
 
             if(!(arrow.getShooter() instanceof Player player)) {
@@ -161,40 +125,12 @@ public class SilkArrow extends Skill implements ReloadableData {
             Location blockLoc = loc.getBlock().getLocation();
 
             // Avoid duplicates by checking if we already added this block
-            if(locations.isEmpty() || !blockLoc.equals(locations.get(locations.size() - 1))) {
+            if(locations.isEmpty() || !blockLoc.equals(locations.getLast())) {
                 locations.add(blockLoc);
             }
         }
 
         return locations;
-    }
-
-
-    @Override
-    protected AttemptResult canUseHook(UUID uuid, Event event) {
-        if (!(event instanceof PlayerLeftClickEvent e))
-            return AttemptResult.FALSE;
-
-
-        if (dc.getTeamManager().getTeamFromEntity(e.getPlayer()) == null) {
-            return AttemptResult.FALSE;
-        }
-
-
-        if (!e.isBow())
-            return AttemptResult.FALSE;
-
-        if (primed.contains(uuid))
-            return new AttemptResult(
-                    false,
-                    Component.text("You have already primed ", NamedTextColor.GRAY)
-                            .append(Component.text(getName(), NamedTextColor.YELLOW))
-                            .append(Component.text(".", NamedTextColor.GRAY)),
-                    ChatUtil.Prefix.SKILL
-            );
-
-
-        return super.canUseHook(uuid, event);
     }
 
     @Override

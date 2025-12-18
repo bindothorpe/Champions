@@ -1,7 +1,10 @@
-package com.bindothorpe.champions.domain.skill;
+package com.bindothorpe.champions.domain.skill.subSkills;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.Skill;
+import com.bindothorpe.champions.domain.skill.SkillId;
+import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.interact.blocking.PlayerStartBlockingEvent;
 import com.bindothorpe.champions.events.interact.blocking.PlayerStopBlockingEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;

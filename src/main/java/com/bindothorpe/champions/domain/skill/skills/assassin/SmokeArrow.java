@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
+import com.bindothorpe.champions.domain.skill.subSkills.PrimeArrowSkill;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
@@ -30,10 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class SmokeArrow extends Skill implements ReloadableData {
-
-    private final Set<UUID> primed = new HashSet<>();
-    private final Set<Arrow> particleTrail = new HashSet<>();
+public class SmokeArrow extends PrimeArrowSkill implements ReloadableData {
 
     private static double BASE_BLIND_DURATION;
     private static double BLIND_DURATION_INCREASE_PER_LEVEL;
@@ -47,50 +45,20 @@ public class SmokeArrow extends Skill implements ReloadableData {
         return List.of();
     }
 
-    @EventHandler
-    public void onPlayerLeftClick(PlayerLeftClickEvent event) {
-        boolean success = activate(event.getPlayer().getUniqueId(), event);
-
-        if (!success) {
-            return;
-        }
-
-        primed.add(event.getPlayer().getUniqueId());
-    }
-
-    @EventHandler
-    public void onArrowLaunch(ProjectileLaunchEvent event) {
-        if (!(event.getEntity() instanceof Arrow arrow))
-            return;
-
-        if (!(arrow.getShooter() instanceof Player player))
-            return;
-
-        if (!primed.contains(player.getUniqueId()))
-            return;
-
-
-        arrow.setMetadata("smoke", new FixedMetadataValue(dc.getPlugin(), true));
-        primed.remove(player.getUniqueId());
-
-        particleTrail.add(arrow);
-
-    }
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
         if (!(event.getEntity() instanceof Arrow arrow))
             return;
 
-        if (!arrow.hasMetadata("smoke"))
+        if (!isArrowOfSkill(arrow))
             return;
 
         if(!(arrow.getShooter() instanceof Player player)) {
             return;
         }
 
-        particleTrail.remove(arrow);
-
+        arrows.remove(arrow);
         performSmoke(player, arrow, event.getHitEntity());
 
     }
@@ -107,32 +75,11 @@ public class SmokeArrow extends Skill implements ReloadableData {
         if (event.getUpdateType() != UpdateType.TICK)
             return;
 
-        for (Arrow arrow : particleTrail) {
+        for (Arrow arrow : arrows) {
             Location loc = arrow.getLocation();
             Particle.DustOptions dustOptions = new Particle.DustOptions(Color.BLACK, 1);
             loc.getWorld().spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, dustOptions, true);
         }
-    }
-
-    @Override
-    protected AttemptResult canUseHook(UUID uuid, Event event) {
-        if (!(event instanceof PlayerLeftClickEvent e))
-            return AttemptResult.FALSE;
-
-
-        if (!e.isBow())
-            return AttemptResult.FALSE;
-
-        if (primed.contains(uuid))
-            return new AttemptResult(
-                    false,
-                    Component.text("You have already primed ", NamedTextColor.GRAY)
-                            .append(Component.text(getName(), NamedTextColor.YELLOW))
-                            .append(Component.text(".", NamedTextColor.GRAY)),
-                    ChatUtil.Prefix.SKILL
-            );
-
-        return super.canUseHook(uuid, event);
     }
 
 

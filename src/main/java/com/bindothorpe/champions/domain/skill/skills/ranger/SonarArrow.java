@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
+import com.bindothorpe.champions.domain.skill.subSkills.PrimeArrowSkill;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -27,14 +28,200 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-public class SonarArrow extends Skill implements ReloadableData {
+public class SonarArrow extends PrimeArrowSkill implements ReloadableData {
 
-    private final Set<UUID> primed = new HashSet<>();
-    private final Set<Arrow> particleTrail = new HashSet<>();
     private final Set<Arrow> bouncingArrows = new HashSet<>();
 
     private static double DETECTION_RADIUS;
     private static double BOUNCE_STRENGTH_MULT;
+
+    public SonarArrow(DomainController dc) {
+        super(dc, "Sonar Arrow", SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER);
+    }
+
+    @Override
+    protected void onSkillArrowLaunch(Arrow arrow, Player shooter) {
+        if (shooter.isSneaking()) {
+            bouncingArrows.add(arrow);
+        }
+    }
+
+    @EventHandler
+    public void onArrowHit(ProjectileHitEvent event) {
+        if (!(event.getEntity() instanceof Arrow arrow))
+            return;
+
+        if (!isArrowOfSkill(arrow))
+            return;
+
+        Player player = (Player) arrow.getShooter();
+
+        Block block = event.getHitBlock();
+
+        arrows.remove(arrow);
+
+        if(block != null && bouncingArrows.contains(arrow)) {
+            event.setCancelled(true);
+            bouncingArrows.remove(arrow);
+            performBounce(arrow, event, player);
+            return;
+        }
+
+        performSonar(player, arrow, event.getHitEntity());
+    }
+
+    private Vector getBounceVelocity(Vector startingVelocity, BlockFace hitFace) {
+        if (hitFace == BlockFace.EAST || hitFace == BlockFace.WEST) {
+            startingVelocity.setX(-startingVelocity.getX());
+        } else if (hitFace == BlockFace.NORTH || hitFace == BlockFace.SOUTH) {
+            startingVelocity.setZ(-startingVelocity.getZ());
+        } else if (hitFace == BlockFace.UP || hitFace == BlockFace.DOWN) {
+            startingVelocity.setY(-startingVelocity.getY());
+        }
+        return startingVelocity;
+    }
+
+    private void performBounce(Arrow arrow, ProjectileHitEvent event, Player player) {
+        if(event.getHitBlock() == null) return;
+
+        BlockFace hitFace = event.getHitBlockFace();
+        Vector velocity = getBounceVelocity(arrow.getVelocity(), hitFace);
+
+        // Offset the spawn location away from the block face
+        Location spawnLocation = arrow.getLocation().clone();
+        Vector offset = hitFace.getDirection().multiply(0.5); // Move 0.5 blocks away from the wall
+        spawnLocation.add(offset);
+
+        arrow.remove();
+
+        // Spawn the new arrow at the offset location
+        Arrow bouncingArrow = (Arrow) spawnLocation.getWorld().spawnEntity(spawnLocation, EntityType.ARROW);
+        bouncingArrow.setVelocity(velocity.multiply(BOUNCE_STRENGTH_MULT));
+        bouncingArrow.setShooter(player);
+        bouncingArrow.setPickupStatus(Arrow.PickupStatus.CREATIVE_ONLY);
+
+        setArrowOfSkill(bouncingArrow, true);
+        arrows.add(bouncingArrow);
+
+        Location soundLocation = event.getHitBlock().getLocation();
+        dc.getSoundManager().playSound(soundLocation, CustomSound.SKILL_RANGER_SONAR_ARROW_BOUNCE);
+    }
+
+    private void performSonar(Player player, Arrow arrow, Entity hit) {
+        new BukkitRunnable() {
+            int pulse = 0;
+
+            @Override
+            public void run() {
+                pulse++;
+                if (pulse == 4) {
+                    cancel();
+                    return;
+                }
+
+                dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_SCAN);
+                runSonarScan(player, arrow, hit, pulse);
+            }
+        }.runTaskTimer(dc.getPlugin(), 0, 3 * 20L);
+    }
+
+    private void runSonarScan(Player player, Arrow arrow, Entity hit, int pulseNumber) {
+        Set<Entity> detectedEntities = new HashSet<>();
+        List<Double> ranges = getDetectionRadiusList(3);
+        int divider = 64;
+
+        new BukkitRunnable() {
+            int wave = 3;
+
+            @Override
+            public void run() {
+                if (wave == 0) {
+                    cancel();
+                    return;
+                }
+
+                double range = ranges.get(ranges.size() - wave);
+                Set<Vector> points = ShapeUtil.sphere(range, false, 0, divider / wave);
+
+                Location loc = arrow.getLocation();
+                if (hit != null) {
+                    loc = hit.getLocation();
+                }
+
+                // Spawn particles
+                spawnSonarParticles(loc, points, player);
+
+                // Find and mark entities
+                boolean entityDetected = detectAndMarkEntities(player, arrow, loc, range, detectedEntities);
+
+                if (entityDetected) {
+                    dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_DETECT);
+                }
+
+                wave--;
+            }
+        }.runTaskTimer(dc.getPlugin(), 0, 10L / 3);
+    }
+
+    private void spawnSonarParticles(Location center, Set<Vector> points, Player player) {
+        Particle.DustOptions dustOptions = new Particle.DustOptions(
+                dc.getTeamManager().getTeamFromEntity(player).getColor(),
+                1
+        );
+
+        for (Vector point : points) {
+            center.getWorld().spawnParticle(
+                    Particle.DUST,
+                    center.clone().add(point),
+                    1, 0, 0, 0, 0,
+                    dustOptions,
+                    true
+            );
+        }
+    }
+
+    private boolean detectAndMarkEntities(Player player, Arrow arrow, Location center,
+                                          double range, Set<Entity> alreadyDetected) {
+        boolean foundNewEntity = false;
+
+        for (Entity entity : arrow.getNearbyEntities(range, range, range)) {
+            // Skip if already detected
+            if (alreadyDetected.contains(entity))
+                continue;
+
+            // Skip if not living
+            if (!(entity instanceof LivingEntity))
+                continue;
+
+            LivingEntity livingEntity = (LivingEntity) entity;
+
+            // Skip if on same team
+            if (dc.getTeamManager().getTeamFromEntity(player)
+                    .equals(dc.getTeamManager().getTeamFromEntity(livingEntity)))
+                continue;
+
+            // Mark entity as detected
+            livingEntity.setGlowing(true);
+            alreadyDetected.add(livingEntity);
+            foundNewEntity = true;
+
+            // Schedule glow removal
+            scheduleGlowRemoval(livingEntity);
+        }
+
+        return foundNewEntity;
+    }
+
+    private void scheduleGlowRemoval(LivingEntity entity) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                entity.setGlowing(false);
+            }
+        }.runTaskLater(dc.getPlugin(), 2 * 20L);
+    }
+
+
 
     private static List<Double> getDetectionRadiusList(int divisions) {
         List<Double> radius_list = new ArrayList<>();
@@ -44,196 +231,12 @@ public class SonarArrow extends Skill implements ReloadableData {
         return radius_list;
     }
 
-    public SonarArrow(DomainController dc) {
-        super(dc, "Sonar Arrow", SkillId.SONAR_ARROW, SkillType.BOW, ClassType.RANGER);
-    }
-
-    @EventHandler
-    public void onPlayerLeftClick(PlayerLeftClickEvent event) {
-        boolean success = activate(event.getPlayer().getUniqueId(), event);
-
-        if (!success) {
-            return;
-        }
-
-        primed.add(event.getPlayer().getUniqueId());
-    }
-
-    @EventHandler
-    public void onArrowLaunch(ProjectileLaunchEvent event) {
-        if (!(event.getEntity() instanceof Arrow))
-            return;
-
-        Arrow arrow = (Arrow) event.getEntity();
-
-        if (!(arrow.getShooter() instanceof Player))
-            return;
-
-        Player player = (Player) arrow.getShooter();
-
-        if (!primed.contains(player.getUniqueId()))
-            return;
-
-
-        arrow.setMetadata("sonar", new FixedMetadataValue(dc.getPlugin(), true));
-        if (player.isSneaking()) {
-            bouncingArrows.add(arrow);
-        }
-        primed.remove(player.getUniqueId());
-
-        particleTrail.add(arrow);
-
-    }
-
-    @EventHandler
-    public void onArrowHit(ProjectileHitEvent event) {
-        if (!(event.getEntity() instanceof Arrow))
-            return;
-
-        Arrow arrow = (Arrow) event.getEntity();
-
-        if (!arrow.hasMetadata("sonar"))
-            return;
-
-        Player player = (Player) arrow.getShooter();
-
-        Block block = event.getHitBlock();
-
-        particleTrail.remove(arrow);
-
-        if(block != null && bouncingArrows.contains(arrow)) {
-            event.setCancelled(true);
-            bouncingArrows.remove(arrow);
-            performBounce(arrow, event, player);
-
-            return;
-        }
-
-        performSonar(player, arrow, event.getHitEntity());
-    }
-
-    private void performBounce(Arrow arrow, ProjectileHitEvent event, Player player) {
-        arrow.removeMetadata("bounce", dc.getPlugin());
-        Vector velocity = arrow.getVelocity();
-
-        BlockFace faceHit = event.getHitBlockFace();
-        if (faceHit == BlockFace.EAST || faceHit == BlockFace.WEST) {
-            velocity.setX(-velocity.getX());
-        } else if (faceHit == BlockFace.NORTH || faceHit == BlockFace.SOUTH) {
-            velocity.setZ(-velocity.getZ());
-        } else if (faceHit == BlockFace.UP || faceHit == BlockFace.DOWN) {
-            velocity.setY(-velocity.getY());
-        }
-
-        arrow.remove();
-
-        // Spawn the new arrow at the location where the old one hit
-        Arrow bouncingArrow = (Arrow) arrow.getWorld().spawnEntity(arrow.getLocation(), EntityType.ARROW);
-        bouncingArrow.setVelocity(velocity.multiply(BOUNCE_STRENGTH_MULT));
-        bouncingArrow.setShooter(player);
-
-        bouncingArrow.setMetadata("sonar", new FixedMetadataValue(dc.getPlugin(), true));
-
-        particleTrail.add(bouncingArrow);
-        Location soundLocation = event.getHitBlock().getLocation();
-        dc.getSoundManager().playSound(soundLocation, CustomSound.SKILL_RANGER_SONAR_ARROW_BOUNCE);
-    }
-
-    private void performSonar(Player player, Arrow arrow, Entity hit) {
-        new BukkitRunnable() {
-            int x = 0;
-            Set<Entity> entities = new HashSet<>();
-            List<Double> ranges = getDetectionRadiusList(3);
-
-            int devider = 64;
-
-            @Override
-            public void run() {
-                x++;
-                if (x == 4) {
-                    cancel();
-                    return;
-                }
-
-                dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_SCAN);
-
-                new BukkitRunnable() {
-                    int y = 3;
-                    DomainController dc = SonarArrow.super.dc;
-                    boolean hitFlag = false;
-
-                    @Override
-                    public void run() {
-                        if (y == 0) {
-                            cancel();
-                            return;
-                        }
-
-                        double range = ranges.get(ranges.size() - y);
-                        Set<Vector> points = ShapeUtil.sphere(range, false, 0, devider / y);
-
-                        Location loc = arrow.getLocation();
-                        if (hit != null) {
-                            loc = hit.getLocation();
-                        }
-
-                        // Spawn particles
-                        for (Vector point : points) {
-                            Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity(player).getColor(), 1);
-                            loc.getWorld().spawnParticle(Particle.DUST, loc.clone().add(point), 1, 0, 0, 0, 0, dustOptions, true);
-                        }
-
-                        // Find entities
-                        for (Entity entity : arrow.getNearbyEntities(range, range, range)) {
-
-                            // Skip if already glowing
-                            if (entities.contains(entity))
-                                continue;
-
-                            // Skip if not living
-                            if (!(entity instanceof LivingEntity))
-                                continue;
-
-                            LivingEntity livingEntity = (LivingEntity) entity;
-
-                            // Skip if on same team
-                            if (dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(livingEntity)))
-                                continue;
-
-                            livingEntity.setGlowing(true);
-                            entities.add(livingEntity);
-
-                            hitFlag = true;
-
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    livingEntity.setGlowing(false);
-                                }
-                            }.runTaskLater(dc.getPlugin(), 2 * 20L);
-                        }
-
-                        if(hitFlag) {
-                            dc.getSoundManager().playSound(player, CustomSound.SKILL_RANGER_SONAR_ARROW_DETECT);
-                            hitFlag = false;
-                        }
-                        y -= 1;
-                    }
-                }.runTaskTimer(dc.getPlugin(), 0, 10L / 3);
-
-                entities.clear();
-
-
-            }
-        }.runTaskTimer(dc.getPlugin(), 0, 3 * 20L);
-    }
-
     @EventHandler
     public void onUpdate(UpdateEvent event) {
         if (event.getUpdateType() != UpdateType.TICK)
             return;
 
-        for (Arrow arrow : particleTrail) {
+        for (Arrow arrow : arrows) {
             Location loc = arrow.getLocation();
             Particle.DustOptions dustOptions = new Particle.DustOptions(dc.getTeamManager().getTeamFromEntity((Player) arrow.getShooter()).getColor(), 1);
             loc.getWorld().spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, dustOptions, true);
@@ -266,6 +269,8 @@ public class SonarArrow extends Skill implements ReloadableData {
 
         return super.canUseHook(uuid, event);
     }
+
+
 
     @Override
     public List<Component> getDescription(int skillLevel) {

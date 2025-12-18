@@ -2,7 +2,7 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.skill.ChargeSkill;
+import com.bindothorpe.champions.domain.skill.subSkills.ChargeSkill;
 import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;

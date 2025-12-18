@@ -3,6 +3,7 @@ package com.bindothorpe.champions.domain.skill.skills.ranger;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
+import com.bindothorpe.champions.domain.skill.subSkills.PrimeArrowSkill;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.util.ChatUtil;
@@ -22,51 +23,30 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class RopedArrow extends Skill implements ReloadableData {
-
-    private final Set<UUID> primed = new HashSet<>();
-    private final Set<UUID> arrows = new HashSet<>();
+public class RopedArrow extends PrimeArrowSkill implements ReloadableData {
 
     public RopedArrow(DomainController dc) {
         super(dc, "Roped Arrow", SkillId.ROPED_ARROW, SkillType.BOW, ClassType.RANGER);
     }
 
-    @EventHandler
-    public void onLeftClick(PlayerLeftClickEvent event) {
-        Player player = event.getPlayer();
-        if(!activate(player.getUniqueId(), event)) return;
-
-        primed.add(player.getUniqueId());
-        dc.getSoundManager().playSound(player, CustomSound.SKILL_ROPED_ARROW_PRIME);
-    }
-
-    @EventHandler
-    public void handleBowShoot(EntityShootBowEvent event) {
-        if(!(event.getProjectile() instanceof Arrow arrow)) return;
-
-        if(!(event.getEntity() instanceof Player player)) return;
-
-        if(!isUser(player.getUniqueId())) return;
-
-        if(!primed.remove(player.getUniqueId())) return;
-
-        //TODO: You fired X message
-        arrows.add(arrow.getUniqueId());
-    }
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
         if(!(event.getEntity() instanceof Arrow arrow)) return;
 
-        if(!arrows.remove(arrow.getUniqueId())) return;
+        if(isArrowOfSkill(arrow)) return;
 
         if(!(arrow.getShooter() instanceof Player player)) return;
 
         if(!isUser(player.getUniqueId())) return;
 
+        performRopedArrow(player, arrow);
+        arrows.remove(arrow);
+    }
+
+    private void performRopedArrow(Player player, Arrow arrow) {
         Vector direction = MobilityUtil.directionTo(player.getLocation(), arrow.getLocation()).normalize();
         double multiplier = arrow.getVelocity().length() / 1.2D;
-        System.out.println(arrow.getVelocity().length());
         MobilityUtil.launch(
                 player,
                 direction,
@@ -77,7 +57,6 @@ public class RopedArrow extends Skill implements ReloadableData {
                 1.2D * multiplier,
                 true);
         dc.getSoundManager().playSound(player, CustomSound.SKILL_ROPED_ARROW_PRIME);
-
     }
 
 

@@ -121,6 +121,11 @@ public abstract class Skill implements Listener {
     }
 
     protected final boolean activate(UUID uuid, Event event, boolean startCooldownOnSuccess) {
+        return activate(uuid, event, startCooldownOnSuccess, true);
+    }
+
+
+    protected final boolean activate(UUID uuid, Event event, boolean startCooldownOnSuccess, boolean sendActivationMessageOnSuccess) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null)
             return false;
@@ -135,14 +140,12 @@ public abstract class Skill implements Listener {
         SkillUseEvent skillUseEvent = new SkillUseEvent(player, getId(), users.get(uuid));
         Bukkit.getPluginManager().callEvent(skillUseEvent);
 
-        if (skillUseEvent.isCancelled())
-            return false;
+        if (skillUseEvent.isCancelled()) return false;
 
-        ChatUtil.sendSkillMessage(player, getName(), users.get(uuid));
 
-        if(startCooldownOnSuccess) {
-            startCooldown(uuid);
-        }
+        if(sendActivationMessageOnSuccess) ChatUtil.sendSkillMessage(player, getName(), users.get(uuid));
+
+        if(startCooldownOnSuccess) startCooldown(uuid);
 
         return true;
     }
