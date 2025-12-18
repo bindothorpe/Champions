@@ -64,11 +64,9 @@ public class StatusEffectData {
         endTimestampMap.remove(sourceKey);
         BukkitTask task = endOfEffectTask.remove(sourceKey);
 
-        if(task == null) {
-            return;
-        }
+        if(task != null) task.cancel();
 
-        task.cancel();
+
     }
 
     /**

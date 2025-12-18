@@ -59,6 +59,6 @@ public class StatusEffectManager {
         if(effect == null)
             throw new IllegalArgumentException("Status effect " + type + " has not been registered yet");
 
-        return statusEffectMap.get(type).getActiveUserUUIDs().contains(uuid);
+        return statusEffectMap.get(type).isActive(uuid);
     }
 }

@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -87,6 +88,7 @@ public class Isolation extends Skill implements ReloadableData {
 
             for(Entity entity : player.getNearbyEntities(10, 10, 10)) {
                 if(!isIsolated(entity)) continue;
+                if(dc.getStatusEffectManager().hasStatusEffect(StatusEffectType.TRUE_INVISIBLE, entity.getUniqueId())) continue;
                 playIsolationParticle(player, (LivingEntity) entity);
             }
 

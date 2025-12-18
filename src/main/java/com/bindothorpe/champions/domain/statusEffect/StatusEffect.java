@@ -53,6 +53,7 @@ public abstract class StatusEffect implements Listener {
         handleEntityValueChanged(uuid);
     }
 
+    @Deprecated
     public Set<UUID> getActiveUserUUIDs() {
         return activeEntitiesDataMap.keySet();
     }

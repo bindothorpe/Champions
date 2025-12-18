@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.skill.AttemptResult;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.util.belowName.BelowNameUtil;
 import it.unimi.dsi.fastutil.Hash;
@@ -37,18 +38,16 @@ public class TestSkill extends Skill {
 
         Player player = event.getPlayer();
 
-        if(active.contains(player.getUniqueId())) {
-            BelowNameUtil.clear(player);
-        } else {
-            BelowNameUtil.display(player, Component.text("You are gay", NamedTextColor.YELLOW));
-        }
+        boolean isTrueInvis = dc.getStatusEffectManager().hasStatusEffect(StatusEffectType.TRUE_INVISIBLE, player.getUniqueId());
+
+        player.sendMessage(String.format("Invis: %s", isTrueInvis));
     }
 
     @Override
     protected AttemptResult canUseHook(UUID uuid, Event event) {
         if(!(event instanceof PlayerRightClickEvent rightClickEvent)) return AttemptResult.FALSE;
 
-        if(rightClickEvent.isSword()) return AttemptResult.FALSE;
+        if(!rightClickEvent.isSword()) return AttemptResult.FALSE;
 
         return super.canUseHook(uuid, event);
     }
