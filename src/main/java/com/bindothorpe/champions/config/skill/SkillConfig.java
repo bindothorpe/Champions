@@ -20,11 +20,7 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.assassin.back_stab.max_level", 1);
         getFile().addDefault("skills.assassin.back_stab.level_up_cost", 2);
         getFile().addDefault("skills.assassin.back_stab.damage_mod", 4.0);
-        // Quick_step Step
-        getFile().addDefault("skills.assassin.quick_step.max_level", 1);
-        getFile().addDefault("skills.assassin.quick_step.level_up_cost", 2);
-        getFile().addDefault("skills.assassin.quick_step.launch_strength", 1.2);
-        // Quick_step Step
+        // Isolation
         getFile().addDefault("skills.assassin.isolation.max_level", 1);
         getFile().addDefault("skills.assassin.isolation.level_up_cost", 2);
         getFile().addDefault("skills.assassin.isolation.radius", 3.0);
@@ -330,6 +326,10 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.ranger.bouncing_arrow.bounce_count_increase_per_level", 1);
         getFile().addDefault("skills.ranger.bouncing_arrow.base_bounce_distance", 5.0);
         getFile().addDefault("skills.ranger.bouncing_arrow.bounce_distance_increase_per_level", 3.0);
+        // Quick Step
+        getFile().addDefault("skills.ranger.quick_step.max_level", 1);
+        getFile().addDefault("skills.ranger.quick_step.level_up_cost", 2);
+        getFile().addDefault("skills.ranger.quick_step.launch_strength", 1.2);
         // Hunters Heart
         getFile().addDefault("skills.ranger.hunters_heart.max_level", 3);
         getFile().addDefault("skills.ranger.hunters_heart.level_up_cost", 1);

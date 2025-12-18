@@ -7,13 +7,18 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.util.MobilityUtil;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 
+import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,19 +31,31 @@ public class QuickStep extends Skill implements ReloadableData {
     private final Map<UUID, Vector> lastMoveDirectionMap = new HashMap<>();
 
     public QuickStep(DomainController dc) {
-        super(dc, "Quick Step", SkillId.QUICK_STEP, SkillType.PASSIVE_B, ClassType.ASSASSIN);
+        super(dc, "Quick Step", SkillId.QUICK_STEP, SkillType.PASSIVE_B, ClassType.RANGER);
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if(!isUser(event.getPlayer().getUniqueId())) return;
-        lastMoveDirectionMap.put(event.getPlayer().getUniqueId(), MobilityUtil.directionTo(event.getFrom(), event.getTo()));
+
+        // Check if player actually moved position (not just rotated view)
+        if(event.getFrom().getX() == event.getTo().getX()
+                && event.getFrom().getZ() == event.getTo().getZ()) {
+            // Player didn't move horizontally - clear their direction
+            lastMoveDirectionMap.remove(event.getPlayer().getUniqueId());
+            return;
+        }
+
+        // Player is moving - store their direction
+        lastMoveDirectionMap.put(event.getPlayer().getUniqueId(),
+                MobilityUtil.directionTo(event.getFrom(), event.getTo()));
     }
 
     @EventHandler
-    public void onCustomDamage(CustomDamageEvent event) {
-        if(event.isCancelled()) return;
-        if(!(event.getDamager() instanceof Player player)) return;
+    public void onArrowShoot(ProjectileLaunchEvent event) {
+        if(!(event.getEntity() instanceof Arrow arrow)) return;
+
+        if(!(arrow.getShooter() instanceof Player player)) return;
 
         if(!isUser(player)) return;
 
@@ -54,6 +71,8 @@ public class QuickStep extends Skill implements ReloadableData {
                 true
         );
     }
+
+
 
     @Override
     public List<Component> getDescription(int skillLevel) {
