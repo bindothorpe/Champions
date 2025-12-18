@@ -112,6 +112,7 @@ public class LotusTrapItem extends GameItem {
         if (!dc.getTeamManager().areEntitiesOnDifferentTeams(entity, getOwner())) return;
 
         isTriggered = true;
+        makeVisibleToAll();
         new Timer(dc.getPlugin(), triggerDelay, this::remove).start();
     }
 
@@ -158,6 +159,7 @@ public class LotusTrapItem extends GameItem {
     private void spawnLargeCircleParticles() {
         largeCirclePoints().forEach(point -> {
             Location loc = getItem().getLocation().clone().add(point);
+            // After triggered, particles are visible to everyone
             getItem().getWorld().spawnParticle(
                     Particle.DUST, loc, 1,
                     new Particle.DustOptions(PARTICLE_COLOR, PARTICLE_SIZE)
@@ -258,8 +260,24 @@ public class LotusTrapItem extends GameItem {
                                     )
                                     .translate(-0.5f, -1f, -0.5f)
                     );
+                    // Make block display only visible to teammates until triggered
+                    entity.setVisibleByDefault(false);
+                    dc.getTeamManager().getPlayersOnTeamOfEntity(getOwner())
+                            .forEach(player -> player.showEntity(dc.getPlugin(), entity));
                 }
         );
+    }
+
+    private void makeVisibleToAll() {
+        // Make block display visible to everyone when triggered
+        if (blockDisplay != null) {
+            blockDisplay.setVisibleByDefault(true);
+        }
+
+        // Make text display visible to everyone when triggered (if enabled)
+        if (textDisplay != null) {
+            textDisplay.setVisibleByDefault(true);
+        }
     }
 
     private void updateTimer() {
