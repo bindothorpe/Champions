@@ -21,16 +21,15 @@ public class MagePassive extends Skill implements ReloadableData {
     }
 
     @Override
-    public void addUser(UUID uuid, int skillLevel) {
-        super.addUser(uuid, skillLevel);
+    public void onAddUser(UUID uuid) {
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.COOLDOWN_REDUCTION, 0.1, -1.0, true, false, this));
     }
 
     @Override
-    public void removeUser(UUID uuid) {
-        super.removeUser(uuid);
+    public void onRemoveUser(UUID uuid) {
         dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.COOLDOWN_REDUCTION, this);
     }
+
 
     @Override
     public List<Component> getDescription(int skillLevel) {

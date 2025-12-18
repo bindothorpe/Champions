@@ -38,6 +38,13 @@ public class BullsCharge extends Skill implements ReloadableData {
     }
 
     @Override
+    public void onRemoveUser(UUID uuid) {
+        activeMap.remove(uuid);
+        dc.getStatusEffectManager().removeStatusEffectFromPlayer(StatusEffectType.SPEED, uuid, getNamespacedKey(uuid));
+
+    }
+
+    @Override
     protected AttemptResult canUseHook(UUID uuid, Event event) {
         if (!(event instanceof PlayerRightClickEvent playerRightClickEvent))
             return AttemptResult.FALSE;

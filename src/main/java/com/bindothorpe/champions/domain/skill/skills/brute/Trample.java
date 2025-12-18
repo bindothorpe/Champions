@@ -46,6 +46,12 @@ public class Trample extends Skill implements ReloadableData {
     }
 
     @Override
+    public void onRemoveUser(UUID uuid) {
+        lastTrampleTimestamps.remove(uuid);
+        activeTramplesRemaining.remove(uuid);
+    }
+
+    @Override
     public List<Component> getDescription(int skillLevel) {
         return List.of();
     }

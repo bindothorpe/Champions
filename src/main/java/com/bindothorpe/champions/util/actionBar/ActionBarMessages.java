@@ -20,7 +20,7 @@ public class ActionBarMessages {
         removeOldActionBarLogs();
         return actionBarLogs.stream()
                 .filter(log -> System.currentTimeMillis() - log.timestamp() <= ACTION_BAR_DURATION)
-                .min(Comparator.comparingInt(log -> log.priority().ordinal()))
+                .min(Comparator.comparingInt(log -> -log.priority().ordinal()))
                 .orElse(null);
     }
 

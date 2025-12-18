@@ -57,19 +57,25 @@ public abstract class Skill implements Listener {
     }
 
 
-    public SkillId getId() {
+    public final SkillId getId() {
         return id;
     }
 
-    public void addUser(UUID uuid, int skillLevel) {
+    public final void addUser(UUID uuid, int skillLevel) {
         users.put(uuid, skillLevel);
+        onAddUser(uuid);
     }
+    public void onAddUser(UUID uuid) {}
 
-    public void removeUser(UUID uuid) {
+
+    public final void removeUser(UUID uuid) {
         users.remove(uuid);
+        onRemoveUser(uuid);
     }
 
-    public String getName() {
+    public void onRemoveUser(UUID uuid) {}
+
+    public final String getName() {
         return name;
     }
 
@@ -90,7 +96,7 @@ public abstract class Skill implements Listener {
         return LEVEL_UP_COST;
     }
 
-    protected void startCooldown(UUID uuid, double overwriteCooldown) {
+    protected final void startCooldown(UUID uuid, double overwriteCooldown) {
 
         double duration = 0;
 
@@ -111,7 +117,7 @@ public abstract class Skill implements Listener {
         dc.getCooldownManager().startCooldown(uuid, this, duration - cooldownReduction);
     }
 
-    protected void startCooldown(UUID uuid) {
+    protected final void startCooldown(UUID uuid) {
         startCooldown(uuid, -1);
     }
 
@@ -150,7 +156,7 @@ public abstract class Skill implements Listener {
         return true;
     }
 
-    protected AttemptResult canUse(UUID uuid, Event event) {
+    protected final AttemptResult canUse(UUID uuid, Event event) {
 
         if (!users.containsKey(uuid))
             return new AttemptResult(false);
@@ -181,11 +187,11 @@ public abstract class Skill implements Listener {
         return new AttemptResult(true);
     }
 
-    public boolean isOnCooldown(UUID uuid) {
+    public final boolean isOnCooldown(UUID uuid) {
         return dc.getCooldownManager().isOnCooldown(uuid, this);
     }
 
-    private double getCooldownRemaining(UUID uuid) {
+    private final double getCooldownRemaining(UUID uuid) {
         return dc.getCooldownManager().getCooldownRemaining(uuid, this);
     }
 
@@ -193,37 +199,37 @@ public abstract class Skill implements Listener {
         return new AttemptResult(true);
     }
 
-    protected boolean isUser(UUID uuid) {
+    protected final boolean isUser(UUID uuid) {
         return users.containsKey(uuid);
     }
 
-    protected boolean isUser(@Nullable Player player) {
+    protected final boolean isUser(@Nullable Player player) {
         if(player == null) return false;
         return isUser(player.getUniqueId());
     }
 
-    public SkillType getSkillType() {
+    public final SkillType getSkillType() {
         return skillType;
     }
 
-    public ClassType getClassType() {
+    public final ClassType getClassType() {
         return classType;
     }
 
-    protected int getSkillLevel(UUID uuid) {
+    protected final int getSkillLevel(UUID uuid) {
         if(users.get(uuid) == null) return -1;
         return users.get(uuid);
     }
 
-    protected int getSkillLevel(@NotNull Player player) {
+    protected final int getSkillLevel(@NotNull Player player) {
         return getSkillLevel(player.getUniqueId());
     }
 
-    protected Set<UUID> getUsers() {
+    protected final Set<UUID> getUsers() {
         return users.keySet();
     }
 
-    protected Set<Player> getOnlineAlivePlayerUsers() {
+    protected final Set<Player> getOnlineAlivePlayerUsers() {
         return users.keySet().stream()
                 .map((Bukkit::getPlayer))
                 .filter(player -> player != null && player.isOnline() && !player.isDead())
@@ -235,10 +241,13 @@ public abstract class Skill implements Listener {
         if (!equals(event.getSource()))
             return;
 
+        if(!isUser(event.getUuid())) return;
+
         Player player = Bukkit.getPlayer(event.getUuid());
 
         if (player == null)
             return;
+
 
         ChatUtil.sendMessage(player, ChatUtil.Prefix.COOLDOWN, Component.text("You can use ").color(NamedTextColor.GRAY)
                 .append(Component.text(this.name).color(NamedTextColor.YELLOW))
@@ -255,12 +264,12 @@ public abstract class Skill implements Listener {
     public void onCooldownEnd(UUID uuid, Object source) {
     }
 
-    protected NamespacedKey getNamespacedKey(@NotNull Player player) {
+    protected final NamespacedKey getNamespacedKey(@NotNull Player player) {
         return getNamespacedKey(player.getUniqueId());
     }
 
 
-    protected NamespacedKey getNamespacedKey(@NotNull UUID playerUUID) {
+    protected final NamespacedKey getNamespacedKey(@NotNull UUID playerUUID) {
         return new NamespacedKey(dc.getPlugin(), String.format("%s_%s", playerUUID, getId()));
     }
 

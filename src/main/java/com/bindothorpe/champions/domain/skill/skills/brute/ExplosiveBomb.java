@@ -19,12 +19,20 @@ import java.util.*;
 
 public class ExplosiveBomb extends Skill implements ReloadableData {
 
-    private Map<UUID, GameItem> explosiveBombs = new HashMap<>();
+    private final Map<UUID, GameItem> explosiveBombs = new HashMap<>();
     private static double BASE_DAMAGE;
     private static double DAMAGE_INCREASE_PER_LEVEL;
 
     public ExplosiveBomb(DomainController dc) {
         super(dc, "Explosive Bomb", SkillId.EXPLOSIVE_BOMB, SkillType.AXE, ClassType.BRUTE);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        GameItem gameItem = explosiveBombs.remove(uuid);
+        if(gameItem == null) return;
+
+        gameItem.remove();
     }
 
     @EventHandler

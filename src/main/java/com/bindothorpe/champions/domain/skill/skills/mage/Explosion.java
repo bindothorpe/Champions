@@ -26,6 +26,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class Explosion extends Skill implements ReloadableData {
     private Map<UUID, ArmorStand> explosionOrbsMap;
     private Map<UUID, Vector> directionMap;
@@ -43,6 +44,12 @@ public class Explosion extends Skill implements ReloadableData {
         directionMap = new HashMap<UUID, Vector>();
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        ArmorStand armorStand = explosionOrbsMap.remove(uuid);
+        if(armorStand != null) armorStand.remove();
+        directionMap.remove(uuid);
+    }
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent event) {

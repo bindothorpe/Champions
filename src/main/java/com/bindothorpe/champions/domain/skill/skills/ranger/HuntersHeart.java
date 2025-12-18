@@ -39,6 +39,12 @@ public class HuntersHeart extends Skill implements ReloadableData {
         super(dc, "Hunter's Heart", SkillId.HUNTERS_HEART, SkillType.PASSIVE_B, ClassType.RANGER);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        active.remove(uuid);
+        int taskId = taskIdMap.remove(uuid);
+        dc.getPlugin().getServer().getScheduler().cancelTask(taskId);
+    }
 
     @EventHandler
     public void onUpdate(UpdateEvent event) {

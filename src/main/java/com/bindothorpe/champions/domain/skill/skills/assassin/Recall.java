@@ -27,6 +27,11 @@ public class Recall extends Skill implements ReloadableData {
         super(dc, "Recall", SkillId.RECALL, SkillType.PASSIVE_A, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        recallLocationMap.remove(uuid);
+    }
+
     @EventHandler
     public void onItemDrop(PlayerDropItemWrapperEvent event) {
         if(event.getPlayer() == null) return;

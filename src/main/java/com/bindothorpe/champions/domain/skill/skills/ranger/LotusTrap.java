@@ -44,9 +44,24 @@ public class LotusTrap extends Skill implements ReloadableData {
 
     private final Map<UUID, Integer> trapCharges = new HashMap<>();
     private final Map<UUID, Timer> timerMap = new HashMap<>();
+    private final Map<UUID, Set<LotusTrapItem>> lotusTrapItemMap = new HashMap<>();
 
     public LotusTrap(DomainController dc) {
         super(dc, "Lotus Trap", SkillId.LOTUS_TRAP, SkillType.PASSIVE_A, ClassType.RANGER);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        // Remove all remaining lotus trap items
+        Set<LotusTrapItem> traps = lotusTrapItemMap.get(uuid);
+        if(traps == null) return;
+        if(!traps.isEmpty()) {
+            for(LotusTrapItem item : traps) {
+                item.remove();
+            }
+        }
+
+        lotusTrapItemMap.remove(uuid);
     }
 
     @EventHandler
@@ -59,7 +74,7 @@ public class LotusTrap extends Skill implements ReloadableData {
 
         trapCharges.put(uuid, trapCharges.get(uuid) - 1);
 
-        GameItem item = new LotusTrapItem(
+        LotusTrapItem item = new LotusTrapItem(
                 dc,
                 event.getPlayer(),
                 DETECTION_RADIUS,
@@ -78,6 +93,11 @@ public class LotusTrap extends Skill implements ReloadableData {
                 event.getPlayer().getLocation().getDirection(),
                 LAUNCH_STRENGTH // 0.4
         );
+
+        lotusTrapItemMap.computeIfAbsent(uuid, k -> new HashSet<>());
+        lotusTrapItemMap.get(uuid).add(item);
+        item.onRemove = () -> lotusTrapItemMap.get(uuid).remove(item);
+
     }
 
     @Override

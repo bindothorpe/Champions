@@ -33,6 +33,13 @@ public class Claw extends Skill implements ReloadableData {
         super(dc, "Claw", SkillId.CLAW, SkillType.SWORD, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        attachedMap.remove(uuid);
+        offsetMap.remove(uuid);
+        startingDirectionMap.remove(uuid);
+    }
+
     @EventHandler
     public void onRightClickEntity(PlayerRightClickEvent event) {
         Player player = event.getPlayer();

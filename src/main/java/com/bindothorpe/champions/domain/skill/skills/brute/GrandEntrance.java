@@ -46,6 +46,12 @@ public class GrandEntrance extends Skill implements ReloadableData {
         super(dc, "Grand Entrance", SkillId.GRAND_ENTRANCE, SkillType.AXE, ClassType.BRUTE);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        active.remove(uuid);
+        active2.remove(uuid);
+    }
+
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();

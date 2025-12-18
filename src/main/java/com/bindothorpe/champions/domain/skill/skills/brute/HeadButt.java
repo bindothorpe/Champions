@@ -52,6 +52,12 @@ public class HeadButt extends Skill implements ReloadableData {
         super(dc, "Head Butt", SkillId.HEAD_BUTT, SkillType.AXE, ClassType.BRUTE);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        active.remove(uuid);
+        startingLocations.remove(uuid);
+    }
+
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
         if (!activate(event.getPlayer().getUniqueId(), event)) {

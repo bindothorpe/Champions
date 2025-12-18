@@ -32,6 +32,8 @@ public abstract class GameItem {
     private double blockCollisionRadius = -1;
     private BlockCollisionMode blockCollisionMode = BlockCollisionMode.ALL_SIDES;
 
+    public Runnable onRemove;
+
     public GameItem(DomainController dc, Material material, double duration, Entity owner, double entityCollisionRadius, double blockCollisionRadius) {
         this.dc = dc;
         this.material = material;
@@ -57,6 +59,7 @@ public abstract class GameItem {
 
     public void remove() {
         onDespawn();
+        if(onRemove != null) onRemove.run();
         item.remove();
     }
 

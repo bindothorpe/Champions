@@ -43,6 +43,10 @@ public class Evade extends Skill implements ReloadableData {
         super(dc, "Evade", SkillId.EVADE, SkillType.SWORD, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        activeBlockingUsersStartTimeMap.remove(uuid);
+    }
 
     @EventHandler
     public void onStartBlocking(PlayerStartBlockingEvent event) {

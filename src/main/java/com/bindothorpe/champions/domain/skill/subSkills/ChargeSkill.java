@@ -34,6 +34,12 @@ public abstract class ChargeSkill extends Skill {
         super(dc, name, id, skillType, classType);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        chargeMap.remove(uuid);
+        maxCharged.remove(uuid);
+    }
+
     protected int getMaxCharge(UUID uuid) {
         if(!isUser(uuid))
             return -1;

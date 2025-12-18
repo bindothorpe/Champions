@@ -44,6 +44,13 @@ public class Flash extends Skill implements ReloadableData {
         super(dc, "Flash", SkillId.FLASH, SkillType.AXE, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        flashCharges.remove(uuid);
+        Timer timer = timerMap.remove(uuid);
+        if(timer != null) timer.stop();
+    }
+
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();

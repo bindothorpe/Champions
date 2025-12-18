@@ -37,6 +37,16 @@ public class SmokeBomb extends Skill implements ReloadableData {
         super(dc, "Smoke Bomb", SkillId.SMOKE_BOMB, SkillType.PASSIVE_A, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        Timer timer = activeInvisiblePlayersMap.remove(uuid);
+        if(timer == null) return;
+
+        timer.stopAndExecute();
+
+        dc.getStatusEffectManager().removeStatusEffectFromPlayer(StatusEffectType.TRUE_INVISIBLE, uuid, getNamespacedKey(uuid));
+    }
+
     @EventHandler
     public void onItemDrop(PlayerDropItemWrapperEvent event) {
         if(event.getPlayer() == null) return;

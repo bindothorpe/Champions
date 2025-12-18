@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,6 +20,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class KitingArrow extends Skill implements ReloadableData {
@@ -30,6 +32,12 @@ public class KitingArrow extends Skill implements ReloadableData {
 
     public KitingArrow(DomainController dc) {
         super(dc, "Kiting Arrow", SkillId.KITING_ARROW, SkillType.PASSIVE_A, ClassType.RANGER);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);
+        dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @EventHandler

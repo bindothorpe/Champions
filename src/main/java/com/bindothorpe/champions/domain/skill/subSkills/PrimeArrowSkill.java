@@ -34,6 +34,19 @@ public abstract class PrimeArrowSkill extends Skill {
         super(dc, name, id, skillType, classType);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        primed.remove(uuid);
+
+        for(Arrow arrow : arrows) {
+            if(!(arrow.getShooter() instanceof Player player)) continue;
+            if(!player.getUniqueId().equals(uuid)) continue;
+
+            arrow.remove();
+        }
+
+    }
+
     @EventHandler
     public void onPlayerLeftClick(PlayerLeftClickEvent event) {
         if (!activate(event.getPlayer().getUniqueId(), event, true, false)) {

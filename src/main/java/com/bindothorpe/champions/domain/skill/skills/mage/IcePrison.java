@@ -27,8 +27,16 @@ public class IcePrison extends Skill implements ReloadableData {
     private static double LAUNCH_STRENGTH_INCREASE_PER_LEVEL;
     private static double RADIUS;
 
+    private final Map<UUID, IceOrbItem> iceOrbItemMap = new HashMap<>();
+
     public IcePrison(DomainController dc) {
         super(dc, "Ice Prison", SkillId.ICE_PRISON, SkillType.AXE, ClassType.MAGE);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        IceOrbItem iceOrbItem = iceOrbItemMap.remove(uuid);
+        if(iceOrbItem != null) iceOrbItem.remove();
     }
 
     @EventHandler
@@ -37,11 +45,16 @@ public class IcePrison extends Skill implements ReloadableData {
 
         if (!activate(player.getUniqueId(), event)) return;
 
+        IceOrbItem iceOrbItem = new IceOrbItem(dc, calculateBasedOnLevel(BASE_ORB_DURATION, ORB_DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), calculateBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), player, RADIUS);
+
         dc.getGameItemManager().spawnGameItem(
-                new IceOrbItem(dc, calculateBasedOnLevel(BASE_ORB_DURATION, ORB_DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), calculateBasedOnLevel(BASE_DURATION, DURATION_INCREASE_PER_LEVEL, getSkillLevel(player)), player, RADIUS),
+                iceOrbItem,
                 player.getEyeLocation(),
                 player.getLocation().getDirection(),
                 calculateBasedOnLevel(BASE_LAUNCH_STRENGTH, LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player)));
+
+        iceOrbItemMap.put(player.getUniqueId(), iceOrbItem);
+        iceOrbItem.onRemove = () -> iceOrbItemMap.remove(player.getUniqueId());
     }
 
     @Override

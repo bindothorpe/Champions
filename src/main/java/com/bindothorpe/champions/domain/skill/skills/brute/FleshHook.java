@@ -32,6 +32,14 @@ public class FleshHook extends ChargeSkill implements ReloadableData {
         super(dc, "Flesh Hook", SkillId.FLESH_HOOK, SkillType.SWORD, ClassType.BRUTE);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        super.onRemoveUser(uuid);
+        GameItem gameItem = fleshHookItemMap.remove(uuid);
+        if(gameItem == null) return;
+        gameItem.remove();
+    }
+
     private void handleFleshHookShoot(UUID uuid, int charge) {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null)

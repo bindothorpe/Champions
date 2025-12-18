@@ -26,6 +26,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Deprecated
 public class MagneticPull extends Skill implements ReloadableData {
 
     private final Map<UUID, Set<Arrow>> playerArrowsMap = new HashMap<>();

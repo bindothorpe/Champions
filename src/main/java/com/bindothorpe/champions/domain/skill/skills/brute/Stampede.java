@@ -9,6 +9,7 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
+import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.update.UpdateEvent;
@@ -37,6 +38,14 @@ public class Stampede extends Skill implements ReloadableData {
 
     public Stampede(DomainController dc) {
         super(dc, "Stampede", SkillId.STAMPEDE, SkillType.PASSIVE_B, ClassType.BRUTE);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        stampedeStackMap.remove(uuid);
+        sprintingStartMap.remove(uuid);
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);
+        dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @EventHandler

@@ -33,6 +33,11 @@ public class DefensiveStance extends Skill implements ReloadableData {
         super(dc, "Defensive Stance", SkillId.DEFENSIVE_STANCE, SkillType.SWORD, ClassType.KNIGHT);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        activeBlockingSet.remove(uuid);
+    }
+
     @EventHandler
     public void onStartBlocking(PlayerStartBlockingEvent event) {
         if(!canUse(event.getPlayer().getUniqueId(), event).result()) return;

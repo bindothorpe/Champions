@@ -42,6 +42,13 @@ public class Blink extends Skill implements ReloadableData {
         super(dc, "Blink", SkillId.BLINK, SkillType.AXE, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        Timer timer = recastTimerMap.remove(uuid);
+        if(timer != null) timer.stop();
+        recastLocationMap.remove(uuid);
+    }
+
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();;

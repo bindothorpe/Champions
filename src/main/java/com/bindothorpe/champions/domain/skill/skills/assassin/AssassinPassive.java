@@ -21,16 +21,14 @@ public class AssassinPassive extends Skill implements ReloadableData {
     }
 
     @Override
-    public void addUser(UUID uuid, int skillLevel) {
-        super.addUser(uuid, skillLevel);
+    public void onAddUser(UUID uuid) {
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.MOVEMENT_SPEED, MOVE_SPEED_MOD, -1.0, false, false, this));
         dc.getEntityStatusManager().addEntityStatus(uuid, new EntityStatus(EntityStatusType.KNOCKBACK_DONE, 0.0, -1.0, true, true, this));
         dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
     }
 
     @Override
-    public void removeUser(UUID uuid) {
-        super.removeUser(uuid);
+    public void onRemoveUser(UUID uuid) {
         dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED, this);
         dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.KNOCKBACK_DONE, this);
         dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);

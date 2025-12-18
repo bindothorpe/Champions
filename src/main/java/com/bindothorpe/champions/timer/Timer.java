@@ -66,6 +66,19 @@ public class Timer {
     }
 
     /**
+     * Stops the timer if it is currently running. Cancels the scheduled tasks but executes the
+     * on timeout runnable. If the timer is not running, this method has no effect.
+     */
+    public void stopAndExecute() {
+        if(!isRunning) return;
+        startTimeInMillis = -1L;
+        plugin.getServer().getScheduler().cancelTask(taskId);
+        taskId = -1;
+        isRunning = false;
+        onTimeout.run();
+    }
+
+    /**
      * Gets the remaining time until the timer completes.
      *
      * @return the time remaining in milliseconds, or -1 if the timer is not currently running

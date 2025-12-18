@@ -39,6 +39,11 @@ public class Leap extends Skill implements ReloadableData {
         super(dc, "Leap", SkillId.LEAP, SkillType.AXE, ClassType.ASSASSIN);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        wallKickSet.remove(uuid);
+    }
+
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
         Player player = event.getPlayer();

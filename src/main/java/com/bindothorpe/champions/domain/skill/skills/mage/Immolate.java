@@ -43,6 +43,10 @@ public class Immolate extends Skill implements ReloadableData {
         super(dc, "Immolate", SkillId.IMMOLATE, SkillType.PASSIVE_A, ClassType.MAGE);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        disableImmolate(uuid);
+    }
 
     @EventHandler
     public void onItemDrop(PlayerDropItemWrapperEvent event) {

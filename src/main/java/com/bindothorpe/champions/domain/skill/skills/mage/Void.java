@@ -23,11 +23,6 @@ import java.util.*;
 
 public class Void extends Skill implements ReloadableData {
 
-
-    private static final List<Double> activeDuration = List.of(4D, 5D, 6D);
-    private static final List<Double> durationReductionOnHit = List.of(1D, 0.75D, 0.5D);
-
-
     private static double BASE_ACTIVE_DURATION;
     private static double ACTIVE_DURATION_INCREASE_PER_LEVEL;
     private static double BASE_DURATION_REDUCTION_ON_HIT;
@@ -41,6 +36,10 @@ public class Void extends Skill implements ReloadableData {
         super(dc,"Void", SkillId.VOID, SkillType.PASSIVE_A, ClassType.MAGE);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        disableVoid(uuid);
+    }
 
     @EventHandler
     public void onItemDrop(PlayerDropItemWrapperEvent event) {

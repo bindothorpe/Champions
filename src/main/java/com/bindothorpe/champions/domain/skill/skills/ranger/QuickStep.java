@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain.skill.skills.assassin;
+package com.bindothorpe.champions.domain.skill.skills.ranger;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
@@ -6,11 +6,8 @@ import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
-import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.util.MobilityUtil;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,7 +15,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 
-import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +28,11 @@ public class QuickStep extends Skill implements ReloadableData {
 
     public QuickStep(DomainController dc) {
         super(dc, "Quick Step", SkillId.QUICK_STEP, SkillType.PASSIVE_B, ClassType.RANGER);
+    }
+
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        lastMoveDirectionMap.remove(uuid);
     }
 
     @EventHandler

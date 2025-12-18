@@ -25,8 +25,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class WolfsPounce extends ChargeSkill implements ReloadableData {
-    private final List<Double> collisionDamage = List.of(3d, 4d, 5d);
-    private final Map<UUID, Double> active = new HashMap();
+
+    private final Map<UUID, Double> active = new HashMap<>();
 
     protected  static double BASE_DAMAGE;
     protected  static double DAMAGE_INCREASE_PER_LEVEL;
@@ -43,7 +43,7 @@ public class WolfsPounce extends ChargeSkill implements ReloadableData {
         MobilityUtil.stopVelocity(player);
         active.remove(player.getUniqueId());
 
-        CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, collisionDamage.get(getSkillLevel(player.getUniqueId()) - 1) * chargePercentage, player.getLocation(), CustomDamageSource.SKILL, getName());
+        CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)) * chargePercentage, player.getLocation(), CustomDamageSource.SKILL, getName());
         CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent);
         damageEvent.setCommand(damageCommand);
 

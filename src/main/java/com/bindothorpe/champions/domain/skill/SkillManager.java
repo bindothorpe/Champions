@@ -2,6 +2,7 @@ package com.bindothorpe.champions.domain.skill;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.events.skill.SkillUnequipEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 
@@ -41,6 +42,11 @@ public class SkillManager {
         if(!skillMap.containsKey(skillId))
             throw new IllegalArgumentException(String.format("Skill with id \"%s\" has not been registered. Please make sure that this skill is registered.", skillId));
         skillMap.get(skillId).removeUser(uuid);
+
+        // Call the event
+        if(Bukkit.getPlayer(uuid) != null) {
+            new SkillUnequipEvent(Bukkit.getPlayer(uuid), skillId).callEvent();
+        }
     }
 
     public String getSkillName(SkillId skillId) {

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+@Deprecated()
 public class RopedArrow extends PrimeArrowSkill implements ReloadableData {
 
     public RopedArrow(DomainController dc) {

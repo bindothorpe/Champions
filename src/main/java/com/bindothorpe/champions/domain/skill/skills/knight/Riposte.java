@@ -41,6 +41,12 @@ public class Riposte extends Skill implements ReloadableData {
         super(dc, "Riposte", SkillId.RIPOSTE, SkillType.SWORD, ClassType.KNIGHT);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        activeRipositeUsersStartTimeMap.remove(uuid);
+        activeBlockingUsersStartTimeMap.remove(uuid);
+    }
+
     @EventHandler
     public void onStartBlocking(PlayerStartBlockingEvent event) {
         Player player = event.getPlayer();

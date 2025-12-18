@@ -38,6 +38,14 @@ public class HoldPosition extends Skill implements ReloadableData {
         super(dc, "Hold Position", SkillId.HOLD_POSITION, SkillType.AXE, ClassType.KNIGHT);
     }
 
+    @Override
+    public void onRemoveUser(UUID uuid) {
+        activeUsers.remove(uuid);
+        dc.getStatusEffectManager().removeStatusEffectFromPlayer(StatusEffectType.SLOW, uuid, getNamespacedKey(uuid));
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.DAMAGE_RECEIVED, this);
+        dc.getEntityStatusManager().removeEntityStatus(uuid, EntityStatusType.KNOCKBACK_RECEIVED, this);
+
+    }
 
     @EventHandler
     public void onRightClick(PlayerRightClickEvent event) {
