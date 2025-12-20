@@ -25,6 +25,8 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private final String damageSourceString;
     private boolean cancelled;
     private CustomDamageCommand command;
+    private boolean sendSkillHitToCaster = true;
+    private boolean sendSkillHitToReceiver = true;
 
     public CustomDamageEvent(DomainController dc, LivingEntity entity, LivingEntity hitBy, Projectile projectile, double originalDamage, Location attackLocation, CustomDamageSource source, String damageSourceString, boolean createCommand) {
         this.dc = dc;
@@ -154,5 +156,21 @@ public class CustomDamageEvent extends Event implements Cancellable {
 
     public Location getAttackLocation() {
         return attackLocation;
+    }
+
+    public void sendSkillHitToCaster(boolean sendSkillHitToCaster) {
+        this.sendSkillHitToCaster = sendSkillHitToCaster;
+    }
+
+    public boolean doSendSkillHitToCaster() {
+        return this.sendSkillHitToCaster;
+    }
+
+    public void sendSkillHitToReceiver(boolean sendSkillHitToReceiver) {
+        this.sendSkillHitToReceiver = sendSkillHitToReceiver;
+    }
+
+    public boolean doSendSkillHitToReceiver() {
+        return this.sendSkillHitToReceiver;
     }
 }
