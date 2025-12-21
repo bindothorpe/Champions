@@ -1,13 +1,13 @@
 package com.bindothorpe.champions.domain.item.items;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
@@ -337,23 +337,21 @@ public class LotusTrapItem extends GameItem {
     }
 
     private void dealDamageTo(LivingEntity target, LivingEntity owner) {
-        CustomDamageEvent damageEvent = new CustomDamageEvent(
-                dc,
-                target,
-                owner,
-                null,
-                explosionDamage,
-                getItem().getLocation(),
-                CustomDamageSource.SKILL,
-                SkillId.LOTUS_TRAP.toString(),
-                true
-        );
+        CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                .setDamager(owner)
+                .setDamagee(target)
+                .setDamage(explosionDamage)
+                .setSendSkillHitToCaster(true)
+                .setSendSkillHitToReceiver(true)
+                .setCauseDisplayName(dc.getSkillManager().getSkillName(SkillId.LOTUS_TRAP))
+                .setCause(CustomDamageEvent.DamageCause.SKILL)
+                .build();
 
-        damageEvent.callEvent();
+        customDamageEvent.callEvent();
 
-        if (!damageEvent.isCancelled()) {
-            damageEvent.getCommand().execute();
-        }
+        if (customDamageEvent.isCancelled()) return;
+
+        new CustomDamageCommand(dc, customDamageEvent).execute();
     }
 
     // ==================== Cleanup ====================

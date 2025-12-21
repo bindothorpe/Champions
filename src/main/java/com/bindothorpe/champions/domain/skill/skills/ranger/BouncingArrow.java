@@ -7,8 +7,8 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.PersistenceUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
@@ -110,7 +110,7 @@ public class BouncingArrow extends Skill implements ReloadableData {
         Vector direction = closest.getLocation().add(0, closest.getHeight(), 0).subtract(startingLocation).toVector().normalize();
         Projectile newArrow = event.getEntity().getWorld().spawnArrow(startingLocation.add(direction), direction, (float) arrow.getVelocity().length(), 1);
 
-        CustomDamageEvent.addCustomDamageSourceData(dc, arrow, CustomDamageSource.ATTACK_PROJECTILE);
+        PersistenceUtil.setDamageCauseForProjectile(dc, arrow, CustomDamageEvent.DamageCause.ATTACK_PROJECTILE);
 
         newArrow.setShooter(arrow.getShooter());
         newArrow.setMetadata("bounce", new FixedMetadataValue(dc.getPlugin(), bounce - 1));

@@ -2,13 +2,14 @@ package com.bindothorpe.champions.domain.skill.skills.mage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
+import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.subSkills.ChargeSkill;
 import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.util.PersistenceUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -69,8 +70,8 @@ public class Blizzard extends ChargeSkill implements ReloadableData {
         for (int i = 0; i < 2; i++) {
             Projectile snowball = player.launchProjectile(Snowball.class);
 
-            CustomDamageEvent.addCustomDamageSourceData(dc, snowball, CustomDamageSource.SKILL_PROJECTILE, true);
-            CustomDamageEvent.addSkillIdData(dc, snowball, getId());
+            PersistenceUtil.setDamageCauseForProjectile(dc, snowball, CustomDamageEvent.DamageCause.SKILL_PROJECTILE, true);
+            PersistenceUtil.setSkillIdForProjectile(dc, snowball, getId());
 
             double x = 0.2D - random.nextInt(40) / 100.0D;
             double y = random.nextInt(20) / 100.0D;
@@ -88,24 +89,24 @@ public class Blizzard extends ChargeSkill implements ReloadableData {
     public void onSnowballHit(CustomDamageEvent event) {
         if(!(event.getProjectile() != null && event.getProjectile() instanceof Snowball snowball)) return;
 
-        if(!CustomDamageEvent.hasSkillIdData(dc, snowball)) return;
+        SkillId snowballSkillId = PersistenceUtil.getSkillIdOfProjectile(dc, snowball);
+        if(snowballSkillId == null) return;
 
-        if(CustomDamageEvent.getSkillIdData(dc, snowball) != getId()) return;
+        if(snowballSkillId != getId()) return;
 
-        if(!CustomDamageEvent.hasCustomDamageSourceData(dc, snowball)) return;
+        CustomDamageEvent.DamageCause damageCauseOfProjectile = PersistenceUtil.getDamageCauseOfProjectile(dc, snowball);
 
-        if(CustomDamageEvent.getCustomDamageSourceData(dc, snowball) != CustomDamageSource.SKILL_PROJECTILE) return;
-
-        if(event.getDamagee() == null) return;
+        if(damageCauseOfProjectile != CustomDamageEvent.DamageCause.SKILL_PROJECTILE) return;
 
         if(!(snowball.getShooter() instanceof Player shooter)) return;
 
-        event.getCommand().suppressHitSound();
-        event.getCommand().damage(0);
+        event.setDamage(0);
 
         double impactModifier = calculateBasedOnLevel(BASE_IMPACT_LAUNCH_STRENGTH_MODIFIER, IMPACT_LAUNCH_STRENGTH_MODIFIER_INCREASE_PER_LEVEL, getSkillLevel(shooter.getUniqueId()));
-        event.getCommand().force(snowball.getVelocity().multiply(impactModifier).length());
-        event.getCommand().direction(snowball.getVelocity().add(new Vector(0.0D, 0.15D, 0.0D)));
+        event.setForceMultiplier(snowball.getVelocity().multiply(impactModifier).length());
+
+        //TODO: Check if it is necesarry to implement setDirection inside CustomDamageEvent
+//        event.getCommand().direction(snowball.getVelocity().add(new Vector(0.0D, 0.15D, 0.0D)));
     }
 
     @Override

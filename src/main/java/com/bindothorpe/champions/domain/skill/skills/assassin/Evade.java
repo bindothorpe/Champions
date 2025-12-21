@@ -8,17 +8,12 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
-import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.interact.blocking.PlayerStartBlockingEvent;
 import com.bindothorpe.champions.events.interact.blocking.PlayerStopBlockingEvent;
 import com.bindothorpe.champions.events.interact.blocking.PlayerUpdateBlockingEvent;
-import com.bindothorpe.champions.events.update.UpdateEvent;
-import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -26,7 +21,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,6 +60,7 @@ public class Evade extends Skill implements ReloadableData {
         if(event.isCancelled()) return;
         if(!(event.getDamagee() instanceof Player player)) return;
         if(!(event.getDamager() instanceof LivingEntity livingEntity)) return;
+        if(!event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK)) return;
 
         UUID uuid = player.getUniqueId();
         if(!activeBlockingUsersStartTimeMap.containsKey(uuid)) return;

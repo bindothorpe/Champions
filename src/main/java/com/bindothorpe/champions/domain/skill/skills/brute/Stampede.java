@@ -9,17 +9,15 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
-import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 
 import java.util.*;
 
@@ -56,7 +54,7 @@ public class Stampede extends Skill implements ReloadableData {
     }
 
     private void handleStampedeHitOther(CustomDamageEvent event) {
-        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
+        if(!event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK)) return;
 
         if(!(event.getDamager() instanceof Player player)) return;
 
@@ -64,24 +62,15 @@ public class Stampede extends Skill implements ReloadableData {
 
         if(!stampedeStackMap.containsKey(player.getUniqueId())) return;
 
-        dc.getEntityStatusManager().addEntityStatus(player.getUniqueId(), new EntityStatus(
-                EntityStatusType.ATTACK_KNOCKBACK_DONE,
-                KNOCKBACK_INCREASE_PER_STACK * stampedeStackMap.get(player.getUniqueId()),
-                0.1,
-                true,
-                false,
-                this
-        ));
+        if(stampedeStackMap.get(player.getUniqueId()) < 1) return;
 
-        dc.getEntityStatusManager().addEntityStatus(player.getUniqueId(), new EntityStatus(
-                EntityStatusType.ATTACK_DAMAGE_DONE,
-                calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)) * stampedeStackMap.get(player.getUniqueId()),
-                0.1,
-                false,
-                false,
-                this
-        ));
+        event.sendSkillHitToReceiver(true);
+        event.sendSkillHitToCaster(true);
+        event.setCauseDisplayName(getName());
 
+        double knockbackForce = KNOCKBACK_INCREASE_PER_STACK * stampedeStackMap.get(player.getUniqueId());
+        event.modifyForce(knockbackForce);
+        event.modifyDamage(calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)) * stampedeStackMap.get(player.getUniqueId()));
 
         dc.getSoundManager().playSound(player, CustomSound.SKILL_STAMPEDE_HIT, 0.4f * stampedeStackMap.get(player.getUniqueId()));
         cleanUser(player);
@@ -135,6 +124,7 @@ public class Stampede extends Skill implements ReloadableData {
                 false,
                 this
                 ));
+
         dc.getEntityStatusManager().updateEntityStatus(uuid, EntityStatusType.MOVEMENT_SPEED);
         dc.getSoundManager().playSound(player, CustomSound.SKILL_STAMPEDE_CHARGE, 0.2f * newStampedeStacks + 1.0f);
     }

@@ -5,7 +5,6 @@ import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.timer.Timer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,22 +43,26 @@ public class FlameItem extends GameItem {
             return;
         }
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE, dc.getSkillManager().getSkillName(SkillId.INFERNO));
 
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
-        customDamageCommand.force(0);
-        customDamageCommand.suppressHitSound();
-        customDamageEvent.setCommand(customDamageCommand);
 
-        Bukkit.getPluginManager().callEvent(customDamageEvent);
+        CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                .setDamager((LivingEntity) getOwner())
+                .setDamagee(livingEntity)
+                .setDamage(collisionDamage)
+                .setCause(CustomDamageEvent.DamageCause.SKILL)
+                .setCauseDisplayName(dc.getSkillManager().getSkillName(SkillId.INFERNO)) //TODO: Add skill source for game item, because flame item can also be spawned by immolate.
+                .build();
 
-        if(dc.getTeamManager().getTeamFromEntity(livingEntity) != null && dc.getTeamManager().getTeamFromEntity(livingEntity).equals(dc.getTeamManager().getTeamFromEntity(getOwner())) && (!livingEntity.equals(getOwner())))
-            return;
+        if(!dc.getTeamManager().areEntitiesOnDifferentTeams(livingEntity, getOwner()) || livingEntity.equals(getOwner()))
+            customDamageEvent.setCancelled(true);
+
+        customDamageEvent.callEvent();
+
 
         if(customDamageEvent.isCancelled())
             return;
 
-        customDamageCommand.execute();
+        new CustomDamageCommand(dc, customDamageEvent).execute();
         remove();
 
     }

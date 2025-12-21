@@ -6,7 +6,6 @@ import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
@@ -17,7 +16,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -78,51 +76,49 @@ public class HeadButt extends Skill implements ReloadableData {
             return;
 
         for (UUID uuid : active) {
-            Set<Entity> nearby = new HashSet<>();
+            Set<LivingEntity> nearby = new HashSet<>();
             Player player = Bukkit.getPlayer(uuid);
 
             for (Entity entity : player.getLocation().clone().add(0, 0.5, 0).getNearbyEntities(COLLISION_RADIUS, COLLISION_RADIUS, COLLISION_RADIUS)) {
-                if (!(entity instanceof LivingEntity))
+                if (!(entity instanceof LivingEntity livingEntity))
                     continue;
 
-                if(entity.equals(player))
+                if(livingEntity.equals(player))
                     continue;
 
-                nearby.add(entity);
+                nearby.add(livingEntity);
 
             }
 
             if(nearby.isEmpty())
                 continue;
 
-            Entity hit = nearby.stream().findFirst().get();
+            LivingEntity hit = nearby.stream().findFirst().get();
             Location startingLocation = startingLocations.get(uuid);
 
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamager(player)
+                    .setDamagee(hit)
+                    .setDamage(calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid)))
+                    .setForceMultiplier(calculateBasedOnLevel(BASE_IMPACT_LAUNCH_STRENGTH, IMPACT_LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(uuid)))
+                    .setLocation(hit.getLocation().subtract(player.getLocation().toVector().subtract(startingLocation.toVector()).setY(0).normalize().setY(0.2).normalize()))
+                    .setCause(CustomDamageEvent.DamageCause.SKILL)
+                    .setCauseDisplayName(dc.getSkillManager().getSkillName(getId()))
+                    .setSendSkillHitToCaster(true)
+                    .setSendSkillHitToReceiver(true)
+                    .build();
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) hit, player, calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid)), player.getLocation(), CustomDamageSource.SKILL, getName());
+            customDamageEvent.callEvent();
 
-            //Get the direction of the player's headbutt by subtracting the starting location's vector from the current location's vector
-            Vector dir = player.getLocation().toVector().subtract(startingLocation.toVector()).setY(0).normalize().setY(0.2).normalize();
-
-            CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
-                    .direction(dir)
-                    .force(calculateBasedOnLevel(BASE_IMPACT_LAUNCH_STRENGTH, IMPACT_LAUNCH_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(uuid)));
-
-            damageEvent.setCommand(damageCommand);
-
-
-            Bukkit.getPluginManager().callEvent(damageEvent);
-
-            if(damageEvent.isCancelled()) {
+            if(customDamageEvent.isCancelled()) {
                 active.remove(uuid);
                 startingLocations.remove(uuid);
                 continue;
             }
 
-
-
             hit.teleport(hit.getLocation().add(0, 0.2, 0));
-            damageCommand.execute();
+
+            new CustomDamageCommand(dc, customDamageEvent).execute();
 
             active.remove(uuid);
             startingLocations.remove(uuid);
@@ -154,19 +150,23 @@ public class HeadButt extends Skill implements ReloadableData {
         for(UUID uuid : hitActive) {
             Entity entity = Bukkit.getEntity(uuid);
 
-            Set<Block> nearbyBlocks = BlockUtil.getNearbyBlocks(entity.getLocation().add(0, entity.getHeight()/2, 0), 0.2, entity.getWidth() / 2, 0.2, entity.getWidth() / 2).stream().filter(block -> !block.getType().isAir()).collect(Collectors.toSet());
+            if(!(entity instanceof LivingEntity livingEntity)) continue;
+
+            Set<Block> nearbyBlocks = BlockUtil.getNearbyBlocks(livingEntity.getLocation().add(0, livingEntity.getHeight()/2, 0), 0.2, livingEntity.getWidth() / 2, 0.2, livingEntity.getWidth() / 2).stream().filter(block -> !block.getType().isAir()).collect(Collectors.toSet());
 
             if(nearbyBlocks.isEmpty())
                 continue;
 
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, (LivingEntity) Bukkit.getEntity(hitBy.get(uuid)), calculateBasedOnLevel(BASE_WALL_IMPACT_DAMAGE, WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(hitBy.get(uuid))), entity.getLocation(), CustomDamageSource.SKILL, getName());
-            CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent)
-                    .direction(new Vector(0, 0, 0));
-            damageEvent.setCommand(damageCommand);
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamagee(livingEntity)
+                    .setDamager((LivingEntity) Bukkit.getEntity(hitBy.get(uuid)))
+                    .setDamage(calculateBasedOnLevel(BASE_WALL_IMPACT_DAMAGE, WALL_IMPACT_DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(hitBy.get(uuid))))
+                    .setCause(CustomDamageEvent.DamageCause.SKILL)
+                    .build();
 
-            Bukkit.getPluginManager().callEvent(damageEvent);
+            customDamageEvent.callEvent();
 
-            if(damageEvent.isCancelled()) {
+            if(customDamageEvent.isCancelled()) {
                 hitActive.remove(uuid);
                 hitBy.remove(uuid);
                 hitStartingLocations.remove(uuid);
@@ -174,9 +174,7 @@ public class HeadButt extends Skill implements ReloadableData {
 
             }
 
-
-
-            damageCommand.execute();
+            new CustomDamageCommand(dc, customDamageEvent).execute();
 
             dc.getStatusEffectManager().addStatusEffectToEntity(StatusEffectType.STUN, uuid, getNamespacedKey(uuid), 1, 0.5);
             hitActive.remove(uuid);
@@ -187,7 +185,14 @@ public class HeadButt extends Skill implements ReloadableData {
 
         hitActive.removeIf(uuid -> {
             Entity entity = Bukkit.getEntity(uuid);
-            if (!BlockUtil.getNearbyBlocks(entity.getLocation(), 1, 0, 0.1, 0).isEmpty()) {
+
+            if(!(entity instanceof LivingEntity livingEntity)) {
+                hitStartingLocations.remove(uuid);
+                hitBy.remove(uuid);
+                return true;
+            }
+
+            if (!BlockUtil.getNearbyBlocks(livingEntity.getLocation(), 1, 0, 0.1, 0).isEmpty()) {
                 hitStartingLocations.remove(uuid);
                 hitBy.remove(uuid);
                 return true;

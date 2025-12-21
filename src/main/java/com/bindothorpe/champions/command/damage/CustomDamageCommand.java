@@ -6,44 +6,29 @@ import com.bindothorpe.champions.command.death.CustomDeathCommand;
 import com.bindothorpe.champions.domain.combat.DamageLog;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.death.CustomDeathEvent;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 public class CustomDamageCommand implements Command {
 
-    private final static double ORIGINAL_KNOCKBACK = 0.6;
-    private final static double ORIGINAL_VERTICAL_KNOCKBACK = 0.9;
+    private final static double MINECRAFT_KNOCKBACK_STRENGTH = 0.6;
+    private final static double MINECRAFT_VERTICAL_KNOCKBACK = 0.9;
+
     private final DomainController dc;
-    private final LivingEntity damagee;
-    private final LivingEntity damager;
-    private final double originalDamage;
-    private final Location attackLocation;
-    private final CustomDamageSource source;
-    private Vector overwriteDirection;
-    private double overwriteForce = Double.MIN_VALUE;
-    private double overwriteDamage = Double.MIN_VALUE;
-    private boolean suppressHitSound = false;
+    private final CustomDamageEvent event;
     private boolean hasExecuted = false;
 
-    public CustomDamageCommand(DomainController dc, LivingEntity damagee, LivingEntity damager, double originalDamage, Location attackLocation, CustomDamageSource source) {
-        this.dc = dc;
-        this.damagee = damagee;
-        this.damager = damager;
-        this.originalDamage = originalDamage;
-        this.attackLocation = attackLocation;
-        this.source = source;
-    }
-
     public CustomDamageCommand(DomainController dc, CustomDamageEvent event) {
-        this(dc, event.getDamagee(), (LivingEntity) event.getDamager(), event.getOriginalDamage(), event.getAttackLocation(), event.getSource());
+        this.dc = dc;
+        this.event = event;
     }
 
     @Override
@@ -52,126 +37,116 @@ public class CustomDamageCommand implements Command {
             throw new IllegalStateException("This command has already been executed");
         }
 
+        LivingEntity damagee = event.getDamagee();
 
         if(damagee.isDead()) return;
-        // Damage the entity
-        double newHealth = damagee.getHealth() - (overwriteDamage == Double.MIN_VALUE ? getFinalDamage() : overwriteDamage);
 
-        if(newHealth <= 0 && damagee instanceof Player) {
-            handleCustomDeathEvent();
+        double healthAfterDamage = damagee.getHealth() - (getCalculatedDamage());
+
+        if(healthAfterDamage <= 0 && damagee instanceof Player) {
+            createAndCallCustomDeathEvent();
             return;
         }
 
-        damagee.setHealth(newHealth > 0 ? newHealth : 0);
 
-        damagee.setVelocity(getFinalKnockbackVector(damagee));
+        // Deal damage and apply velocity
+        damagee.setHealth(Math.clamp(healthAfterDamage, 0, damagee.getAttribute(Attribute.MAX_HEALTH) == null ? 20 : damagee.getAttribute(Attribute.MAX_HEALTH).getValue()));
+        if(event.getLocation() != null)
+            damagee.setVelocity(getCalculatedVelocity());
 
-
-        if(getDamage() > 0) {
-            // Play the damage animation
+        // Play hurt animation and sound
+        if(event.getDamage() > 0) {
             damagee.playHurtAnimation(0);
 
-            // Play the hurt sound
-            if(damagee.getHurtSound() != null) damagee.getWorld().playSound(Sound.sound().type(damagee.getHurtSound()).build(), damagee);
-
+            if(damagee.getHurtSound() != null)
+                damagee.getWorld().playSound(Sound.sound().type(damagee.getHurtSound()).build(), damagee);
         }
 
+        // Flag the command as executed to prevent firing multiple times.
         hasExecuted = true;
     }
 
-    private void handleCustomDeathEvent() {
-        Player player = (Player) damagee;
-        CustomDeathEvent customDeathEvent = new CustomDeathEvent(player);
-        customDeathEvent.setDeathMessage(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(player.getUniqueId())));
-        if(player.getRespawnLocation() == null) customDeathEvent.setRespawnLocation(player.getWorld().getSpawnLocation());
-        customDeathEvent.callEvent();
-        System.out.println("Custom death event is called");
 
-        if(customDeathEvent.isCancelled()) return;
-
-        CustomDeathCommand customDeathCommand = new CustomDeathCommand(customDeathEvent);
-
-        customDeathCommand.execute();
+    private double getCalculatedDamage() {
+        return Math.max(0,
+                calculateEntityStatusValue(
+                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_DONE : EntityStatusType.SKILL_DAMAGE_DONE,
+                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_RECEIVED : EntityStatusType.SKILL_DAMAGE_RECEIVED,
+                    event.getDamage()
+                )
+        );
     }
 
-    public double getDamage() {
-        return overwriteDamage == Double.MIN_VALUE ? getFinalDamage() : overwriteDamage;
+    private @NotNull Vector getCalculatedVelocity() {
+        Vector direction = getCalculatedKnockbackDirection();
+        double force = getCalculatedKnockbackForce();
+
+        double verticalLength = direction.getY();
+        Vector horizontal = direction
+                .clone()
+                .setY(0)
+                .normalize();
+
+        Vector knockbackVelocity = event.doHorizontalKnockback() ? horizontal
+                .multiply(force)
+                .setY(verticalLength * (Math.min(MINECRAFT_VERTICAL_KNOCKBACK, force))) : // We use Math.min here because we don't want to go over the minecraft vertical knockback for normal attacks.
+                direction.clone().multiply(force); // Here we use the force instead because we don't need to limit it.
+
+        return event.getDamagee().getVelocity().add(knockbackVelocity);
     }
 
-    private Vector getFinalKnockbackVector(LivingEntity damagee) {
-        if(overwriteDirection == null) {
-            overwriteDirection = getKnockbackDirection();
+    private Vector getCalculatedKnockbackDirection() {
+        if(event.getDirection() != null) {
+            return event.getDirection();
         }
 
-        double force = overwriteForce == Double.MIN_VALUE ? getFinalKnockback() : overwriteForce;
+        if(event.getLocation() != null) {
+            return event.doHorizontalKnockback() ? event.getDamagee().getLocation().toVector()
+                    .subtract(event.getLocation().toVector())
+                    .setY(0).normalize()
+                    .setY(MINECRAFT_VERTICAL_KNOCKBACK).normalize() :
+                    event.getDamagee().getLocation().toVector().subtract(event.getLocation().toVector());
+        }
 
-        // Separate horizontal and vertical components
-        Vector horizontal = overwriteDirection.clone().setY(0).normalize();
-        double verticalComponent = overwriteDirection.getY();
-
-        // Apply force only to horizontal, keep vertical as-is
-        Vector knockback = horizontal.multiply(force).setY(verticalComponent * (Math.min(ORIGINAL_KNOCKBACK, force)));
-
-        // Add to existing velocity
-        return damagee.getVelocity().add(knockback);
+        return new Vector(0, 0, 0);
     }
 
-    public double getForce() {
-        return overwriteForce == Double.MIN_VALUE ? getFinalKnockback() : overwriteForce;
-    }
-
-    public CustomDamageCommand direction(Vector direction) {
-        this.overwriteDirection = direction;
-        return this;
-    }
-
-    public CustomDamageCommand damage(double damage) {
-        this.overwriteDamage = damage;
-        return this;
-    }
-
-    public CustomDamageCommand force(double force) {
-        this.overwriteForce = force;
-        return this;
-    }
-
-    private double getFinalDamage() {
-        return Math.max(0, calculateValue(source.equals(CustomDamageSource.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_DONE : EntityStatusType.SKILL_DAMAGE_DONE,
-                source.equals(CustomDamageSource.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_RECEIVED : EntityStatusType.SKILL_DAMAGE_RECEIVED,
-                originalDamage));
-    }
-
-    private double getFinalKnockback() {
-
+    private double getCalculatedKnockbackForce() {
         EntityStatusType attackStatusTypeToCheck = EntityStatusType.ATTACK_KNOCKBACK_DONE;
 
-        if(source.equals(CustomDamageSource.SKILL)) {
+        CustomDamageEvent.DamageCause damageCause = event.getCause();
+
+        if(damageCause.equals(CustomDamageEvent.DamageCause.SKILL)) {
             attackStatusTypeToCheck = EntityStatusType.SKILL_KNOCKBACK_DONE;
         }
-        if(source.equals(CustomDamageSource.ATTACK_PROJECTILE)) {
+        if(damageCause.equals(CustomDamageEvent.DamageCause.ATTACK_PROJECTILE)) {
             attackStatusTypeToCheck = EntityStatusType.PROJECTILE_KNOCKBACK_DONE;
         }
 
         EntityStatusType receiveStatusTypeToCheck = EntityStatusType.ATTACK_KNOCKBACK_RECEIVED;
 
-        if(source.equals(CustomDamageSource.SKILL)) {
+        if(damageCause.equals(CustomDamageEvent.DamageCause.SKILL)) {
             receiveStatusTypeToCheck = EntityStatusType.SKILL_KNOCKBACK_RECEIVED;
         }
-        if(source.equals(CustomDamageSource.ATTACK_PROJECTILE)) {
+        if(damageCause.equals(CustomDamageEvent.DamageCause.ATTACK_PROJECTILE)) {
             receiveStatusTypeToCheck = EntityStatusType.PROJECTILE_KNOCKBACK_RECEIVED;
         }
 
-        return Math.max(0, calculateValue(attackStatusTypeToCheck,
+        return Math.max(0, calculateEntityStatusValue(
+                attackStatusTypeToCheck,
                 receiveStatusTypeToCheck,
-                ORIGINAL_KNOCKBACK));
+                MINECRAFT_KNOCKBACK_STRENGTH * event.getForceMultiplier()));
     }
 
-    private double calculateValue(EntityStatusType done, EntityStatusType received, double originalValue) {
+    private double calculateEntityStatusValue(EntityStatusType done, EntityStatusType received, double originalValue) {
 
-        double finalDone, finalReceived = 0;
+        LivingEntity damager = event.getDamager();
+        LivingEntity damagee = event.getDamagee();
 
-        double doneMod = dc.getEntityStatusManager().getModifcationValue(damager.getUniqueId(), done);
-        double doneMult = dc.getEntityStatusManager().getMultiplicationValue(damager.getUniqueId(), done);
+        double finalDone, finalReceived;
+
+        double doneMod = damager == null ? 0 : dc.getEntityStatusManager().getModifcationValue(damager.getUniqueId(), done);
+        double doneMult = damager == null ? 0 : dc.getEntityStatusManager().getMultiplicationValue(damager.getUniqueId(), done);
 
         double receivedMod = dc.getEntityStatusManager().getModifcationValue(damagee.getUniqueId(), received);
         double receivedMult = dc.getEntityStatusManager().getMultiplicationValue(damagee.getUniqueId(), received);
@@ -187,21 +162,21 @@ public class CustomDamageCommand implements Command {
         return Math.max(0, originalValue + finalDone - finalReceived);
     }
 
+    private void createAndCallCustomDeathEvent() {
+        Player player = (Player) event.getDamagee();
+        CustomDeathEvent customDeathEvent = new CustomDeathEvent(player);
 
-    public Vector getDirection() {
-        return damagee.getLocation().toVector().subtract(attackLocation.toVector()).normalize();
-    }
+        customDeathEvent.setDeathMessage(getCustomDeathMessage(dc, dc.getCombatLogger().getLastLog(player.getUniqueId())));
 
-    private Vector getKnockbackDirection() {
-        return damagee.getLocation().toVector().subtract(attackLocation.toVector()).setY(0).normalize().setY(ORIGINAL_VERTICAL_KNOCKBACK).normalize();
-    }
+        if(player.getRespawnLocation() == null)
+            customDeathEvent.setRespawnLocation(player.getWorld().getSpawnLocation());
 
-    public void suppressHitSound() {
-        this.suppressHitSound = true;
-    }
+        customDeathEvent.callEvent();
 
-    public boolean shouldSuppressHitSound() {
-        return suppressHitSound;
+        if(customDeathEvent.isCancelled()) return;
+
+        CustomDeathCommand customDeathCommand = new CustomDeathCommand(customDeathEvent);
+        customDeathCommand.execute();
     }
 
     public static Component getCustomDeathMessage(DomainController dc, DamageLog damageLog) {
@@ -235,4 +210,5 @@ public class CustomDamageCommand implements Command {
 
         return message;
     }
+
 }

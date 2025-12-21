@@ -9,7 +9,6 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.raycast.RaycastResult;
@@ -77,7 +76,7 @@ public class StaticLazer extends ChargeSkill implements ReloadableData {
             return;
 
         double distance = calculateBasedOnLevel(BASE_DISTANCE, DISTANCE_INCREASE_PER_LEVEL, getSkillLevel(uuid));
-        double chargePercentage = (double) charge / getMaxCharge(uuid);
+        double chargePercentage =  Math.clamp((double) charge / (double) getMaxCharge(uuid), 0D, 1D);
 
         RaycastResult result = RaycastUtil.drawRaycastFromPlayerInLookingDirection(
                 player,
@@ -113,28 +112,24 @@ public class StaticLazer extends ChargeSkill implements ReloadableData {
 
         double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(uuid));
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(
-                dc,
-                hitEntity,
-                player,
-                null,
-                damage * chargePercentage,
-                player.getLocation(),
-                CustomDamageSource.SKILL,
-                getName()
-        );
+        CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                .setDamager(player)
+                .setDamagee(hitEntity)
+                .setDamage(damage * chargePercentage)
+                .setCause(CustomDamageEvent.DamageCause.SKILL)
+                .setCauseDisplayName(dc.getSkillManager().getSkillName(getId()))
+                .setLocation(player.getLocation())
+                .setSendSkillHitToReceiver(true)
+                .setSendSkillHitToCaster(true)
+                .build();
 
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
-        customDamageEvent.setCommand(customDamageCommand);
-
-
-        Bukkit.getPluginManager().callEvent(customDamageEvent);
+        customDamageEvent.callEvent();
 
         if (customDamageEvent.isCancelled()) {
             return;
         }
 
-        customDamageCommand.execute();
+        new CustomDamageCommand(dc, customDamageEvent).execute();
     }
 
     @Override

@@ -10,7 +10,7 @@ import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
 import com.bindothorpe.champions.domain.team.TeamColor;
-import com.bindothorpe.champions.events.damage.EntityDamageByEntityListener;
+import com.bindothorpe.champions.events.damage.EntityDamageListener;
 import com.bindothorpe.champions.events.interact.InteractListener;
 import com.bindothorpe.champions.events.interact.blocking.PlayerBlockListener;
 import com.bindothorpe.champions.gui.shop.ShopPlayerGui;
@@ -70,7 +70,7 @@ public class InitDataConfig {
             }
         }
 
-        pm.registerEvents(new EntityDamageByEntityListener(dc), dc.getPlugin());
+        pm.registerEvents(new EntityDamageListener(dc), dc.getPlugin());
         pm.registerEvents(new GameItemListener(dc), dc.getPlugin());
         pm.registerEvents(new InteractListener(dc), dc.getPlugin());
         pm.registerEvents(new PlayerBlockListener(dc), dc.getPlugin());

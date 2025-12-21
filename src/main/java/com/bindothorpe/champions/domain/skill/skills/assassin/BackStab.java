@@ -2,14 +2,11 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -34,7 +31,7 @@ public class BackStab extends Skill implements ReloadableData {
     public void onDamageFromBehind(CustomDamageEvent event) {
         if(event.isCancelled()) return;
 
-        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
+        if(!event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK)) return;
 
         if(!(event.getDamager() instanceof Player player)) return;
 
@@ -42,14 +39,7 @@ public class BackStab extends Skill implements ReloadableData {
 
         if(!isAttackFromBehind(player, event.getDamagee())) return;
 
-        dc.getEntityStatusManager().addEntityStatus(player.getUniqueId(), new EntityStatus(
-                EntityStatusType.ATTACK_DAMAGE_DONE,
-                DAMAGE_MOD,
-                0.2,
-                false,
-                false,
-                this
-        ));
+        event.modifyDamage(DAMAGE_MOD);
     }
 
     private boolean isAttackFromBehind(Entity damager, LivingEntity damagee) {

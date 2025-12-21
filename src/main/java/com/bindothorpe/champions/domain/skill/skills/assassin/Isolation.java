@@ -2,15 +2,12 @@ package com.bindothorpe.champions.domain.skill.skills.assassin;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
-import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.domain.skill.ReloadableData;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.ComponentUtil;
@@ -44,22 +41,14 @@ public class Isolation extends Skill implements ReloadableData {
     public void onCustomDamage(CustomDamageEvent event) {
         if(!(event.getDamager() instanceof Player attacker)) return;
         if(!isUser(attacker)) return;
-        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
+        if(!event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK)) return;
 
 
         LivingEntity target = event.getDamagee();
 
         if(!isIsolated(target)) return;
 
-        dc.getEntityStatusManager().addEntityStatus(attacker.getUniqueId(),
-                new EntityStatus(
-                        EntityStatusType.ATTACK_DAMAGE_DONE,
-                        DAMAGE,
-                        0.1,
-                        false,
-                        false,
-                        this
-                ));
+        event.modifyDamage(DAMAGE);
     }
 
     private boolean isIsolated(@NotNull Entity entity) {

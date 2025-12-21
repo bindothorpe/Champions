@@ -8,11 +8,9 @@ import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -67,8 +65,11 @@ public class ExplosiveItem extends GameItem {
 
     @Override
     public void onDespawn() {
+
+        if(!(getOwner() instanceof LivingEntity owner)) return;
+
         getLocation().getWorld().spawnParticle(Particle.EXPLOSION, getLocation(), 1, 0, 0, 0, 0, null, true);
-        Set<Entity> nearby = new HashSet<>(getLocation().getWorld().getNearbyEntities(getLocation(), EXPLOSION_RADIUS, EXPLOSION_RADIUS, EXPLOSION_RADIUS).stream().filter(e -> e instanceof LivingEntity).collect(Collectors.toSet()));
+        Set<Entity> nearby = new HashSet<>(getLocation().getWorld().getNearbyEntities(getLocation(), EXPLOSION_RADIUS, EXPLOSION_RADIUS, EXPLOSION_RADIUS));
 
         sticky = true;
         dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_EXPLOSION_BOMB_EXPLODE);
@@ -76,31 +77,38 @@ public class ExplosiveItem extends GameItem {
         if(nearby.isEmpty())
             return;
 
-        EntityStatus status = new EntityStatus(EntityStatusType.KNOCKBACK_DONE, EXPLOSION_KNOCKBACK, -1, false, false, this);
-        dc.getEntityStatusManager().addEntityStatus(getOwner().getUniqueId(), status);
-
         for(Entity e : nearby) {
 
-            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) e, (LivingEntity) getOwner(), explosionDamage, getLocation(), CustomDamageSource.SKILL, dc.getSkillManager().getSkillName(SkillId.EXPLOSIVE_BOMB));
-            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
-            customDamageEvent.setCommand(customDamageCommand);
+            if(!(e instanceof LivingEntity damagee)) continue;
 
-            Bukkit.getPluginManager().callEvent(customDamageEvent);
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamager(owner)
+                    .setDamagee(damagee)
+                    .setDamage(explosionDamage)
+                    .setForceMultiplier(1 + EXPLOSION_KNOCKBACK)
+                    .setLocation(getLocation())
+                    .setCause(CustomDamageEvent.DamageCause.SKILL)
+                    .setCauseDisplayName("TODO: Add optional Skill ID to Game Items")
+                    .setSendSkillHitToCaster(true)
+                    .setSendSkillHitToReceiver(true)
+                    .build();
 
-            if(dc.getTeamManager().getTeamFromEntity(e) != null && dc.getTeamManager().getTeamFromEntity(e).equals(dc.getTeamManager().getTeamFromEntity(getOwner())) && (!e.equals(getOwner())))
-                continue;
+            if(!dc.getTeamManager().areEntitiesOnDifferentTeams(e, getOwner())) {
+                if(e.equals(getOwner())) {
+                    customDamageEvent.setDamage(0);
+                } else {
+                    customDamageEvent.setCancelled(true);
+                    continue;
+                }
+            }
+
+
+            customDamageEvent.callEvent();
 
             if(customDamageEvent.isCancelled())
                 return;
 
-
-            if(e.equals(getOwner())) {
-                customDamageCommand.direction(customDamageEvent.getDamagee().getLocation().toVector().subtract(getLocation().toVector()).normalize());
-                customDamageCommand.damage(0);
-            }
-
-            customDamageCommand.execute();
+            new CustomDamageCommand(dc, customDamageEvent).execute();
         }
-        dc.getEntityStatusManager().removeEntityStatus(getOwner().getUniqueId(), EntityStatusType.KNOCKBACK_DONE, this);
     }
 }

@@ -2,7 +2,6 @@ package com.bindothorpe.champions.listeners.damage;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.XpBarUtil;
 import org.bukkit.Sound;
@@ -11,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class CustomDamageListener implements Listener {
 
@@ -33,25 +31,31 @@ public class CustomDamageListener implements Listener {
             return;
 
         Player player = (Player) damager;
-        XpBarUtil.setXp(player, (int) event.getCommand().getDamage(), 1);
+        //TODO: Find a solution to get the final calculated damage
+        // Maybe one of the options is, for the damage received and damage dealt modifiers, I use a listener instead of calculating it with a function?
+        XpBarUtil.setXp(player, (int) event.getDamage(), 1);
 
-        if(event.getSource().equals(CustomDamageSource.SKILL)  || event.getSource().equals(CustomDamageSource.SKILL_PROJECTILE)) {
-            ChatUtil.sendSkillHitMessage(
-                    dc,
-                    player,
-                    damager,
-                    event.getDamageSourceString(),
-                    event.doSendSkillHitToCaster(),
-                    event.doSendSkillHitToReceiver()
-                    );
-        }
+        handleSkillHitMessage(event);
 
 
-        if(event.getSource().equals(CustomDamageSource.ATTACK_PROJECTILE) || event.getSource().equals(CustomDamageSource.SKILL_PROJECTILE)) {
+        if(event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK_PROJECTILE) || event.getCause().equals(CustomDamageEvent.DamageCause.SKILL_PROJECTILE)) {
 
-            if(event.getCommand().shouldSuppressHitSound()) return;
+//            if(event.getCommand().shouldSuppressHitSound()) return;
 
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1f, 1f);
+        }
+    }
+
+    private void handleSkillHitMessage(CustomDamageEvent event) {
+
+        if(event.getDamager() == null) return;
+
+        if(event.sendSkillHitToCaster() && event.getCauseDisplayName() != null && event.getDamager() instanceof Player damager) {
+            ChatUtil.sendSkillHitMessageToCaster(dc, damager, event.getDamagee(), event.getCauseDisplayName());
+        }
+
+        if(event.sendSkillHitToReceiver() && event.getCauseDisplayName() != null && event.getDamagee() instanceof Player damagee) {
+            ChatUtil.sendSkillHitMessageToReceiver(dc, damagee, event.getDamager(), event.getCauseDisplayName());
         }
     }
 
@@ -60,11 +64,12 @@ public class CustomDamageListener implements Listener {
         if(event.isCancelled())
             return;
 
+
         if (!(event.getDamagee() instanceof Player player))
             return;
 
         dc.getCombatLogger().logDamageTaken(player.getUniqueId());
-        dc.getCombatLogger().logDamage(player.getUniqueId(), event.getDamager().getUniqueId(), event.getSource(), event.getDamageSourceString());
+        dc.getCombatLogger().logDamage(player.getUniqueId(), event.getDamager() == null ? null : event.getDamager().getUniqueId(), event.getCause(), event.getCauseDisplayName());
     }
 
     @EventHandler

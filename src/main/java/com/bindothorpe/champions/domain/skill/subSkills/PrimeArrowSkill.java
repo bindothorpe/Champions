@@ -8,6 +8,7 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.PersistenceUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Arrow;
@@ -74,7 +75,7 @@ public abstract class PrimeArrowSkill extends Skill {
         if (!primed.contains(player.getUniqueId()))
             return;
 
-        setArrowOfSkill(arrow, true);
+        setArrowOfSkill(arrow);
         primed.remove(player.getUniqueId());
         arrows.add(arrow);
 
@@ -92,17 +93,11 @@ public abstract class PrimeArrowSkill extends Skill {
      * @return true if the arrow is an arrow of this skill.
      */
     protected boolean isArrowOfSkill(Arrow arrow) {
-        return arrow.hasMetadata(getId().toString());
+        return getId().equals(PersistenceUtil.getSkillIdOfProjectile(dc, arrow));
     }
 
-    protected void setArrowOfSkill(Arrow arrow, boolean isOfSkill) {
-        if(isOfSkill) {
-            //Add metadata to arrow
-            arrow.setMetadata(getId().toString(), new FixedMetadataValue(dc.getPlugin(), true));
-        } else {
-            //Remove metadata from arrow
-            arrow.removeMetadata(getId().toString(), dc.getPlugin());
-        }
+    protected void setArrowOfSkill(Arrow arrow) {
+        PersistenceUtil.setSkillIdForProjectile(dc, arrow, getId());
     }
 
     @Override

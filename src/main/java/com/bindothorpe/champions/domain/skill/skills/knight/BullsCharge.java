@@ -7,7 +7,6 @@ import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.TextUtil;
@@ -80,9 +79,10 @@ public class BullsCharge extends Skill implements ReloadableData {
     @EventHandler
     public void onCustomDamage(CustomDamageEvent event) {
         Entity damager = event.getDamager();
+        if(damager == null) return;
         if(!activeMap.containsKey(damager.getUniqueId())) return;
 
-        if(!event.getSource().equals(CustomDamageSource.ATTACK)) return;
+        if(!event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK)) return;
 
         Entity damagee = event.getDamagee();
 
@@ -94,7 +94,7 @@ public class BullsCharge extends Skill implements ReloadableData {
         StatusEffectManager.getInstance(dc).addStatusEffectToEntity(StatusEffectType.SLOW, damagee.getUniqueId(), getNamespacedKey(damager.getUniqueId()), SLOW_EFFECT, slowDuration);
 
         double bonusDamage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(damager.getUniqueId()));
-        event.getCommand().damage(event.getCommand().getDamage() + bonusDamage);
+        event.modifyDamage(bonusDamage);
 
         dc.getSoundManager().playSound(event.getDamagee().getLocation(), CustomSound.SKILL_BULLS_CHARGE_ACTIVATE);
 

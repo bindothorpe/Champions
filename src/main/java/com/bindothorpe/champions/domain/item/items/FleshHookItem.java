@@ -6,10 +6,8 @@ import com.bindothorpe.champions.domain.item.GameItem;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.MobilityUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -47,23 +45,35 @@ public class FleshHookItem extends GameItem {
             return;
         }
 
+        if(!(getOwner() instanceof LivingEntity owner)) {
+            remove();
+            return;
+        }
+
+        if(!dc.getTeamManager().areEntitiesOnDifferentTeams(owner, livingEntity))
+            return;
+
 
         //Damage the enemy
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, (LivingEntity) getOwner(), collisionDamage, getLocation(), CustomDamageSource.SKILL_PROJECTILE, dc.getSkillManager().getSkillName(SkillId.FLESH_HOOK));
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
-        customDamageEvent.setCommand(customDamageCommand);
+        CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                .setDamager(owner)
+                .setDamagee(livingEntity)
+                .setDamage(collisionDamage)
+                .setCause(CustomDamageEvent.DamageCause.SKILL_PROJECTILE)
+                .setForceMultiplier(0)
+                .setCauseDisplayName(dc.getSkillManager().getSkillName(SkillId.FLESH_HOOK))
+                .setSendSkillHitToReceiver(true)
+                .setSendSkillHitToCaster(true)
+                .build();
 
-        Bukkit.getPluginManager().callEvent(customDamageEvent);
 
-        if(dc.getTeamManager().getTeamFromEntity(livingEntity) != null && dc.getTeamManager().getTeamFromEntity(livingEntity).equals(dc.getTeamManager().getTeamFromEntity(getOwner())) && (!livingEntity.equals(getOwner())))
-            return;
+        customDamageEvent.callEvent();
+
 
         if(customDamageEvent.isCancelled())
             return;
 
-        customDamageCommand.execute();
-
-
+        new CustomDamageCommand(dc, customDamageEvent).execute();
 
         //Pull entity towards owner
         MobilityUtil.launch(livingEntity,
@@ -77,7 +87,6 @@ public class FleshHookItem extends GameItem {
                 );
 
         dc.getSoundManager().playSound(getLocation(), CustomSound.SKILL_FLESH_HOOK_THROW);
-
         remove();
     }
 

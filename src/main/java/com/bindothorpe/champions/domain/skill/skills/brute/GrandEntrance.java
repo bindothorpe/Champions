@@ -5,13 +5,10 @@ import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.skill.*;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
-import com.bindothorpe.champions.events.interact.PlayerLeftClickEvent;
 import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.util.BlockUtil;
-import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -127,19 +124,34 @@ public class GrandEntrance extends Skill implements ReloadableData {
                 .collect(Collectors.toSet());
 
         double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player));
-        Vector direction = new Vector(0, 1, 0);
 
         double knockUpStrength = calculateBasedOnLevel(BASE_KNOCK_UP_STRENGTH, KNOCK_UP_STRENGTH_INCREASE_PER_LEVEL, getSkillLevel(player));
-        for(Entity entity : nearby) {
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
-            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).direction(direction).force(knockUpStrength);
-            damageEvent.setCommand(customDamageCommand);
-            Bukkit.getPluginManager().callEvent(damageEvent);
 
-            if(damageEvent.isCancelled())
+        String damageCauseString = dc.getSkillManager().getSkillName(getId());
+
+        for(Entity entity : nearby) {
+
+            if(!(entity instanceof LivingEntity livingEntity)) return;
+
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamager(player)
+                    .setDamagee(livingEntity)
+                    .setDamage(damage)
+                    .setLocation(player.getLocation())
+                    .setSendSkillHitToCaster(true)
+                    .setSendSkillHitToReceiver(true)
+                    .setCause(CustomDamageEvent.DamageCause.SKILL)
+                    .setCauseDisplayName(damageCauseString)
+                    .setForceMultiplier(knockUpStrength)
+                    .setHorizontalKnockback(false)
+                    .build();
+
+            customDamageEvent.callEvent();
+
+            if(customDamageEvent.isCancelled())
                 continue;
 
-            customDamageCommand.execute();
+            new CustomDamageCommand(dc, customDamageEvent).execute();
         }
     }
 

@@ -100,7 +100,7 @@ public class SonarArrow extends PrimeArrowSkill implements ReloadableData {
         bouncingArrow.setShooter(player);
         bouncingArrow.setPickupStatus(Arrow.PickupStatus.CREATIVE_ONLY);
 
-        setArrowOfSkill(bouncingArrow, true);
+        setArrowOfSkill(bouncingArrow);
         arrows.add(bouncingArrow);
 
         Location soundLocation = event.getHitBlock().getLocation();

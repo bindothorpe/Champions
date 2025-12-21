@@ -8,13 +8,10 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.events.interact.PlayerDropItemWrapperEvent;
 import com.bindothorpe.champions.events.update.UpdateEvent;
-import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -132,7 +129,7 @@ public class Trample extends Skill implements ReloadableData {
         }
 
         // Damage entities (your existing code)
-        Set<Entity> nearby = player.getLocation().getNearbyEntities(radius, 1, radius)
+        Set<LivingEntity> nearby = player.getLocation().getNearbyEntities(radius, 1, radius)
                 .stream()
                 .filter(entity -> !dc.getTeamManager().getTeamFromEntity(player).equals(dc.getTeamManager().getTeamFromEntity(entity)))
                 .filter(entity -> entity instanceof LivingEntity)
@@ -142,16 +139,26 @@ public class Trample extends Skill implements ReloadableData {
 
         double damage = calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId()));
 
-        for(Entity entity : nearby) {
-            CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, damage, player.getLocation(), CustomDamageSource.SKILL, getName());
-            CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damageEvent).force(0);
-            damageEvent.setCommand(customDamageCommand);
-            Bukkit.getPluginManager().callEvent(damageEvent);
+        String causeDisplayName = dc.getSkillManager().getSkillName(getId());
 
-            if(damageEvent.isCancelled())
+        for(LivingEntity entity : nearby) {
+
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamage(damage)
+                    .setDamager(player)
+                    .setDamagee(entity)
+                    .setCause(CustomDamageEvent.DamageCause.SKILL)
+                    .setCauseDisplayName(causeDisplayName)
+                    .setSendSkillHitToCaster(true)
+                    .setSendSkillHitToReceiver(true)
+                    .build();
+
+            customDamageEvent.callEvent();
+
+            if(customDamageEvent.isCancelled())
                 continue;
 
-            customDamageCommand.execute();
+            new CustomDamageCommand(dc, customDamageEvent).execute();
         }
     }
 

@@ -1,9 +1,7 @@
 package com.bindothorpe.champions.domain.combat;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.skill.Skill;
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -32,8 +30,8 @@ public class CombatLogger {
         return instance;
     }
 
-    public void logDamage(UUID damageTaker, UUID damageDealer, CustomDamageSource damageSource, @Nullable String damageSourceString) {
-        lastDamageTakenLog.put(damageTaker, new DamageLog(damageSource, damageTaker, damageDealer, System.currentTimeMillis(), damageSourceString));
+    public void logDamage(UUID damageTaker, @Nullable UUID damageDealer, CustomDamageEvent.DamageCause damageCause, @Nullable String damageSourceString) {
+        lastDamageTakenLog.put(damageTaker, new DamageLog(damageCause, damageTaker, damageDealer, System.currentTimeMillis(), damageSourceString));
     }
 
     public void logDamageTaken(UUID uuid) {

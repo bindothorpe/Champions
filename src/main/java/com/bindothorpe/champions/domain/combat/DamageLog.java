@@ -1,9 +1,9 @@
 package com.bindothorpe.champions.domain.combat;
 
-import com.bindothorpe.champions.domain.skill.SkillId;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
+import com.bindothorpe.champions.events.damage.CustomDamageEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public record DamageLog(CustomDamageSource damageSource,UUID receiver, UUID attacker, long timeStamp, String damageSourceString) {
+public record DamageLog(CustomDamageEvent.DamageCause damageCause, UUID receiver, @Nullable UUID attacker, long timeStamp, String damageSourceString) {
 }

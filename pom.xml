@@ -76,6 +76,10 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -99,6 +103,11 @@
             <groupId>fr.mrmicky</groupId>
             <artifactId>fastboard</artifactId>
             <version>2.1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.alexradzin</groupId>
+            <artifactId>enumus</artifactId>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

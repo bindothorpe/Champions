@@ -3,18 +3,11 @@ package com.bindothorpe.champions.events.damage;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.damage.CustomDamageCommand;
 import com.bindothorpe.champions.command.death.CustomDeathCommand;
-import com.bindothorpe.champions.domain.combat.DamageLog;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.events.death.CustomDeathEvent;
-import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ItemUtil;
-import io.papermc.paper.event.entity.EntityKnockbackEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.EntityEffect;
+import com.bindothorpe.champions.util.PersistenceUtil;
 import org.bukkit.Material;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,26 +19,23 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class EntityDamageByEntityListener implements Listener {
+public class EntityDamageListener implements Listener {
 
     private static final long DELAY = 500;
-    private final DomainController dc;
 
+    private final DomainController dc;
     private final Map<UUID, Long> lastHit;
 
-    private final Map<UUID, Long> lastMessageMap = new HashMap<>();
-
-    public EntityDamageByEntityListener(DomainController dc) {
+    public EntityDamageListener(DomainController dc) {
         this.dc = dc;
         this.lastHit = new HashMap<>();
-        dc.getPlugin().getLogger().info("EntityDamageByEntityListener registered");
+        dc.getPlugin().getLogger().info("EntityDamageListener registered");
     }
 
     @EventHandler
@@ -67,28 +57,31 @@ public class EntityDamageByEntityListener implements Listener {
 
         double damage = damager.getEquipment() == null ? 1 : getDamageFromItemInHand(damager.getEquipment().getItemInMainHand());
 
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, damagee, damager, damage, damager.getLocation(), CustomDamageSource.ATTACK, null);
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, damage, damager.getLocation(), CustomDamageSource.ATTACK);
-
-        customDamageEvent.setCommand(customDamageCommand);
-
-        Bukkit.getPluginManager().callEvent(customDamageEvent);
+        CustomDamageEvent customDamageEvent = CustomDamageEvent
+                .getBuilder()
+                .setDamage(damage)
+                .setCause(CustomDamageEvent.DamageCause.ATTACK)
+                .setDamagee(damagee)
+                .setDamager(damager)
+                .setLocation(damager.getLocation())
+                .build();
 
         if(!dc.getTeamManager().areEntitiesOnDifferentTeams(damager, damagee)) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }
 
+        customDamageEvent.callEvent();
+
+
         if (customDamageEvent.isCancelled()) {
-            System.out.println("custom damage event was cancelled.");
             return;
         }
-
-        System.out.println("Custom damage event is succesfully passed");
 
 
         event.setCancelled(true);
 
+        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, customDamageEvent);
         customDamageCommand.execute();
 
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
@@ -110,51 +103,47 @@ public class EntityDamageByEntityListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityLaunchProjectile(ProjectileLaunchEvent event) {
         if(event.isCancelled()) return;
-        CustomDamageEvent.addCustomDamageSourceData(dc, event.getEntity(), CustomDamageSource.ATTACK_PROJECTILE, false);
+        PersistenceUtil.setDamageCauseForProjectile(dc, event.getEntity(), CustomDamageEvent.DamageCause.ATTACK_PROJECTILE, false);
     }
 
     @EventHandler
     public void onDamageByProjectile(EntityDamageByEntityEvent event) {
-
-        if(!(event.getDamager() instanceof Projectile))
-            return;
-
-        if (!(event.getEntity() instanceof LivingEntity))
-            return;
-
-        Projectile projectile = (Projectile) event.getDamager();
-
-        if(!(projectile.getShooter() instanceof Player))
-            return;
-
         if (event.isCancelled())
             return;
 
-        Player damager = (Player) projectile.getShooter();
-        LivingEntity damagee = (LivingEntity) event.getEntity();
-
-        //TODO: Get the skill name from the skill id from the metadata of the arrow
-//        SkillId skillId = CustomDamageEvent.getSkillIdData(dc, projectile);
-        CustomDamageSource customDamageSource = CustomDamageEvent.getCustomDamageSourceData(dc, projectile);
-
-        if(customDamageSource == null) {
-            event.setCancelled(true);
+        if(!(event.getDamager() instanceof Projectile projectile))
             return;
+
+        if (!(event.getEntity() instanceof LivingEntity damagee))
+            return;
+
+        if(!(projectile.getShooter() instanceof Player damager))
+            return;
+
+
+        CustomDamageEventBuilder customDamageEventBuilder = CustomDamageEvent
+                .getBuilder()
+                .setDamage(event.getDamage())
+                .setDamager(damager)
+                .setDamagee(damagee)
+                .setProjectile(projectile)
+                .setLocation(projectile.getLocation())
+                .setCause(PersistenceUtil.getDamageCauseOfProjectile(dc, projectile));
+
+
+        SkillId projectileSkillId = PersistenceUtil.getSkillIdOfProjectile(dc, projectile);
+        if(projectileSkillId != null) {
+            customDamageEventBuilder.setCauseDisplayName(dc.getSkillManager().getSkillName(projectileSkillId));
         }
 
-
-
-        CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, (LivingEntity) event.getEntity(), damager, projectile, event.getDamage(), projectile.getLocation(), customDamageSource, null);
-        CustomDamageCommand customDamageCommand = new CustomDamageCommand(dc, damagee, damager, event.getDamage(), projectile.getLocation(), customDamageSource);
-
-        customDamageEvent.setCommand(customDamageCommand);
-
-        Bukkit.getPluginManager().callEvent(customDamageEvent);
+        CustomDamageEvent customDamageEvent = customDamageEventBuilder.build();
 
         if(dc.getTeamManager().getTeamFromEntity(damager).equals(dc.getTeamManager().getTeamFromEntity(damagee))) {
             customDamageEvent.setCancelled(true);
             event.setCancelled(true);
         }
+
+        customDamageEvent.callEvent();
 
         if (customDamageEvent.isCancelled())
             return;
@@ -162,7 +151,7 @@ public class EntityDamageByEntityListener implements Listener {
 
         event.setCancelled(true);
         projectile.remove();
-        customDamageCommand.execute();
+        new CustomDamageCommand(dc, customDamageEvent).execute();
 
     }
 
@@ -172,11 +161,23 @@ public class EntityDamageByEntityListener implements Listener {
         if(event instanceof EntityDamageByEntityEvent) return;
         if(!dc.getPlayerManager().hasBuildSelected(event.getEntity().getUniqueId())) return;
 
-        dc.getCombatLogger().logDamage(
-                event.getEntity().getUniqueId(),
-                null,
-                null,
-                null);
+        if(!(event.getEntity() instanceof LivingEntity damagee)) return;
+
+        CustomDamageEvent customDamageEvent = CustomDamageEvent
+                .getBuilder()
+                .setDamage(event.getDamage())
+                .setDamagee(damagee)
+                .setCause(CustomDamageEvent.DamageCause.getValueOf(event.getCause()))
+                .build();
+
+        customDamageEvent.callEvent();
+
+        if (customDamageEvent.isCancelled())
+            return;
+
+
+        event.setCancelled(true);
+        new CustomDamageCommand(dc, customDamageEvent).execute();
     }
 
     @EventHandler

@@ -56,6 +56,7 @@ public class StunStatusEffect extends StatusEffect {
 
     @EventHandler
     public void onCustomDamageEvent(CustomDamageEvent event) {
+        if(event.getDamager() == null) return;
         if (!locationMap.containsKey(event.getDamager().getUniqueId()))
             return;
         event.setCancelled(true);

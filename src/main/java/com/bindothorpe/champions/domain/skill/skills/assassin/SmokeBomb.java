@@ -12,7 +12,6 @@ import com.bindothorpe.champions.events.update.UpdateEvent;
 import com.bindothorpe.champions.events.update.UpdateType;
 import com.bindothorpe.champions.timer.Timer;
 import com.bindothorpe.champions.util.ChatUtil;
-import com.bindothorpe.champions.util.ComponentUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;

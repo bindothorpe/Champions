@@ -9,7 +9,6 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.EntityUtil;
@@ -43,17 +42,27 @@ public class WolfsPounce extends ChargeSkill implements ReloadableData {
         MobilityUtil.stopVelocity(player);
         active.remove(player.getUniqueId());
 
-        CustomDamageEvent damageEvent = new CustomDamageEvent(dc, (LivingEntity) entity, player, calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)) * chargePercentage, player.getLocation(), CustomDamageSource.SKILL, getName());
-        CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent);
-        damageEvent.setCommand(damageCommand);
+        if(!(entity instanceof LivingEntity livingEntity)) return;
 
-        Bukkit.getPluginManager().callEvent(damageEvent);
+        CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                .setDamager(player)
+                .setDamagee(livingEntity)
+                .setDamage(calculateBasedOnLevel(BASE_DAMAGE, DAMAGE_INCREASE_PER_LEVEL, getSkillLevel(player)) * chargePercentage)
+                .setCause(CustomDamageEvent.DamageCause.SKILL)
+                .setCauseDisplayName(dc.getSkillManager().getSkillName(getId()))
+                .setLocation(player.getLocation())
+                .setSendSkillHitToReceiver(true)
+                .setSendSkillHitToCaster(true)
+                .build();
 
-        if (damageEvent.isCancelled()) {
+
+        customDamageEvent.callEvent();
+
+        if (customDamageEvent.isCancelled()) {
             return;
         }
 
-        damageCommand.execute();
+        new CustomDamageCommand(dc, customDamageEvent).execute();
     }
 
     private void handleWolfsPounce(UUID uuid, int charge) {

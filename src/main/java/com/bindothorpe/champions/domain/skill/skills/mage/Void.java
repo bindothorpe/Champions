@@ -90,7 +90,7 @@ public class Void extends Skill implements ReloadableData {
     public void onTakeDamage(CustomDamageEvent event) {
         if(event.isCancelled()) return;
 
-        if(event.getCommand().getDamage() == 0) return;
+        if(event.getDamage() == 0) return;
 
         UUID uuid = event.getDamagee().getUniqueId();
 

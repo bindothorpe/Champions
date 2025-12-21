@@ -8,18 +8,16 @@ import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ComponentUtil;
-import com.bindothorpe.champions.util.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cleave extends Skill implements ReloadableData {
 
@@ -42,17 +40,21 @@ public class Cleave extends Skill implements ReloadableData {
 
             if(!dc.getTeamManager().areEntitiesOnDifferentTeams(livingEntity, player)) continue;
 
-            if(getId().toString().equals(event.getDamageSourceString())) return;
+            if(getName().equals(event.getCauseDisplayName())) return;
 
-            CustomDamageEvent customDamageEvent = new CustomDamageEvent(dc, livingEntity, player, null, event.getOriginalDamage() * calculateBasedOnLevel(BASE_DAMAGE_PERCENTAGE, DAMAGE_PERCENTAGE_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId())), event.getAttackLocation(), CustomDamageSource.ATTACK, getId().toString());
-            CustomDamageCommand command = new CustomDamageCommand(dc, customDamageEvent);
-            customDamageEvent.setCommand(command);
+            CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                    .setDamager(player)
+                    .setDamagee(livingEntity)
+                    .setDamage(event.getDamage() * calculateBasedOnLevel(BASE_DAMAGE_PERCENTAGE, DAMAGE_PERCENTAGE_INCREASE_PER_LEVEL, getSkillLevel(player.getUniqueId())))
+                    .setLocation(event.getLocation())
+                    .setCause(CustomDamageEvent.DamageCause.ATTACK)
+                    .setCauseDisplayName(getName())
+                    .build();
 
             customDamageEvent.callEvent();
 
             if(customDamageEvent.isCancelled()) return;
-
-            command.execute();
+            new CustomDamageCommand(dc, customDamageEvent).execute();
         }
 
     }
@@ -64,7 +66,7 @@ public class Cleave extends Skill implements ReloadableData {
             LEVEL_UP_COST = dc.getCustomConfigManager().getConfig("skill_config").getFile().getInt(getConfigPath("level_up_cost"));
             RANGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("range"));
             BASE_DAMAGE_PERCENTAGE = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("base_damage_percentage"));
-            DAMAGE_PERCENTAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("damage_percentage_increase_per_level"));;
+            DAMAGE_PERCENTAGE_INCREASE_PER_LEVEL = dc.getCustomConfigManager().getConfig("skill_config").getFile().getDouble(getConfigPath("damage_percentage_increase_per_level"));
             dc.getPlugin().getLogger().info(String.format("Successfully reloaded %s.", getName()));
             return true;
         } catch (Exception e) {

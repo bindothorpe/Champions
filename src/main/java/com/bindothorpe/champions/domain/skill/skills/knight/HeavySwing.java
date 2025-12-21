@@ -9,7 +9,6 @@ import com.bindothorpe.champions.domain.skill.SkillId;
 import com.bindothorpe.champions.domain.skill.SkillType;
 import com.bindothorpe.champions.domain.sound.CustomSound;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
-import com.bindothorpe.champions.events.damage.CustomDamageSource;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.ShapeUtil;
@@ -187,34 +186,30 @@ public class HeavySwing extends ChargeSkill implements ReloadableData {
             Collection<Entity> nearbyEntities = targetLocation.getWorld()
                     .getNearbyEntities(targetLocation, 0.8, 2.0, 0.8);
 
+            String causeDisplayName = dc.getSkillManager().getSkillName(getId());
+
             for (Entity entity : nearbyEntities) {
-                if (!(entity instanceof LivingEntity)) continue;
+                if (!(entity instanceof LivingEntity target)) continue;
                 if (entity.equals(player)) continue;
                 if (damagedEntities.contains(entity.getUniqueId())) continue;
 
-                LivingEntity target = (LivingEntity) entity;
+                CustomDamageEvent customDamageEvent = CustomDamageEvent.getBuilder()
+                        .setDamager(player)
+                        .setDamagee(target)
+                        .setDamage(finalDamage)
+                        .setLocation(player.getLocation())
+                        .setCause(CustomDamageEvent.DamageCause.SKILL)
+                        .setCauseDisplayName(causeDisplayName)
+                        .setSendSkillHitToCaster(true)
+                        .setSendSkillHitToReceiver(true)
+                        .build();
 
-                // Create damage event
-                CustomDamageEvent damageEvent = new CustomDamageEvent(dc, target, player, finalDamage,
-                        playerHeadLocation, CustomDamageSource.SKILL, getName());
-                CustomDamageCommand damageCommand = new CustomDamageCommand(dc, damageEvent);
-                damageEvent.setCommand(damageCommand);
 
-                Bukkit.getPluginManager().callEvent(damageEvent);
+                customDamageEvent.callEvent();
 
-                if (!damageEvent.isCancelled()) {
-                    damageCommand.execute();
-
-                    // Apply knockback
-                    Vector knockbackDirection = target.getLocation().toVector()
-                            .subtract(playerHeadLocation.toVector()).normalize();
-                    knockbackDirection.setY(0.2); // Vertical knockback
-                    knockbackDirection.multiply(1.0); // Horizontal knockback
-
-                    target.setVelocity(target.getVelocity().add(knockbackDirection));
-
-                    damagedEntities.add(entity.getUniqueId());
-                }
+                if (customDamageEvent.isCancelled()) continue;
+                new CustomDamageCommand(dc, customDamageEvent).execute();
+                damagedEntities.add(entity.getUniqueId());
             }
         }
     }

@@ -11,7 +11,6 @@ import com.bindothorpe.champions.events.interact.blocking.PlayerStartBlockingEve
 import com.bindothorpe.champions.events.interact.blocking.PlayerStopBlockingEvent;
 import com.bindothorpe.champions.events.interact.blocking.PlayerUpdateBlockingEvent;
 import com.bindothorpe.champions.util.ChatUtil;
-import com.bindothorpe.champions.util.ShapeUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
@@ -73,9 +72,8 @@ public class DefensiveStance extends Skill implements ReloadableData {
     @EventHandler
     public void onCustomDamage(CustomDamageEvent event) {
         if(event.isCancelled()) return;
-
+        if(event.getDamager() == null) return;
         if(!(event.getDamagee() instanceof Player player)) return;
-
         if(!activeBlockingSet.contains(player.getUniqueId())) return;
 
         double angle = getAngle(event.getDamager().getLocation().getDirection(), player.getLocation().getDirection());
@@ -86,8 +84,6 @@ public class DefensiveStance extends Skill implements ReloadableData {
             event.setCancelled(true);
             // Add your blocking logic here (particles, sounds, etc.)
         }
-
-        player.sendMessage(String.format("Angle was %.1f", angle));
     }
 
 
