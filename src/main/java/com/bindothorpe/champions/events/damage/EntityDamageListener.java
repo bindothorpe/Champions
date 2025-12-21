@@ -163,6 +163,7 @@ public class EntityDamageListener implements Listener {
 
         if(!(event.getEntity() instanceof LivingEntity damagee)) return;
 
+        System.out.println(event.getDamage());
         CustomDamageEvent customDamageEvent = CustomDamageEvent
                 .getBuilder()
                 .setDamage(event.getDamage())
@@ -174,7 +175,6 @@ public class EntityDamageListener implements Listener {
 
         if (customDamageEvent.isCancelled())
             return;
-
 
         event.setCancelled(true);
         new CustomDamageCommand(dc, customDamageEvent).execute();

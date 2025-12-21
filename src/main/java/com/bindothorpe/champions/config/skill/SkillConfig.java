@@ -164,6 +164,19 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.brute.stampede.knockback_increase_per_stack", 0.5);
         getFile().addDefault("skills.brute.stampede.base_damage", 0.0);
         getFile().addDefault("skills.brute.stampede.damage_increase_per_level", 0.25);
+        // Fury
+        getFile().addDefault("skills.brute.fury.max_level", 3);
+        getFile().addDefault("skills.brute.fury.level_up_cost", 1);
+        getFile().addDefault("skills.brute.fury.base_cooldown", 16.0);
+        getFile().addDefault("skills.brute.fury.cooldown_reduction_per_level", 1.0);
+        getFile().addDefault("skills.brute.fury.decay_delay", 5);
+        getFile().addDefault("skills.brute.fury.stack_decay_rate", 1);
+        getFile().addDefault("skills.brute.fury.max_stacks", 40);
+        getFile().addDefault("skills.brute.fury.stack_on_deal_damage", 3);
+        getFile().addDefault("skills.brute.fury.stack_on_take_damage", 1);
+        getFile().addDefault("skills.brute.fury.base_heal_per_stack", 0.5);
+        getFile().addDefault("skills.brute.fury.heal_per_stack_increase_per_level", 0.25);
+        getFile().addDefault("skills.brute.fury.damage_increase_per_missing_health", 0.1);
 
         // Knight
         // Bulls Charge

@@ -59,17 +59,22 @@ public class CustomDamageListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onTakeDamage(CustomDamageEvent event) {
         if(event.isCancelled())
             return;
 
 
-        if (!(event.getDamagee() instanceof Player player))
-            return;
+        if (event.getDamagee() instanceof Player damagee) {
+            dc.getCombatLogger().logDamageTaken(damagee.getUniqueId());
+            dc.getCombatLogger().logDamage(damagee.getUniqueId(), event.getDamager() == null ? null : event.getDamager().getUniqueId(), event.getCause(), event.getCauseDisplayName());
+        }
 
-        dc.getCombatLogger().logDamageTaken(player.getUniqueId());
-        dc.getCombatLogger().logDamage(player.getUniqueId(), event.getDamager() == null ? null : event.getDamager().getUniqueId(), event.getCause(), event.getCauseDisplayName());
+        if(event.getDamager() instanceof Player damager) {
+            dc.getCombatLogger().logDamageDealt(damager.getUniqueId());
+        }
+
+
     }
 
     @EventHandler

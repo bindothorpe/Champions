@@ -1,5 +1,6 @@
 package com.bindothorpe.champions.util;
 
+import jdk.jfr.Percentage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -120,6 +121,29 @@ public class ComponentUtil {
                 .append(Component.text(String.format("%.1fs", durationRemainingInSeconds)).color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false));
     }
 
+    public static Component progressBar(String symbol, NamedTextColor foregroundColor, NamedTextColor backgroundColor, int width, double foregroundPercentage) {
+        return progressBar(symbol, symbol, foregroundColor, backgroundColor, width, foregroundPercentage);
+    }
+
+    public static Component progressBar(String foregroundSymbol, String backgroundSymbol, NamedTextColor foregroundColor, NamedTextColor backgroundColor, int width, double foregroundPercentage) {
+        return progressBar(foregroundSymbol, backgroundSymbol, foregroundColor, backgroundColor, width, foregroundPercentage, false);
+    }
+
+    public static Component progressBar(String foregroundSymbol, String backgroundSymbol, NamedTextColor foregroundColor, NamedTextColor backgroundColor, int width, double foregroundPercentage, boolean rightToLeft) {
+        int foregroundWidth = (int) (foregroundPercentage * width);
+        int backgroundWidth = width - foregroundWidth;
+
+        if(rightToLeft) {
+            return Component.text(String.join("", Collections.nCopies(backgroundWidth, backgroundSymbol)), foregroundColor)
+                    .append(Component.text(String.join("", Collections.nCopies(foregroundWidth, foregroundSymbol)), backgroundColor));
+        } else {
+            return Component.text(String.join("", Collections.nCopies(foregroundWidth, foregroundSymbol)), foregroundColor)
+                    .append(Component.text(String.join("", Collections.nCopies(backgroundWidth, backgroundSymbol)), backgroundColor));
+        }
+
+
+    }
+
     public static Component skillCharges(String skillName, int currentCharges, int maxCharges, double cooldownPercentage) {
         return skillCharges(skillName, currentCharges, maxCharges, cooldownPercentage, NamedTextColor.YELLOW);
     }
@@ -129,7 +153,7 @@ public class ComponentUtil {
         Component component;
 
         if(skillName != null) {
-            component = Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+            component = Component.text(skillName).decorate(TextDecoration.BOLD).color(net.kyori.adventure.text.format.NamedTextColor.WHITE)
                     .append(Component.text(" ").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY))
                     .append(Component.text("‹").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY));
         } else {
@@ -137,7 +161,7 @@ public class ComponentUtil {
         }
 
         for(int charge = 1; charge <= maxCharges; charge++) {
-            component = component.append(Component.text("◆").decoration(TextDecoration.BOLD, false).color(charge <= currentCharges ? highlightColor : NamedTextColor.GRAY));
+            component = component.append(Component.text("◆").decoration(TextDecoration.BOLD, false).color(charge <= currentCharges ? highlightColor : net.kyori.adventure.text.format.NamedTextColor.GRAY));
             if(charge != maxCharges) {
                 component = component.append(Component.text(" · ").decoration(TextDecoration.BOLD, false).color(NamedTextColor.GRAY));
             }
@@ -154,7 +178,7 @@ public class ComponentUtil {
     }
 
     public static Component skillCharge(String skillName, boolean showPercentage, int charge, int maxCharge, int width, String symbol) {
-        Component component = Component.text(skillName).decorate(TextDecoration.BOLD).color(NamedTextColor.WHITE)
+        Component component = Component.text(skillName).decorate(TextDecoration.BOLD).color(net.kyori.adventure.text.format.NamedTextColor.WHITE)
                 .append(Component.text(" ").decoration(TextDecoration.BOLD, false)
                         .append(chargeBar(charge, maxCharge, width, symbol)));
 
@@ -162,7 +186,7 @@ public class ComponentUtil {
 
             double percentage = Math.min((double) charge / (double) maxCharge, 1);
             component = component.append(Component.text(" ").decoration(TextDecoration.BOLD, false)
-                    .append(Component.text(String.format("%d%%", (int) (percentage * 100))).color(NamedTextColor.WHITE)));
+                    .append(Component.text(String.format("%d%%", (int) (percentage * 100))).color(net.kyori.adventure.text.format.NamedTextColor.WHITE)));
         }
 
         return component;

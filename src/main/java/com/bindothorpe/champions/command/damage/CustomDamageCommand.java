@@ -42,6 +42,7 @@ public class CustomDamageCommand implements Command {
         if(damagee.isDead()) return;
 
         double healthAfterDamage = damagee.getHealth() - (getCalculatedDamage());
+        System.out.println(healthAfterDamage);
 
         if(healthAfterDamage <= 0 && damagee instanceof Player) {
             createAndCallCustomDeathEvent();
@@ -68,13 +69,15 @@ public class CustomDamageCommand implements Command {
 
 
     private double getCalculatedDamage() {
-        return Math.max(0,
-                calculateEntityStatusValue(
-                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_DONE : EntityStatusType.SKILL_DAMAGE_DONE,
-                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_RECEIVED : EntityStatusType.SKILL_DAMAGE_RECEIVED,
-                    event.getDamage()
-                )
-        );
+        //TODO: Calculate the damage
+        return event.getDamage();
+//        return Math.max(0,
+//                calculateEntityStatusValue(
+//                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_DONE : EntityStatusType.SKILL_DAMAGE_DONE,
+//                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_RECEIVED : EntityStatusType.SKILL_DAMAGE_RECEIVED,
+//                    event.getDamage()
+//                )
+//        );
     }
 
     private @NotNull Vector getCalculatedVelocity() {

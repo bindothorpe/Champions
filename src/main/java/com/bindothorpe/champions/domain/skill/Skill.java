@@ -310,7 +310,6 @@ public abstract class Skill implements Listener {
             double cooldownPercentage = dc.getCooldownManager().getCooldownPercentage(uuid, this);
 
             ActionBarUtil.sendMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds), ActionBarPriority.MEDIUM);
-//            ChatUtil.sendActionBarMessage(player, ComponentUtil.cooldownRemainingBar(name, cooldownPercentage, cooldownReminingInSeconds));
         }
     }
 
