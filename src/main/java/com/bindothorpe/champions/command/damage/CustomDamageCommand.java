@@ -56,7 +56,7 @@ public class CustomDamageCommand implements Command {
             damagee.setVelocity(getCalculatedVelocity());
 
         // Play hurt animation and sound
-        if(event.getDamage() > 0) {
+        if(event.getDamage() > 0 && event.playDamageEffectAndSound()) {
             damagee.playHurtAnimation(0);
 
             if(damagee.getHurtSound() != null)

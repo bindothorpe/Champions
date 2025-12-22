@@ -20,13 +20,14 @@ public class CustomDamageEventBuilder {
     private Vector direction;
     private boolean sendSkillHitToCaster = false;
     private boolean sendSkillHitToReceiver = false;
+    private boolean playDamageEffectAndSound = true;
 
     CustomDamageEventBuilder() {}
 
     public CustomDamageEvent build() {
         assert damagee != null : "Damagee is null";
         assert cause != null : "Cause is null";
-        return new CustomDamageEvent(damager, damagee, damage, forceMultiplier, horizontalKnockback, cause, causeDisplayName, projectile, location, direction, sendSkillHitToCaster, sendSkillHitToReceiver);
+        return new CustomDamageEvent(damager, damagee, damage, forceMultiplier, horizontalKnockback, cause, causeDisplayName, projectile, location, direction, sendSkillHitToCaster, sendSkillHitToReceiver, playDamageEffectAndSound);
     }
 
     public CustomDamageEventBuilder setDamager(LivingEntity damager) {
@@ -102,6 +103,17 @@ public class CustomDamageEventBuilder {
 
     public CustomDamageEventBuilder setSendSkillHitToReceiver(boolean sendSkillHitToReceiver) {
         this.sendSkillHitToReceiver = sendSkillHitToReceiver;
+        return this;
+    }
+
+    /**
+     * Whether the damage effect and sound should play.
+     * <p>
+     * Default value is set to <code>true</code>.
+     * @param playDamageEffectAndSound Whether the damage effect and sound should play
+     */
+    public CustomDamageEventBuilder setPlayDamageEffectAndSound(boolean playDamageEffectAndSound) {
+        this.playDamageEffectAndSound = playDamageEffectAndSound;
         return this;
     }
 

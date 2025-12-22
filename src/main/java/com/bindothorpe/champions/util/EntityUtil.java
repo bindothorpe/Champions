@@ -2,12 +2,14 @@ package com.bindothorpe.champions.util;
 
 import com.bindothorpe.champions.events.interact.blocking.PlayerBlockListener;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 public class EntityUtil {
 
@@ -27,5 +29,18 @@ public class EntityUtil {
 
     public static double getPlayerBlockingDuration(@NotNull Player player) {
         return PlayerBlockListener.getPlayerBlockingDuration(player);
+    }
+
+    public static void fullyHealEntity(@NotNull LivingEntity entity) {
+        try {
+            entity.setHealth(Objects.requireNonNull(entity.getAttribute(Attribute.MAX_HEALTH)).getValue());
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static double getMaxHealth(@NotNull LivingEntity entity) {
+        if(entity.getAttribute(Attribute.MAX_HEALTH) == null) return 20.0D;
+        return entity.getAttribute(Attribute.MAX_HEALTH).getValue();
     }
 }

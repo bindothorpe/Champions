@@ -13,8 +13,6 @@ import com.bindothorpe.champions.util.ComponentUtil;
 import com.bindothorpe.champions.util.ItemUtil;
 import com.bindothorpe.champions.util.actionBar.ActionBarPriority;
 import com.bindothorpe.champions.util.actionBar.ActionBarUtil;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
-import io.papermc.paper.event.player.PlayerPickItemEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -23,10 +21,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedMainHandEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -146,7 +142,12 @@ public abstract class Skill implements Listener {
         SkillUseEvent skillUseEvent = new SkillUseEvent(player, getId(), users.get(uuid));
         Bukkit.getPluginManager().callEvent(skillUseEvent);
 
-        if (skillUseEvent.isCancelled()) return false;
+        if (skillUseEvent.isCancelled()) {
+            if(skillUseEvent.getCancelReason() != null) {
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.SKILL, skillUseEvent.getCancelReason());
+            }
+            return false;
+        }
 
 
         if(sendActivationMessageOnSuccess) ChatUtil.sendSkillMessage(player, getName(), users.get(uuid));

@@ -1,11 +1,13 @@
 package com.bindothorpe.champions.events.skill;
 
 import com.bindothorpe.champions.domain.skill.SkillId;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SkillUseEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS_LIST = new HandlerList();
@@ -13,6 +15,7 @@ public class SkillUseEvent extends Event implements Cancellable {
     private final Player player;
     private final SkillId skillId;
     private final int skillLevel;
+    private @Nullable Component cancelReason;
 
     public SkillUseEvent(Player player, SkillId skillId, int skillLevel) {
         this.player = player;
@@ -42,6 +45,11 @@ public class SkillUseEvent extends Event implements Cancellable {
         cancelled = cancel;
     }
 
+    public void setCancelled(boolean cancel, Component reason) {
+        setCancelled(cancel);
+        this.cancelReason = reason;
+    }
+
     @Override
     public @NotNull HandlerList getHandlers() {
         return HANDLERS_LIST;
@@ -49,5 +57,9 @@ public class SkillUseEvent extends Event implements Cancellable {
 
     public static HandlerList getHandlerList() {
         return HANDLERS_LIST;
+    }
+
+    public @Nullable Component getCancelReason() {
+        return cancelReason;
     }
 }

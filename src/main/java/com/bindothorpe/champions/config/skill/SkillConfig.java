@@ -177,6 +177,13 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.brute.fury.base_heal_per_stack", 0.5);
         getFile().addDefault("skills.brute.fury.heal_per_stack_increase_per_level", 0.25);
         getFile().addDefault("skills.brute.fury.damage_increase_per_missing_health", 0.1);
+        // Glory
+        getFile().addDefault("skills.brute.glory.max_level", 3);
+        getFile().addDefault("skills.brute.glory.level_up_cost", 1);
+        getFile().addDefault("skills.brute.glory.starting_health_decay_per_tick", 0.2D);
+        getFile().addDefault("skills.brute.glory.health_decay_increase_per_tick", 0.1D);
+        getFile().addDefault("skills.brute.glory.base_life_steal_percentage", 0.5D);
+        getFile().addDefault("skills.brute.glory.life_steal_percentage_increase_per_level", 0.25D);
 
         // Knight
         // Bulls Charge

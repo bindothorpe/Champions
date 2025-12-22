@@ -32,8 +32,9 @@ public class CustomDamageEvent extends Event implements Cancellable {
     private boolean sendSkillHitToReceiver;
     private boolean suppressHitSound = false;
     private boolean horizontalKnockback = true;
+    private boolean playDamageEffectAndSound = true;
 
-    CustomDamageEvent(@Nullable LivingEntity damager, @NotNull LivingEntity damagee, double damage, double forceMultiplier, boolean horizontalKnockback, @NotNull DamageCause cause, @Nullable String causeDisplayName, @Nullable Projectile projectile, @Nullable Location location, Vector direction, boolean sendSkillHitToCaster, boolean sendSkillHitToReceiver) {
+    CustomDamageEvent(@Nullable LivingEntity damager, @NotNull LivingEntity damagee, double damage, double forceMultiplier, boolean horizontalKnockback, @NotNull DamageCause cause, @Nullable String causeDisplayName, @Nullable Projectile projectile, @Nullable Location location, Vector direction, boolean sendSkillHitToCaster, boolean sendSkillHitToReceiver, boolean playDamageEffectAndSound) {
         this.damager = damager;
         this.damagee = damagee;
         this.damage = damage;
@@ -46,6 +47,7 @@ public class CustomDamageEvent extends Event implements Cancellable {
         this.sendSkillHitToReceiver = sendSkillHitToReceiver;
         this.horizontalKnockback = horizontalKnockback;
         this.direction = direction;
+        this.playDamageEffectAndSound = playDamageEffectAndSound;
     }
 
 
@@ -212,6 +214,14 @@ public class CustomDamageEvent extends Event implements Cancellable {
 
     public void setDirection(@Nullable Vector direction) {
         this.direction = direction;
+    }
+
+    public void playDamageEffectAndSound(boolean playDamageEffectAndSound) {
+        this.playDamageEffectAndSound = playDamageEffectAndSound;
+    }
+
+    public boolean playDamageEffectAndSound() {
+        return this.playDamageEffectAndSound;
     }
 
 
