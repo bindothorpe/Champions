@@ -4,6 +4,7 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.command.Command;
 import com.bindothorpe.champions.command.death.CustomDeathCommand;
 import com.bindothorpe.champions.domain.combat.DamageLog;
+import com.bindothorpe.champions.domain.entityStatus.EntityStatus;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusType;
 import com.bindothorpe.champions.events.damage.CustomDamageEvent;
 import com.bindothorpe.champions.events.death.CustomDeathEvent;
@@ -42,7 +43,6 @@ public class CustomDamageCommand implements Command {
         if(damagee.isDead()) return;
 
         double healthAfterDamage = damagee.getHealth() - (getCalculatedDamage());
-        System.out.println(healthAfterDamage);
 
         if(healthAfterDamage <= 0 && damagee instanceof Player) {
             createAndCallCustomDeathEvent();
@@ -69,15 +69,24 @@ public class CustomDamageCommand implements Command {
 
 
     private double getCalculatedDamage() {
-        //TODO: Calculate the damage
-        return event.getDamage();
-//        return Math.max(0,
-//                calculateEntityStatusValue(
-//                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_DONE : EntityStatusType.SKILL_DAMAGE_DONE,
-//                    event.getCause().equals(CustomDamageEvent.DamageCause.ATTACK) ? EntityStatusType.ATTACK_DAMAGE_RECEIVED : EntityStatusType.SKILL_DAMAGE_RECEIVED,
-//                    event.getDamage()
-//                )
-//        );
+        EntityStatusType done = switch (event.getCause()) {
+            case SKILL -> EntityStatusType.SKILL_DAMAGE_DONE;
+            case ATTACK -> EntityStatusType.ATTACK_DAMAGE_DONE;
+            default -> EntityStatusType.DAMAGE_DONE;
+        };
+        EntityStatusType received = switch (event.getCause()) {
+            case SKILL -> EntityStatusType.SKILL_DAMAGE_RECEIVED;
+            case ATTACK -> EntityStatusType.ATTACK_DAMAGE_RECEIVED;
+            default -> EntityStatusType.DAMAGE_RECEIVED;
+        };
+
+        return Math.max(0,
+                calculateEntityStatusValue(
+                    done,
+                    received,
+                    event.getDamage()
+                )
+        );
     }
 
     private @NotNull Vector getCalculatedVelocity() {
@@ -148,8 +157,8 @@ public class CustomDamageCommand implements Command {
 
         double finalDone, finalReceived;
 
-        double doneMod = damager == null ? 0 : dc.getEntityStatusManager().getModifcationValue(damager.getUniqueId(), done);
-        double doneMult = damager == null ? 0 : dc.getEntityStatusManager().getMultiplicationValue(damager.getUniqueId(), done);
+        double doneMod = damager == null ? EntityStatus.BASE_MOD : dc.getEntityStatusManager().getModifcationValue(damager.getUniqueId(), done);
+        double doneMult = damager == null ? EntityStatus.BASE_MULT : dc.getEntityStatusManager().getMultiplicationValue(damager.getUniqueId(), done);
 
         double receivedMod = dc.getEntityStatusManager().getModifcationValue(damagee.getUniqueId(), received);
         double receivedMult = dc.getEntityStatusManager().getMultiplicationValue(damagee.getUniqueId(), received);
@@ -160,7 +169,6 @@ public class CustomDamageCommand implements Command {
 
         finalDone = (originalValue + doneMod) * doneMult;
         finalReceived = (originalValue + receivedMod) * receivedMult;
-
 
         return Math.max(0, originalValue + finalDone - finalReceived);
     }

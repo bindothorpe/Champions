@@ -198,22 +198,17 @@ public class EntityStatusManager {
 
         //If there are no statuses for the entity, return 0
         if (statuses == null) {
-            return 0;
+            return EntityStatus.BASE_MOD;
         }
 
         //Get the set of statuses for the type of status being removed
         Set<EntityStatus> statusSet = statuses.get(type);
         if (statusSet == null) {
-            return 0;
+            return EntityStatus.BASE_MOD;
         }
 
         Optional<EntityStatus> optionalStatus = statusSet.stream().filter(status -> !status.isMultiplier()).filter(EntityStatus::isAbsolute).findFirst();
-        if (optionalStatus.isPresent()) {
-            return optionalStatus.get().getValue();
-        }
-
-        //Return the sum of the values of all the statuses that are not multipliers
-        return statusSet.stream().filter(status -> !status.isMultiplier()).map(EntityStatus::getValue).reduce(0.0, Double::sum);
+        return optionalStatus.map(EntityStatus::getValue).orElseGet(() -> statusSet.stream().filter(status -> !status.isMultiplier()).map(EntityStatus::getValue).reduce(EntityStatus.BASE_MOD, Double::sum));
     }
 
     /**
@@ -232,22 +227,17 @@ public class EntityStatusManager {
 
         //If there are no statuses for the entity, return 1
         if (statuses == null) {
-            return 1;
+            return EntityStatus.BASE_MULT;
         }
 
         //Get the set of statuses for the type of status being removed
         Set<EntityStatus> statusSet = statuses.get(type);
         if (statusSet == null) {
-            return 1;
+            return EntityStatus.BASE_MULT;
         }
 
         Optional<EntityStatus> optionalStatus = statusSet.stream().filter(EntityStatus::isMultiplier).filter(EntityStatus::isAbsolute).findFirst();
-        if (optionalStatus.isPresent()) {
-            return optionalStatus.get().getValue();
-        }
-
-        //Return the sum of the values of all the statuses that are multipliers
-        return statusSet.stream().filter(EntityStatus::isMultiplier).map(EntityStatus::getValue).reduce(1.0, (a, b) -> a + b);
+        return optionalStatus.map(EntityStatus::getValue).orElseGet(() -> statusSet.stream().filter(EntityStatus::isMultiplier).map(EntityStatus::getValue).reduce(EntityStatus.BASE_MULT, Double::sum));
     }
 
     /**

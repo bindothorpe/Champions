@@ -18,6 +18,9 @@ import java.util.Objects;
  */
 public class EntityStatus {
 
+    public static final double BASE_MOD = 0;
+    public static final double BASE_MULT = 1;
+
     private final EntityStatusType type;
     private double value;
     private final double duration;
