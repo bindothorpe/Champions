@@ -38,7 +38,14 @@ public enum SkillId {
     BLINK(SkillType.AXE),
     FLASH(SkillType.AXE),
     CLAW(SkillType.SWORD),
-    QUICK_STEP(SkillType.PASSIVE_B), ISOLATION(SkillType.PASSIVE_B), STAMPEDE(SkillType.PASSIVE_B), LOTUS_TRAP(SkillType.PASSIVE_A), TEST_SKILL(SkillType.SWORD), FURY(SkillType.SWORD), GLORY(SkillType.PASSIVE_B);
+    QUICK_STEP(SkillType.PASSIVE_B),
+    ISOLATION(SkillType.PASSIVE_B),
+    STAMPEDE(SkillType.PASSIVE_B),
+    LOTUS_TRAP(SkillType.PASSIVE_A),
+    TEST_SKILL(SkillType.SWORD),
+    FURY(SkillType.SWORD),
+    GLORY(SkillType.PASSIVE_B),
+    PHASE_WARP(SkillType.SWORD);
 
 
     private final SkillType skillType;

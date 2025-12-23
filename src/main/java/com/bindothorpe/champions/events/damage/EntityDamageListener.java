@@ -87,7 +87,7 @@ public class EntityDamageListener implements Listener {
         lastHit.put(damagee.getUniqueId(), System.currentTimeMillis());
     }
 
-    private double getDamageFromItemInHand(@Nullable ItemStack itemInMainHand) {
+    public static double getDamageFromItemInHand(@Nullable ItemStack itemInMainHand) {
         if(itemInMainHand == null) return 1.0;
 
         Material material = itemInMainHand.getType();

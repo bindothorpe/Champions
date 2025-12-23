@@ -120,7 +120,7 @@ public class Blink extends Skill implements ReloadableData {
                         "De-blink",
                         percentage,
                         seconds),
-                    ActionBarPriority.LOW);
+                    ActionBarPriority.HIGH);
         }
 
     }

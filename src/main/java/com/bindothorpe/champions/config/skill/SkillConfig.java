@@ -337,6 +337,17 @@ public class SkillConfig extends CustomConfig {
         getFile().addDefault("skills.mage.static_lazer.distance_increase_per_level", 10.0);
         getFile().addDefault("skills.mage.static_lazer.detection_radius", 0.3);
         getFile().addDefault("skills.mage.static_lazer.detection_density_per_block", 2.0);
+        // Phase Warp
+        getFile().addDefault("skills.mage.phase_warp.max_level", 3);
+        getFile().addDefault("skills.mage.phase_warp.level_up_cost", 1);
+        getFile().addDefault("skills.mage.phase_warp.base_cooldown", 10.0);
+        getFile().addDefault("skills.mage.phase_warp.cooldown_reduction_per_level", 1.0);
+        getFile().addDefault("skills.mage.phase_warp.base_damage", 1.0);
+        getFile().addDefault("skills.mage.phase_warp.damage_increase_per_level", 1.0);
+        getFile().addDefault("skills.mage.phase_warp.base_warp_distance", 6.0);
+        getFile().addDefault("skills.mage.phase_warp.warp_distance_increase_per_level", 1.0);
+        getFile().addDefault("skills.mage.phase_warp.dash_strength", 1.2);
+        getFile().addDefault("skills.mage.phase_warp.recast_duration", 5.0);
 
         // Ranger
         // Bouncing Arrow

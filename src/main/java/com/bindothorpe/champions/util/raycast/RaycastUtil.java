@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.util.raycast;
 
 import com.bindothorpe.champions.util.raycast.RaycastResult;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
@@ -11,8 +12,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class RaycastUtil {
+
+
 
     /**
      * Performs a raycast from the player's eye location in their looking direction.
@@ -42,6 +46,48 @@ public class RaycastUtil {
             boolean passTroughTerrain,
             boolean passTroughEntity,
             boolean allowMultipleEntitiesHit) {
+        return drawRaycastFromPlayerInLookingDirection(
+                player,
+                distance,
+                densityPerBlock,
+                detectionRadius,
+                passTroughTerrain,
+                passTroughEntity,
+                allowMultipleEntitiesHit,
+                null
+        );
+    }
+
+    /**
+     * Performs a raycast from the player's eye location in their looking direction.
+     * The raycast can detect both living entities and blocks along its path.
+     *
+     * @param player The player from whose eye location the raycast originates
+     * @param distance The maximum distance the raycast will travel in blocks
+     * @param densityPerBlock The number of sample points per block (e.g., 2.0 = 2 points per block).
+     *                        Higher values provide more accurate detection but are more performance intensive
+     * @param detectionRadius The radius around each raycast point to check for living entities.
+     *                        Larger values make it easier to hit entities but less precise
+     * @param passTroughTerrain If false, the raycast stops when hitting a non-passable block.
+     *                          If true, the raycast ignores terrain and continues through blocks
+     * @param passTroughEntity If false, the raycast stops when hitting any living entities.
+     *                         If true, the raycast continues through entities along the entire path
+     * @param allowMultipleEntitiesHit If true and passTroughEntity is false, collects all entities at the hit point.
+     *                                 If true and passTroughEntity is true, collects all entities along the path.
+     *                                 If false, only records the first entity encountered
+     * @param entityFilter The condition the entity should meet for it to be detected
+     * @return A RaycastResult containing all living entities hit,
+     *         the first block hit (if any), and all raycast points generated
+     */
+    public static RaycastResult drawRaycastFromPlayerInLookingDirection(
+            Player player,
+            double distance,
+            double densityPerBlock,
+            double detectionRadius,
+            boolean passTroughTerrain,
+            boolean passTroughEntity,
+            boolean allowMultipleEntitiesHit,
+            Predicate<LivingEntity> entityFilter) {
 
         List<Vector> points = new ArrayList<>();
         Set<LivingEntity> hitEntities = new HashSet<>();
@@ -76,6 +122,11 @@ public class RaycastUtil {
 
                 // Skip entities we've already hit (only relevant when passing through entities)
                 if (hitEntities.contains(entity)) {
+                    continue;
+                }
+
+                // Apply custom filter
+                if (entityFilter != null && !entityFilter.test(entity)) {
                     continue;
                 }
 
