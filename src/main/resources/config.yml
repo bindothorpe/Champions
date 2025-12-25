@@ -2,3 +2,7 @@ database:
   url: ""
   user: ""
   password: ""
+  host: ""
+  port: ""
+  database: ""
+  useSSL: false

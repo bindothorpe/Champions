@@ -25,8 +25,16 @@ public class ChatUtil {
         }
     }
 
+    public static void sendMessage(Player player, Component prefix, Component message) {
+        if(prefix == null) {
+            player.sendMessage(message);
+        } else {
+            player.sendMessage(prefix.append(message));
+        }
+    }
+
     public static void sendMessage(Player player, Component message) {
-        sendMessage(player, null, message);
+        sendMessage(player, (Component) null, message);
     }
 
     public static void sendActionBarMessage(Player player, Component message) {

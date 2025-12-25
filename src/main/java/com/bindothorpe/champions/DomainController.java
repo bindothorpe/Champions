@@ -18,7 +18,11 @@ import com.bindothorpe.champions.domain.sound.SoundManager;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffectManager;
 import com.bindothorpe.champions.domain.team.TeamManager;
 import com.bindothorpe.champions.gui.GuiManager;
+import com.infernalsuite.asp.loaders.file.FileLoader;
+import com.infernalsuite.asp.loaders.mysql.MysqlLoader;
+import org.bukkit.Bukkit;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
 
@@ -44,6 +48,9 @@ public class DomainController {
     private final CustomConfigManager customConfigManager;
     private final SoundManager soundManager;
 
+    private FileLoader loader;
+    private MysqlLoader mysqlLoader;
+
     public DomainController(ChampionsPlugin plugin) {
         this.plugin = plugin;
         databaseController = DatabaseController.getInstance(this);
@@ -64,6 +71,13 @@ public class DomainController {
         gameMapManager = GameMapManager.getInstance(this);
         customConfigManager = CustomConfigManager.getInstance(this);
         soundManager = SoundManager.getInstance(this);
+        File slimeWorldDir = new File(Bukkit.getWorldContainer(), "slime_worlds");
+        if(slimeWorldDir.isDirectory()) {
+            loader = new FileLoader(slimeWorldDir);
+        } else {
+            plugin.getLogger().warning("Could not read slime_worlds");
+        }
+
         try {
             databaseController.initializeDatabase();
         } catch (SQLException e) {
@@ -145,5 +159,9 @@ public class DomainController {
 
     public SoundManager getSoundManager() {
         return soundManager;
+    }
+
+    public FileLoader getLoader() {
+        return loader;
     }
 }

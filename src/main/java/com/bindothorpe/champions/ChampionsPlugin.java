@@ -2,6 +2,8 @@ package com.bindothorpe.champions;
 
 import com.bindothorpe.champions.commands.*;
 import com.bindothorpe.champions.events.update.Updater;
+import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
+import com.infernalsuite.asp.api.loaders.SlimeLoader;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,13 +15,13 @@ public final class ChampionsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
         dc = new DomainController(this);
         InitDataConfig dataConfig = new InitDataConfig(dc);
         dataConfig.initialize();
 
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, commands -> {
             commands.registrar().register(ChampionsCommand.createCommand(dc).build());
+            commands.registrar().register(GameMapCommand.createCommand(dc).build());
         });
 
         Objects.requireNonNull(getCommand("build")).setExecutor(new BuildCommand(dc));
@@ -27,7 +29,6 @@ public final class ChampionsPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("game")).setExecutor(new GameCommand(dc));
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand(dc));
         Objects.requireNonNull(getCommand("cp")).setExecutor(new CapturePointCommand(dc));
-        Objects.requireNonNull(getCommand("map")).setExecutor(new GameMapCommand(dc));
         Objects.requireNonNull(getCommand("sound")).setExecutor(new SoundCommand());
         Updater.getInstance(dc).start();
     }

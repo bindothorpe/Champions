@@ -3,6 +3,7 @@ package com.bindothorpe.champions.database;
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.database.service.BuildService;
 import com.bindothorpe.champions.domain.build.Build;
+import com.infernalsuite.asp.loaders.mysql.MysqlLoader;
 
 import java.sql.*;
 import java.util.List;
@@ -13,6 +14,7 @@ public class DatabaseController {
     private final DomainController dc;
     private static DatabaseController instance;
     private Connection connection;
+    private MysqlLoader mysqlLoader;
 
     private BuildService buildService;
 
@@ -38,15 +40,20 @@ public class DatabaseController {
             return connection;
         }
 
+        String url = dc.getPlugin().getConfig().getString("database.url");
+        String user = dc.getPlugin().getConfig().getString("database.user");
+        String password = dc.getPlugin().getConfig().getString("database.password");
+        String host = dc.getPlugin().getConfig().getString("database.host");
+        int port = dc.getPlugin().getConfig().getInt("database.port");
+        String database = dc.getPlugin().getConfig().getString("database.database");
+        boolean useSSL = dc.getPlugin().getConfig().getBoolean("database.useSSL");
         try {
             //Try to connect to my MySQL database running locally
-            String url = dc.getPlugin().getConfig().getString("database.url");
-            String user = dc.getPlugin().getConfig().getString("database.user");
-            String password = dc.getPlugin().getConfig().getString("database.password");
 
             Connection connection = DriverManager.getConnection(url, user, password);
 
             this.connection = connection;
+            this.mysqlLoader = new MysqlLoader(url, host, port, database, useSSL, user, password);
 
             return connection;
         } catch (SQLException e) {
@@ -126,4 +133,7 @@ public class DatabaseController {
     }
 
 
+    public MysqlLoader getMysqlLoader() {
+        return mysqlLoader;
+    }
 }
