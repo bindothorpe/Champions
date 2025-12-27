@@ -88,7 +88,7 @@ public class InitDataConfig {
 
         for(Player player : Bukkit.getOnlinePlayers()) {
 
-            dc.getTeamManager().addEntityToTeam(player, TeamColor.BLUE);
+            dc.getTeamManager().addEntityToTeam(player, TeamColor.BLUE, true);
 
             dc.getScoreboardManager().setScoreboard(player.getUniqueId());
 

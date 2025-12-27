@@ -34,9 +34,10 @@ public class DatabaseController {
 
     private Connection getConnection() throws SQLException {
 
-        if (connection != null) {
+        if (connection != null && !connection.isClosed() && connection.isValid(2)) {
             return connection;
         }
+
 
         try {
             //Try to connect to my MySQL database running locally

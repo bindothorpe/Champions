@@ -47,11 +47,7 @@ public class TeamCommand implements CommandExecutor {
                 return true;
             }
 
-            dc.getTeamManager().addEntityToTeam(player, color);
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
-                    Component.text("You are now on the ").color(NamedTextColor.GRAY)
-                            .append(Component.text(color.toString()).color(color.getTextColor()))
-                            .append(Component.text(" team.").color(NamedTextColor.GRAY)));
+            dc.getTeamManager().addEntityToTeam(player, color, true);
         }
 
         return true;

@@ -5,6 +5,7 @@ import com.bindothorpe.champions.database.DatabaseController;
 import com.bindothorpe.champions.database.DatabaseResponse;
 import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.game.GameState;
+import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.events.build.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -72,6 +73,10 @@ public class BuildListener implements Listener {
                 });
             }
         });
+
+        if(dc.getTeamManager().getTeamFromEntity(event.getPlayer()) == null) {
+            dc.getTeamManager().addEntityToTeam(event.getPlayer(), TeamColor.BLUE, true);
+        }
     }
 
     @EventHandler

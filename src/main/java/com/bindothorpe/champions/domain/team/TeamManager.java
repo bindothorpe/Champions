@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.domain.team;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.util.ChatUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -40,6 +41,11 @@ public class TeamManager {
     }
 
     public void addEntityToTeam(Entity entity, TeamColor teamColor) {
+        addEntityToTeam(entity, teamColor, false);
+    }
+
+
+    public void addEntityToTeam(Entity entity, TeamColor teamColor, boolean verbose) {
         Team team = teams.get(getTeamFromEntity(entity));
         if(team != null) {
             team.removeEntry(entity.getUniqueId().toString());
@@ -47,13 +53,15 @@ public class TeamManager {
         team = teams.get(teamColor);
         team.addEntry(entity.getUniqueId().toString());
 
-        if(entity instanceof Player) {
-            Player player = (Player) entity;
+        if(entity instanceof Player player) {
             player.playerListName(Component.text(player.getName()).color(teamColor.getTextColor()));
-        }
-
-        if(entity instanceof Player) {
             dc.getScoreboardManager().updateScoreboard(entity.getUniqueId());
+            if(verbose) {
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.GAME,
+                        Component.text("You are now on the ").color(NamedTextColor.GRAY)
+                                .append(Component.text(teamColor.toString()).color(teamColor.getTextColor()))
+                                .append(Component.text(" team.").color(NamedTextColor.GRAY)));
+            }
         }
     }
 
