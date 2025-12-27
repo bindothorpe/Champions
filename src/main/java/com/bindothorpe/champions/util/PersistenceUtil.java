@@ -9,6 +9,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +21,14 @@ public class PersistenceUtil {
 
     public static void removeData(PersistentDataHolder persistentDataHolder, NamespacedKey key) {
         persistentDataHolder.getPersistentDataContainer().remove(key);
+    }
+
+    public static <P, C> C getData(PersistentDataHolder persistentDataHolder, NamespacedKey key, PersistentDataType<P, C> dataType) {
+        return persistentDataHolder.getPersistentDataContainer().get(key, dataType);
+    }
+
+    public static <P, C> boolean hasData(PersistentDataHolder persistentDataHolder, NamespacedKey key, PersistentDataType<P, C> dataType) {
+        return persistentDataHolder.getPersistentDataContainer().has(key, dataType);
     }
 
     public static void setDamageCauseForProjectile(@NotNull DomainController dc, @NotNull Projectile projectile, CustomDamageEvent.DamageCause damageCause, boolean overrideIfPresent) {

@@ -1,7 +1,7 @@
 package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.game.map.GameMap;
+import com.bindothorpe.champions.domain.game.mapOld.GameMap;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

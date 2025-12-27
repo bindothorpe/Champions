@@ -4,13 +4,14 @@ import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.build.ClassType;
 import com.bindothorpe.champions.domain.customItem.CustomItemId;
 import com.bindothorpe.champions.domain.customItem.CustomItemType;
+import com.bindothorpe.champions.domain.game.map.GameMap;
 import com.bindothorpe.champions.gui.build.BuildsOverviewGui;
 import com.bindothorpe.champions.gui.build.ClassOverviewGui;
 import com.bindothorpe.champions.gui.build.EditBuildGui;
-import com.bindothorpe.champions.gui.map.MapMainGui;
+import com.bindothorpe.champions.gui.map.EditMapGui;
+import com.bindothorpe.champions.gui.mapOld.MapMainGui;
 import com.bindothorpe.champions.gui.shop.ShopGui;
 import com.bindothorpe.champions.gui.shop.ShopHomeGui;
-import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
@@ -29,6 +30,10 @@ public class GuiManager {
             instance = new GuiManager(dc);
         }
         return instance;
+    }
+
+    public void openEditMapGui(UUID uuid, DomainController dc, GameMap gameMap) {
+        new EditMapGui(uuid, dc, gameMap).open();
     }
 
     public void openBuildsOverviewGui(UUID uuid, ClassType classType) {

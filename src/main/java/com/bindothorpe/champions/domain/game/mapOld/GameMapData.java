@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain.game.map;
+package com.bindothorpe.champions.domain.game.mapOld;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.config.CustomConfig;

@@ -1,6 +1,7 @@
 package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.commands.champions.MapCommand;
 import com.bindothorpe.champions.domain.skill.ReloadResult;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
@@ -41,6 +42,7 @@ public class ChampionsCommand {
                         .executes(ChampionsCommand::handleReloadWithoutArgs)
                         .then(Commands.literal("skills")
                                 .executes((ctx) -> ChampionsCommand.handleReloadSkills(ctx, dc))))
+                .then(MapCommand.createMapCommand(dc))
                 .then(Commands.literal("world")
                         .then(Commands.literal("load")
                                 .executes((ctx) -> ChampionsCommand.handleWorldLoadWithoutArgs(ctx, dc))

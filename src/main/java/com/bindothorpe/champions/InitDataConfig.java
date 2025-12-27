@@ -6,6 +6,7 @@ import com.bindothorpe.champions.domain.build.Build;
 import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
+import com.bindothorpe.champions.domain.game.map.GameMapListener;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
@@ -81,6 +82,7 @@ public class InitDataConfig {
         pm.registerEvents(new CapturePointListener(dc), dc.getPlugin());
         pm.registerEvents(new EquipmentListener(dc), dc.getPlugin());
         pm.registerEvents(new ArrowListener(dc), dc.getPlugin());
+        pm.registerEvents(new GameMapListener(dc), dc.getPlugin());
 
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 

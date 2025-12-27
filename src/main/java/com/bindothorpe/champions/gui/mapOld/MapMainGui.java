@@ -1,9 +1,9 @@
-package com.bindothorpe.champions.gui.map;
+package com.bindothorpe.champions.gui.mapOld;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.gui.PlayerGui;
 import com.bindothorpe.champions.gui.items.global.BorderItem;
-import com.bindothorpe.champions.gui.items.map.MapItem;
+import com.bindothorpe.champions.gui.items.mapOld.MapItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;

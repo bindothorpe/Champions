@@ -1,7 +1,7 @@
 package com.bindothorpe.champions.commands;
 
 import com.bindothorpe.champions.DomainController;
-import com.bindothorpe.champions.domain.game.map.GameMapData;
+import com.bindothorpe.champions.domain.game.mapOld.GameMapData;
 import com.bindothorpe.champions.domain.team.TeamColor;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.TextUtil;
@@ -11,7 +11,6 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;

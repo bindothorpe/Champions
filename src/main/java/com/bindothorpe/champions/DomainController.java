@@ -9,7 +9,7 @@ import com.bindothorpe.champions.domain.cooldown.CooldownManager;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.entityStatus.EntityStatusManager;
 import com.bindothorpe.champions.domain.game.GameManager;
-import com.bindothorpe.champions.domain.game.map.GameMapManager;
+import com.bindothorpe.champions.domain.game.mapOld.GameMapManager;
 import com.bindothorpe.champions.domain.item.GameItemManager;
 import com.bindothorpe.champions.domain.player.PlayerManager;
 import com.bindothorpe.champions.domain.scoreboard.ScoreboardManager;

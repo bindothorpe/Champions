@@ -1,4 +1,4 @@
-package com.bindothorpe.champions.domain.game.map;
+package com.bindothorpe.champions.domain.game.mapOld;
 
 import org.bukkit.World;
 
