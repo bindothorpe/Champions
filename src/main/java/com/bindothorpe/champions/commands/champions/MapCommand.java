@@ -35,20 +35,20 @@ public class MapCommand {
 
         String id = StringArgumentType.getString(ctx, "id");
 
-        if(GameMapManager.getInstance().getEditingMapForPlayer(player) != null) {
+        if(GameMapManager.getInstance(dc).getEditingMapForPlayer(player) != null) {
             ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You cannot start editing a map while you are already editing a map.", NamedTextColor.GRAY));
             return Command.SINGLE_SUCCESS;
         }
 
         try {
-            GameMapManager.getInstance().editMap(dc, player, id);
+            GameMapManager.getInstance(dc).editMap(dc, player, id);
         } catch (Exception e) {
             ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(e.getMessage(), NamedTextColor.GRAY));
             throw new RuntimeException(e);
         }
 
         ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(String.format("You started editing %s.", id), NamedTextColor.GRAY));
-        PlayerStartEditingMapEvent event = new PlayerStartEditingMapEvent(player, GameMapManager.getInstance().getEditingMapForPlayer(player));
+        PlayerStartEditingMapEvent event = new PlayerStartEditingMapEvent(player, GameMapManager.getInstance(dc).getEditingMapForPlayer(player));
         event.callEvent();
 
         return Command.SINGLE_SUCCESS;
@@ -60,22 +60,19 @@ public class MapCommand {
 
         String id = StringArgumentType.getString(ctx, "id");
         String name = StringArgumentType.getString(ctx, "name");
-        World world = player.getWorld();
 
-
-        if(GameMapManager.getInstance().getGameMapIds().contains(id)) {
+        if(GameMapManager.getInstance(dc).getGameMapIds().contains(id)) {
             ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(String.format("Map with id '%s' already exists.", id), NamedTextColor.GRAY));
             return Command.SINGLE_SUCCESS;
         }
 
-        player.teleport(dc.getPlugin().getServer().getRespawnWorld().getSpawnLocation());
-        Bukkit.unloadWorld(world.getName(), false);
-        GameMap gameMap = GameMapManager.getInstance().createMap(dc, id, name, world, true);
-
-        if(gameMap == null) {
+        if(GameMapManager.getInstance(dc).createMap(dc, id, name) == null) {
             ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(String.format("Failed to create map with id '%s'", id), NamedTextColor.GRAY));
         } else {
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(String.format("Successfully created map with id '%s'. You can now start editing it by running /champions map edit %s", id, id), NamedTextColor.GRAY));
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP,
+                    Component.text(String.format("Successfully created map with id '%s'. You can now start editing it by running ", id), NamedTextColor.GRAY)
+                            .append(Component.text(String.format("/champions map edit %s", id), NamedTextColor.WHITE))
+                            .append(Component.text(".", NamedTextColor.GRAY)));
         }
         return Command.SINGLE_SUCCESS;
     }

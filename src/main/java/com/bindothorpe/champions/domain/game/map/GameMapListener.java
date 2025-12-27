@@ -6,6 +6,7 @@ import com.bindothorpe.champions.events.interact.PlayerRightClickEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -30,6 +31,8 @@ public class GameMapListener implements Listener {
         meta.displayName(Component.text("Map Edit Tool", NamedTextColor.AQUA).decoration(TextDecoration.BOLD, true));
         compassItem.setItemMeta(meta);
         event.getPlayer().getInventory().setItem(8, compassItem);
+        event.getPlayer().setGameMode(GameMode.CREATIVE);
+        event.getPlayer().setFlying(true);
     }
 
     @EventHandler
@@ -40,7 +43,7 @@ public class GameMapListener implements Listener {
 
         event.getPlayer().sendMessage("Test");
 
-        GameMap gameMap = GameMapManager.getInstance().getEditingMapForPlayer(event.getPlayer());
+        GameMap gameMap = GameMapManager.getInstance(dc).getEditingMapForPlayer(event.getPlayer());
         if(gameMap == null) return;
 
         dc.getGuiManager().openEditMapGui(event.getPlayer().getUniqueId(), dc, gameMap);

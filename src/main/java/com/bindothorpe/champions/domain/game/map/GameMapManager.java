@@ -2,6 +2,9 @@ package com.bindothorpe.champions.domain.game.map;
 
 import com.bindothorpe.champions.ChampionsPlugin;
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.config.CustomConfig;
+import com.bindothorpe.champions.config.game.map.MapConfig;
+import com.bindothorpe.champions.events.game.map.PlayerStartEditingMapEvent;
 import com.bindothorpe.champions.util.PersistenceUtil;
 import com.infernalsuite.asp.api.AdvancedSlimePaperAPI;
 import com.infernalsuite.asp.api.exceptions.*;
@@ -20,19 +23,33 @@ import java.util.*;
 
 public class GameMapManager {
 
+    private final DomainController dc;
     private static GameMapManager instance;
 
     private final Map<String, GameMap> gameMaps;
     private final Map<UUID, GameMap> editingPlayersMap;
 
-    private GameMapManager() {
-        gameMaps = new HashMap<>();
+    private GameMapManager(DomainController dc) {
+        this.dc = dc;
+        gameMaps = loadGameMapsFromConfig();
         editingPlayersMap = new HashMap<>();
     }
 
-    public static GameMapManager getInstance() {
+    private Map<String, GameMap> loadGameMapsFromConfig() {
+        MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
+        if (config == null)
+            return new HashMap<>();
+
+        if (config.getFile() == null)
+            return new HashMap<>();
+
+        config.reloadFile();
+        return config.getAllMaps();
+    }
+
+    public static GameMapManager getInstance(DomainController dc) {
         if(instance == null) {
-            instance = new GameMapManager();
+            instance = new GameMapManager(dc);
         }
 
         return instance;
@@ -50,36 +67,23 @@ public class GameMapManager {
         return gameMaps.keySet();
     }
 
-    public @Nullable GameMap createMap(@NotNull DomainController dc, @NotNull String id, @NotNull String name, @NotNull World world, boolean teleportOnLoaded) {
+    public @Nullable GameMap createMap(@NotNull DomainController dc, @NotNull String id, @NotNull String name) {
         if(getGameMapIds().contains(id)) return null;
 
         AdvancedSlimePaperAPI asp = AdvancedSlimePaperAPI.instance();
-        SlimeWorld slimeWorld;
+        SlimeWorld slimeWorld = asp.createEmptyWorld(id, false, new SlimePropertyMap(), dc.getDatabaseController().getMysqlLoader());
+        GameMap map;
+
         try {
-            slimeWorld = asp.readVanillaWorld(world.getWorldFolder(), world.getName(), dc.getDatabaseController().getMysqlLoader());
             asp.saveWorld(slimeWorld);
-        } catch (InvalidWorldException e) {
-            throw new RuntimeException("World does not exist.");
-        } catch (WorldLoadedException e) {
-            throw new RuntimeException("World is still loaded.");
-        } catch (WorldTooBigException e) {
-            throw new RuntimeException("World is too big.");
-        } catch (IOException | WorldAlreadyExistsException e) {
-            throw new RuntimeException(e);
-        }
+            map = new GameMap(id, name);
+            gameMaps.put(id, map);
 
-        PersistenceUtil.setData(world, getKey(dc.getPlugin()), PersistentDataType.STRING, id);
-        GameMap map = new GameMap(id, name);
+            MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
+            if (config != null && config.getFile() != null) config.saveMap(map);
 
-        gameMaps.put(id, map);
-
-        if(teleportOnLoaded) {
-            try {
-                slimeWorld = asp.readWorld(dc.getDatabaseController().getMysqlLoader(), world.getName(), false, new SlimePropertyMap());
-                SlimeWorldInstance slimeWorldInstance = asp.loadWorld(slimeWorld, true);
-            } catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException e) {
-                throw new RuntimeException(e);
-            }
+        } catch (IOException ignored) {
+            return null;
         }
 
         return map;
@@ -90,28 +94,21 @@ public class GameMapManager {
     }
 
     public void editMap(@NotNull DomainController dc, @NotNull Player player, @NotNull String id) throws Exception {
-        World world = player.getWorld();
-
-        if(!Objects.equals(getGameMapIdFromWorld(dc, world), id)) {
-            throw new Exception("The world does not match the game map id.");
+        if(!gameMaps.containsKey(id)) {
+            throw new Exception(String.format("Map with id '%s' does not exist.", id));
         }
+        AdvancedSlimePaperAPI asp = AdvancedSlimePaperAPI.instance();
+        SlimeWorld slimeWorld = asp.readWorld(dc.getDatabaseController().getMysqlLoader(), id, false, new SlimePropertyMap());
+        SlimeWorldInstance slimeWorldInstance = asp.loadWorld(slimeWorld, true);
+        GameMap map = gameMaps.get(id);
+        map.setSlimeWorld(slimeWorld, slimeWorldInstance);
 
-        editingPlayersMap.put(player.getUniqueId(), gameMaps.get(id));
+        editingPlayersMap.put(player.getUniqueId(), map);
+        player.teleport(slimeWorldInstance.getBukkitWorld().getSpawnLocation());
+
+        PlayerStartEditingMapEvent editingMapEvent = new PlayerStartEditingMapEvent(player, map);
+        editingMapEvent.callEvent();
     }
-
-//    private void setEditModeForPlayer(@NotNull Player player, @NotNull String id, boolean editMode) {
-//        if(editingPlayersMap.containsKey(player.getUniqueId()) && editMode) return;
-//
-//        if(!editingPlayersMap.containsKey(player.getUniqueId()) && !editMode) return;
-//
-//        if(!gameMaps.containsKey(id)) return;
-//
-//        if(editMode) {
-//            editingPlayersMap.put(player.getUniqueId(), gameMaps.get(id));
-//        } else {
-//            editingPlayersMap.remove(player.getUniqueId());
-//        }
-//    }
 
     public boolean isGameMapWorld(@NotNull DomainController dc, @NotNull World world) {
         return PersistenceUtil.hasData(world, getKey(dc.getPlugin()), PersistentDataType.STRING);
