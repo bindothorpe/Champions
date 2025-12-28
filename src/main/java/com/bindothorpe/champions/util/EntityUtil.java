@@ -3,6 +3,7 @@ package com.bindothorpe.champions.util;
 import com.bindothorpe.champions.events.interact.blocking.PlayerBlockListener;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

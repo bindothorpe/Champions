@@ -1,14 +1,16 @@
-package com.bindothorpe.champions.gui.items.map;
+package com.bindothorpe.champions.gui.items.map.edit.spawnPoint;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.domain.game.map.GameMap;
 import com.bindothorpe.champions.domain.game.map.GameObjectType;
-import com.bindothorpe.champions.domain.game.map.gameObjects.GemGameObject;
+import com.bindothorpe.champions.domain.game.map.gameObjects.ChestGameObject;
+import com.bindothorpe.champions.domain.game.map.gameObjects.SpawnPointGameObject;
 import com.bindothorpe.champions.domain.sound.CustomSound;
-import com.bindothorpe.champions.gui.map.EditMapGui;
-import com.bindothorpe.champions.gui.map.details.ListGemsMapGui;
+import com.bindothorpe.champions.domain.team.TeamColor;
+import com.bindothorpe.champions.gui.map.details.ListChestsMapGui;
 import com.bindothorpe.champions.util.ChatUtil;
 import com.bindothorpe.champions.util.ComponentUtil;
+import com.bindothorpe.champions.util.EntityUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -23,41 +25,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public class MenuGemsItem extends GuiItem {
+public class SpawnPointTeamItem extends GuiItem {
 
     private final DomainController dc;
-    private final boolean disableAndHideLeftClick;
+    private final TeamColor teamColor;
     private final GameMap gameMap;
-    private final Consumer<UUID> onAddGemConsumer;
+    private final Consumer<UUID> onAddSpawnPointConsumer;
 
-    public MenuGemsItem(DomainController dc, boolean disableAndHideLeftClick, GameMap gameMap, Consumer<UUID> onAddGemConsumer) {
-        super(new ItemStack(Material.EMERALD));
+    public SpawnPointTeamItem(DomainController dc, TeamColor teamColor, GameMap gameMap, Consumer<UUID> onAddSpawnPointConsumer) {
+        super(new ItemStack(teamColor.equals(TeamColor.BLUE) ? Material.BLUE_CONCRETE : Material.RED_CONCRETE));
         this.dc = dc;
-        this.disableAndHideLeftClick = disableAndHideLeftClick;
+        this.teamColor = teamColor;
         this.gameMap = gameMap;
-        this.onAddGemConsumer = onAddGemConsumer;
+        this.onAddSpawnPointConsumer = onAddSpawnPointConsumer;
         setAction(this::handleClick);
         setItem(getDisplayItem());
     }
 
-    public MenuGemsItem(DomainController dc, GameMap gameMap, Consumer<UUID> onAddGemConsumer) {
-        this(dc, false, gameMap, onAddGemConsumer);
-    }
 
     private void handleClick(InventoryClickEvent event) {
 
         if(!(event.getWhoClicked() instanceof Player player)) return;
 
-        if(event.isLeftClick() && !disableAndHideLeftClick) {
-            new ListGemsMapGui(player.getUniqueId(), dc, gameMap).open();
-            return;
-        }
-
         if(event.isRightClick()) {
 
-            if(gameMap.getGameObjectsOfType(GameObjectType.GEM).size() >= ListGemsMapGui.MAX_GEMS) {
-                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You heave reached the maximum gems amount.", NamedTextColor.GRAY));
+            if(gameMap.getGameObjectsOfType(GameObjectType.SPAWN_POINT).stream().filter(gameObject -> ((SpawnPointGameObject) gameObject).team().equals(teamColor)).collect(Collectors.toSet()).size() >= ListChestsMapGui.MAX_CHESTS) {
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You heave reached the maximum spawn point amount.", NamedTextColor.GRAY));
                 dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_ERROR);
                 return;
             }
@@ -69,13 +64,15 @@ public class MenuGemsItem extends GuiItem {
                 return;
             }
 
-            gameMap.addGameObject(new GemGameObject(
+            gameMap.addGameObject(new SpawnPointGameObject(
+                    teamColor,
+                    player.getFacing(),
                     player.getLocation().toBlockLocation().toVector()
             ));
 
-            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You added a new Gem game object!", NamedTextColor.GRAY));
+            ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You added a new Spawn point game object!", NamedTextColor.GRAY));
             dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK);
-            onAddGemConsumer.accept(player.getUniqueId());
+            onAddSpawnPointConsumer.accept(player.getUniqueId());
         }
     }
 
@@ -83,23 +80,18 @@ public class MenuGemsItem extends GuiItem {
         ItemStack item = getItem();
         ItemMeta meta = item.getItemMeta();
 
-        meta.displayName(Component.text("Gems")
-                .color(NamedTextColor.GREEN)
+        meta.displayName(Component.text("Spawn Points")
+                .color(teamColor.getTextColor())
                 .decoration(TextDecoration.ITALIC, false)
                 .decoration(TextDecoration.BOLD, true));
 
 
         List<Component> lore = new ArrayList<>();
 
-        lore.add(Component.text(String.format("%d gems", gameMap.getGameObjectsOfType(GameObjectType.GEM).size()), NamedTextColor.GRAY));
+        lore.add(Component.text(String.format("%d spawn points", gameMap.getGameObjectsOfType(GameObjectType.SPAWN_POINT).stream().filter(gameObject -> ((SpawnPointGameObject) gameObject).team().equals(teamColor)).toList().size()), NamedTextColor.GRAY));
         lore.add(Component.text(" "));
-        if(!disableAndHideLeftClick)
-            lore.addAll(ComponentUtil.wrapComponentWithFormatting(
-                    ComponentUtil.leftClick(true).append(Component.text("View Gem details.", NamedTextColor.GRAY)),
-                    30
-            ));
         lore.addAll(ComponentUtil.wrapComponentWithFormatting(
-                ComponentUtil.rightClick(true).append(Component.text("Create Gem object.", NamedTextColor.GRAY)),
+                ComponentUtil.rightClick(true).append(Component.text("Create Spawn point object.", NamedTextColor.GRAY)),
                 30
         ));
 

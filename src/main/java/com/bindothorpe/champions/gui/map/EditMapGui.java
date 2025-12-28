@@ -39,8 +39,8 @@ public class EditMapGui extends PlayerGui {
         root.addItem(new MenuCapturePointsItem(dc, gameMap), 2, 1);
         root.addItem(new MenuSpawnPointsItem(dc, gameMap), 4, 1);
         root.addItem(new MenuBuildSelectsItem(dc, gameMap), 6, 1);
-        root.addItem(new MenuGemsItem(dc, gameMap), 3, 2);
-        root.addItem(new MenuChestsItem(dc, gameMap), 5, 2);
+        root.addItem(new MenuGemsItem(dc, gameMap, uuid -> new EditMapGui(uuid, dc, gameMap).open()), 3, 2);
+        root.addItem(new MenuChestsItem(dc, gameMap, uuid -> new EditMapGui(uuid, dc, gameMap).open()), 5, 2);
 
         gui.addPane(root);
     }

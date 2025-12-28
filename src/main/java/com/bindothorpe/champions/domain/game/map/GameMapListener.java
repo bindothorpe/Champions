@@ -38,10 +38,7 @@ public class GameMapListener implements Listener {
     @EventHandler
     public void onRightClick(PlayerInteractEvent event) {
         if(!event.getAction().isRightClick()) return;
-        event.getPlayer().sendMessage("Test 1");
         if(!event.getPlayer().getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) return;
-
-        event.getPlayer().sendMessage("Test");
 
         GameMap gameMap = GameMapManager.getInstance(dc).getEditingMapForPlayer(event.getPlayer());
         if(gameMap == null) return;
