@@ -45,6 +45,8 @@ public class Glory extends Skill implements ReloadableData {
     @EventHandler
     public void onCustomDeath(CustomDeathEvent event) {
 
+        if(!isUser(event.getPlayer().getUniqueId())) return;
+
         //If the player is currently in the glory state, remove it and kill it for real
         if(activeDecayRate.containsKey(event.getPlayer().getUniqueId())) {
             activeDecayRate.remove(event.getPlayer().getUniqueId());

@@ -116,7 +116,7 @@ public class ClassIconItem extends GuiItem {
 
     }
 
-    private Material getClassMaterial(ClassType classType) {
+    public static Material getClassMaterial(ClassType classType) {
         return switch (classType) {
             case BRUTE -> Material.DIAMOND_HELMET;
             case RANGER -> Material.CHAINMAIL_HELMET;

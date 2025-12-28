@@ -32,12 +32,12 @@ public class MenuChestsItem extends GuiItem {
     private final GameMap gameMap;
     private final Consumer<UUID> onAddChestConsumer;
 
-    public MenuChestsItem(DomainController dc, boolean disableAndHideLeftClick, GameMap gameMap, Consumer<UUID> onAddGemConsumer) {
+    public MenuChestsItem(DomainController dc, boolean disableAndHideLeftClick, GameMap gameMap, Consumer<UUID> onAddChestConsumer) {
         super(new ItemStack(Material.CHEST));
         this.dc = dc;
         this.disableAndHideLeftClick = disableAndHideLeftClick;
         this.gameMap = gameMap;
-        this.onAddChestConsumer = onAddGemConsumer;
+        this.onAddChestConsumer = onAddChestConsumer;
         setAction(this::handleClick);
         setItem(getDisplayItem());
     }

@@ -99,7 +99,7 @@ public class GameMapManager {
         }
         AdvancedSlimePaperAPI asp = AdvancedSlimePaperAPI.instance();
         SlimeWorld slimeWorld = asp.readWorld(dc.getDatabaseController().getMysqlLoader(), id, false, new SlimePropertyMap());
-        SlimeWorldInstance slimeWorldInstance = asp.loadWorld(slimeWorld, true);
+        SlimeWorldInstance slimeWorldInstance = asp.loadWorld(slimeWorld, false);
         GameMap map = gameMaps.get(id);
         map.setSlimeWorld(slimeWorld, slimeWorldInstance);
 

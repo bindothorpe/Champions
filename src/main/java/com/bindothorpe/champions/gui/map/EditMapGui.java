@@ -38,7 +38,7 @@ public class EditMapGui extends PlayerGui {
         root.addItem(new MapItem(dc, gameMap), 4, 0);
         root.addItem(new MenuCapturePointsItem(dc, gameMap), 2, 1);
         root.addItem(new MenuSpawnPointsItem(dc, gameMap), 4, 1);
-        root.addItem(new MenuBuildSelectsItem(dc, gameMap), 6, 1);
+        root.addItem(new MenuChampionSelectsItem(dc, gameMap, uuid -> new EditMapGui(uuid, dc, gameMap).open()), 6, 1);
         root.addItem(new MenuGemsItem(dc, gameMap, uuid -> new EditMapGui(uuid, dc, gameMap).open()), 3, 2);
         root.addItem(new MenuChestsItem(dc, gameMap, uuid -> new EditMapGui(uuid, dc, gameMap).open()), 5, 2);
 
