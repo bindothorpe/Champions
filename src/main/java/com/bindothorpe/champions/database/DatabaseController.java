@@ -2,6 +2,7 @@ package com.bindothorpe.champions.database;
 
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.database.service.BuildService;
+import com.bindothorpe.champions.database.service.GameMapService;
 import com.bindothorpe.champions.domain.build.Build;
 import com.infernalsuite.asp.loaders.mysql.MysqlLoader;
 
@@ -17,6 +18,7 @@ public class DatabaseController {
     private MysqlLoader mysqlLoader;
 
     private BuildService buildService;
+    private GameMapService gameMapService;
 
     private DatabaseController(DomainController dc) {
         this.dc = dc;
@@ -32,6 +34,12 @@ public class DatabaseController {
         if (buildService == null)
             buildService = new BuildService(dc, getConnection());
         return buildService;
+    }
+
+    public GameMapService getGameMapService() throws SQLException {
+        if (gameMapService == null)
+            gameMapService = new GameMapService(dc, getConnection());
+        return gameMapService;
     }
 
     private Connection getConnection() throws SQLException {

@@ -4,7 +4,6 @@ import com.infernalsuite.asp.api.world.SlimeWorld;
 import com.infernalsuite.asp.api.world.SlimeWorldInstance;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -13,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class GameMap {
 
-    private String id;
-    private String name;
+    private final String id;
+    private final String name;
     private @Nullable SlimeWorld slimeWorld;
     private @Nullable SlimeWorldInstance slimeWorldInstance;
 

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 public class GameMapManager {
@@ -79,8 +80,8 @@ public class GameMapManager {
             map = new GameMap(id, name);
             gameMaps.put(id, map);
 
-            MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
-            if (config != null && config.getFile() != null) config.saveMap(map);
+//            MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
+//            if (config != null && config.getFile() != null) config.saveMap(map);
 
         } catch (IOException ignored) {
             return null;

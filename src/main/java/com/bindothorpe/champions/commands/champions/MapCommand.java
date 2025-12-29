@@ -66,6 +66,7 @@ public class MapCommand {
             return Command.SINGLE_SUCCESS;
         }
 
+
         if(GameMapManager.getInstance(dc).createMap(dc, id, name) == null) {
             ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text(String.format("Failed to create map with id '%s'", id), NamedTextColor.GRAY));
         } else {
