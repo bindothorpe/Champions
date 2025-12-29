@@ -274,4 +274,5 @@ public class GameMapManager {
     public boolean isLoaded() {
         return map != null && map.isLoaded();
     }
+
 }

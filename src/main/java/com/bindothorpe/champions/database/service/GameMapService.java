@@ -32,7 +32,7 @@ public class GameMapService {
 
 
     /**
-     * Initialize database tables
+     * Initialize database tables (async version)
      */
     public CompletableFuture<Boolean> initializeTables() {
         return runAsync(() -> {
@@ -45,6 +45,13 @@ public class GameMapService {
                 return false;
             }
         });
+    }
+
+    /**
+     * Initialize database tables synchronously (for plugin startup)
+     */
+    public void initializeTablesSync() throws SQLException {
+        repository.initializeTables();
     }
 
     // ========== GameMap Service Methods ==========

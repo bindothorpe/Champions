@@ -1,5 +1,4 @@
 package com.bindothorpe.champions.database;
-
 import com.bindothorpe.champions.DomainController;
 import com.bindothorpe.champions.database.service.BuildService;
 import com.bindothorpe.champions.database.service.GameMapService;
@@ -82,6 +81,15 @@ public class DatabaseController {
         statement.execute(sql);
 
         statement.close();
+
+        // Initialize GameMap tables synchronously (we're already in plugin onEnable which should handle blocking)
+        try {
+            getGameMapService().initializeTablesSync();
+            dc.getPlugin().getLogger().info("GameMap database tables initialized successfully");
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().severe("Failed to initialize GameMap tables: " + e.getMessage());
+            throw new SQLException("Failed to initialize GameMap tables", e);
+        }
     }
 
     public void createPlayerSelectedBuild(UUID uuid, String buildId) {

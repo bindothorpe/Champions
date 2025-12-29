@@ -7,6 +7,7 @@ import com.bindothorpe.champions.domain.customItem.CustomItem;
 import com.bindothorpe.champions.domain.customItem.CustomItemManager;
 import com.bindothorpe.champions.domain.game.capturePoint.CapturePointManager;
 import com.bindothorpe.champions.domain.game.map.GameMapListener;
+import com.bindothorpe.champions.domain.game.map.GameMapManager;
 import com.bindothorpe.champions.domain.item.listeners.GameItemListener;
 import com.bindothorpe.champions.domain.skill.Skill;
 import com.bindothorpe.champions.domain.statusEffect.StatusEffect;
@@ -87,6 +88,7 @@ public class InitDataConfig {
         pm.registerEvents(new PlayerConnectionListener(dc), dc.getPlugin());
 
         DatabaseController dbc = dc.getDatabaseController();
+        GameMapManager.getInstance(dc).initialize();
 
         for(Player player : Bukkit.getOnlinePlayers()) {
 

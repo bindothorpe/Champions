@@ -30,22 +30,53 @@ public class GameMapManager {
     private final Map<String, GameMap> gameMaps;
     private final Map<UUID, GameMap> editingPlayersMap;
 
+    private boolean mapsLoaded = false;
+
     private GameMapManager(DomainController dc) {
         this.dc = dc;
-        gameMaps = loadGameMapsFromConfig();
+        gameMaps = new HashMap<>();
         editingPlayersMap = new HashMap<>();
+        // Don't load here - let plugin call it explicitly
     }
 
-    private Map<String, GameMap> loadGameMapsFromConfig() {
-        MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
-        if (config == null)
-            return new HashMap<>();
+    /**
+     * Initialize and load all maps from database
+     * Should be called during plugin startup
+     */
+    public void initialize() {
+        loadGameMapsFromDatabase();
+    }
 
-        if (config.getFile() == null)
-            return new HashMap<>();
+    private void loadGameMapsFromDatabase() {
+        mapsLoaded = false;
+        try {
+            dc.getDatabaseController().getGameMapService().loadAllGameMaps(loadedMaps -> {
+                gameMaps.clear();
+                for (GameMap map : loadedMaps) {
+                    gameMaps.put(map.getId(), map);
+                }
+                mapsLoaded = true;
+                dc.getPlugin().getLogger().info("Loaded " + loadedMaps.size() + " maps from database");
+            });
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().severe("Failed to load maps from database: " + e.getMessage());
+            e.printStackTrace();
+            mapsLoaded = true; // Set to true even on failure so commands don't hang
+        }
+    }
 
-        config.reloadFile();
-        return config.getAllMaps();
+    /**
+     * Check if maps have finished loading from database
+     */
+    public boolean areMapsLoaded() {
+        return mapsLoaded;
+    }
+
+    /**
+     * Reload all maps from the database
+     */
+    public void reloadMapsFromDatabase() {
+        loadGameMapsFromDatabase();
     }
 
     public static GameMapManager getInstance(DomainController dc) {
@@ -64,6 +95,20 @@ public class GameMapManager {
         return getEditingMapForPlayer(player.getUniqueId());
     }
 
+    /**
+     * Stop editing a map for a player (removes them from the editing map)
+     */
+    public void stopEditingMap(@NotNull Player player) {
+        editingPlayersMap.remove(player.getUniqueId());
+    }
+
+    /**
+     * Stop editing a map for a player by UUID
+     */
+    public void stopEditingMap(@NotNull UUID uuid) {
+        editingPlayersMap.remove(uuid);
+    }
+
     public Set<String> getGameMapIds() {
         return gameMaps.keySet();
     }
@@ -76,28 +121,49 @@ public class GameMapManager {
         GameMap map;
 
         try {
+            // Save the SlimeWorld to MySQL
             asp.saveWorld(slimeWorld);
+
+            // Create GameMap object
             map = new GameMap(id, name);
             gameMaps.put(id, map);
 
-//            MapConfig config = (MapConfig) dc.getCustomConfigManager().getConfig("map_config");
-//            if (config != null && config.getFile() != null) config.saveMap(map);
+            // Save GameMap to database immediately
+            dc.getDatabaseController().getGameMapService().saveGameMap(map, success -> {
+                if (success) {
+                    dc.getPlugin().getLogger().info("Successfully saved new map '" + id + "' to database");
+                } else {
+                    dc.getPlugin().getLogger().warning("Failed to save new map '" + id + "' to database");
+                }
+            });
 
-        } catch (IOException ignored) {
+        } catch (IOException | SQLException e) {
+            dc.getPlugin().getLogger().severe("Failed to create map '" + id + "': " + e.getMessage());
             return null;
         }
 
         return map;
     }
 
-    public void saveMap(@NotNull String id) {
-        //TODO: Implement saving it.
-    }
-
     public void editMap(@NotNull DomainController dc, @NotNull Player player, @NotNull String id) throws Exception {
+        if(!mapsLoaded) {
+            throw new Exception("Maps are still loading from database. Please wait a moment and try again.");
+        }
+
         if(!gameMaps.containsKey(id)) {
             throw new Exception(String.format("Map with id '%s' does not exist.", id));
         }
+
+        // Load the map from database to get latest GameObject data
+        try {
+            GameMap mapFromDb = dc.getDatabaseController().getGameMapService().loadGameMapSync(id).orElse(null);
+            if(mapFromDb != null) {
+                gameMaps.put(id, mapFromDb);
+            }
+        } catch (Exception e) {
+            dc.getPlugin().getLogger().warning("Failed to load map data from database for " + id + ": " + e.getMessage());
+        }
+
         AdvancedSlimePaperAPI asp = AdvancedSlimePaperAPI.instance();
         SlimeWorld slimeWorld = asp.readWorld(dc.getDatabaseController().getMysqlLoader(), id, false, new SlimePropertyMap());
         SlimeWorldInstance slimeWorldInstance = asp.loadWorld(slimeWorld, false);
