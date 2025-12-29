@@ -1,35 +1,139 @@
 package com.bindothorpe.champions.gui.items.map;
 
 import com.bindothorpe.champions.DomainController;
+import com.bindothorpe.champions.dialogs.map.edit.CapturePointNameDialog;
+import com.bindothorpe.champions.dialogs.map.edit.SelectClassTypeDialog;
 import com.bindothorpe.champions.domain.game.map.GameMap;
+import com.bindothorpe.champions.domain.game.map.GameObjectType;
+import com.bindothorpe.champions.domain.game.map.gameObjects.CapturePointGameObject;
+import com.bindothorpe.champions.domain.game.map.gameObjects.ChampionSelectGameObject;
+import com.bindothorpe.champions.domain.sound.CustomSound;
+import com.bindothorpe.champions.gui.map.details.ListCapturePointsMapGui;
+import com.bindothorpe.champions.gui.map.details.ListChampionSelectsMapGui;
+import com.bindothorpe.champions.util.ChatUtil;
+import com.bindothorpe.champions.util.ComponentUtil;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class MenuCapturePointsItem extends GuiItem {
 
     private final DomainController dc;
+    private final boolean disableAndHideLeftClick;
     private final GameMap gameMap;
+    private final Consumer<UUID> onAddCapturePointConsumer;
 
-    public MenuCapturePointsItem(DomainController dc, GameMap gameMap) {
+    public MenuCapturePointsItem(DomainController dc, boolean disableAndHideLeftClick, GameMap gameMap, Consumer<UUID> onAddCapturePointConsumer) {
         super(new ItemStack(Material.BEACON));
         this.dc = dc;
+        this.disableAndHideLeftClick = disableAndHideLeftClick;
         this.gameMap = gameMap;
+        this.onAddCapturePointConsumer = onAddCapturePointConsumer;
+        setAction(this::handleClick);
         setItem(getDisplayItem());
     }
+
+    public MenuCapturePointsItem(DomainController dc, GameMap gameMap, Consumer<UUID> onAddGemConsumer) {
+        this(dc, false, gameMap, onAddGemConsumer);
+    }
+
+
+    @SuppressWarnings("UnstableApiUsage")
+    private void handleClick(InventoryClickEvent event) {
+
+        if(!(event.getWhoClicked() instanceof Player player)) return;
+
+        if(event.isLeftClick() && !disableAndHideLeftClick) {
+            new ListCapturePointsMapGui(player.getUniqueId(), dc, gameMap).open();
+            return;
+        }
+
+        if(event.isRightClick()) {
+
+            if(gameMap.getGameObjectsOfType(GameObjectType.CAPTURE_POINT).size() >= ListCapturePointsMapGui.MAX_CAPTURE_POINTS) {
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You heave reached the maximum capture points amount.", NamedTextColor.GRAY));
+                dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_ERROR);
+                return;
+            }
+
+
+            if(GameMap.isOverlappingOtherGameObject(player.getLocation(), gameMap.getGameObjects())) {
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You are too close to another game object.", NamedTextColor.GRAY));
+                dc.getSoundManager().playSound(player, CustomSound.GUI_CLICK_ERROR);
+                return;
+            }
+
+
+            player.showDialog(CapturePointNameDialog.create((view, audience) -> {
+                String name = view.getText(CapturePointNameDialog.KEY);
+                if(name == null || name.isBlank()) {
+                    ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("Failed to create capture point, no valid name.", NamedTextColor.GRAY));
+                    onAddCapturePointConsumer.accept(player.getUniqueId());
+                    return;
+                }
+
+                gameMap.addGameObject(new CapturePointGameObject(
+                        name,
+                        player.getLocation().toBlockLocation().toVector()
+                ));
+
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You added a new Capture Point object.", NamedTextColor.GRAY));
+                onAddCapturePointConsumer.accept(player.getUniqueId());
+            }));
+
+//            player.showDialog(SelectClassTypeDialog.create((classType -> {
+//                gameMap.addGameObject(new ChampionSelectGameObject(
+//                        classType,
+//                        player.getFacing(),
+//                        player.getLocation().toBlockLocation().toVector()
+//                ));
+//
+//                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You added a new Champion select game object!", NamedTextColor.GRAY));
+//                onAddCapturePointConsumer.accept(player.getUniqueId());
+//
+//            })));
+
+        }
+    }
+
 
     private ItemStack getDisplayItem() {
         ItemStack item = getItem();
         ItemMeta meta = item.getItemMeta();
 
         meta.displayName(Component.text("Capture Points")
-                .color(NamedTextColor.WHITE)
+                .color(NamedTextColor.BLUE)
                 .decoration(TextDecoration.ITALIC, false)
                 .decoration(TextDecoration.BOLD, true));
+
+
+        List<Component> lore = new ArrayList<>();
+
+        lore.add(Component.text(String.format("%d capture points", gameMap.getGameObjectsOfType(GameObjectType.CAPTURE_POINT).size()), NamedTextColor.GRAY));
+        lore.add(Component.text(" "));
+        if(!disableAndHideLeftClick)
+            lore.addAll(ComponentUtil.wrapComponentWithFormatting(
+                    ComponentUtil.leftClick(true).append(Component.text("View Champion Select details.", NamedTextColor.GRAY)),
+                    30
+            ));
+        lore.addAll(ComponentUtil.wrapComponentWithFormatting(
+                ComponentUtil.rightClick(true).append(Component.text("Create Champion Select object.", NamedTextColor.GRAY)),
+                30
+        ));
+
+        meta.lore(lore);
+
         item.setItemMeta(meta);
         return item;
     }
