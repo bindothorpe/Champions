@@ -88,20 +88,18 @@ public class MenuChampionSelectsItem extends GuiItem {
                 return;
             }
 
-            //Open dialog
-            player.showDialog(SelectClassTypeDialog.create((view, audience) -> {
-                ClassType classType = ClassType.valueOf(view.getText(SelectClassTypeDialog.INPUT_KEY));
-                if(!(audience instanceof Player viewingPlayer)) return;
 
+            player.showDialog(SelectClassTypeDialog.createActions((classType -> {
                 gameMap.addGameObject(new ChampionSelectGameObject(
                         classType,
-                        viewingPlayer.getFacing(),
-                        viewingPlayer.getLocation().toBlockLocation().toVector()
+                        player.getFacing(),
+                        player.getLocation().toBlockLocation().toVector()
                 ));
 
-                ChatUtil.sendMessage(viewingPlayer, ChatUtil.Prefix.MAP, Component.text("You added a new Champion select game object!", NamedTextColor.GRAY));
+                ChatUtil.sendMessage(player, ChatUtil.Prefix.MAP, Component.text("You added a new Champion select game object!", NamedTextColor.GRAY));
                 onAddChampionSelectConsumer.accept(player.getUniqueId());
-            }));
+
+            })));
 
         }
     }
